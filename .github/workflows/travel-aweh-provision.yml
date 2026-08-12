@@ -1,0 +1,107 @@
+name: Provision Travel Aweh Cloudflare
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/travel-aweh-provision.yml'
+      - 'deployment-triggers/travel-aweh-cloudflare.txt'
+  workflow_dispatch:
+
+concurrency:
+  group: travel-aweh-cloudflare-production
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Cloudflare rebuild
+        uses: actions/checkout@v4
+        with:
+          ref: cloudflare-rebuild
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify Cloudflare credentials
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "Missing CLOUDFLARE_API_TOKEN"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "Missing CLOUDFLARE_ACCOUNT_ID"; exit 1; }
+
+      - name: Bundle Worker safety check
+        run: npx esbuild@0.25.8 cloudflare/worker.ts --bundle --format=esm --platform=browser --outfile=/tmp/travel-aweh-worker.js
+
+      - name: Create or find Travel Aweh D1
+        id: d1
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          npx wrangler@4.121.0 d1 list --json > /tmp/d1.json
+          DB_ID=$(jq -r '.[] | select(.name == "travel-aweh-production") | (.uuid // .id // .database_id) // empty' /tmp/d1.json | head -1)
+          if [ -z "$DB_ID" ]; then
+            echo "Creating travel-aweh-production in Western Europe..."
+            npx wrangler@4.121.0 d1 create travel-aweh-production --location weur
+            npx wrangler@4.121.0 d1 list --json > /tmp/d1.json
+            DB_ID=$(jq -r '.[] | select(.name == "travel-aweh-production") | (.uuid // .id // .database_id) // empty' /tmp/d1.json | head -1)
+          fi
+          test -n "$DB_ID" || { echo "Could not resolve Travel Aweh D1 database ID"; exit 1; }
+          echo "database_id=$DB_ID" >> "$GITHUB_OUTPUT"
+          echo "Travel Aweh D1 resolved."
+
+      - name: Write real D1 ID into Wrangler config
+        shell: python
+        env:
+          DB_ID: ${{ steps.d1.outputs.database_id }}
+        run: |
+          import os
+          from pathlib import Path
+          path = Path('wrangler.jsonc')
+          text = path.read_text()
+          text = text.replace('REPLACE_WITH_D1_DATABASE_ID', os.environ['DB_ID'])
+          path.write_text(text)
+
+      - name: Apply D1 migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler@4.121.0 d1 migrations apply travel-aweh-production --remote
+
+      - name: Deploy Travel Aweh API
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler@4.121.0 deploy
+
+      - name: Verify Travel Aweh health
+        run: |
+          sleep 4
+          BODY=$(curl --fail --silent --show-error --retry 6 --retry-delay 2 https://travel-aweh-api.girschen.workers.dev/api/health)
+          echo "$BODY"
+          echo "$BODY" | grep -q '"ok":true'
+          echo "$BODY" | grep -q '"service":"travel-aweh"'
+          echo "$BODY" | grep -q '"platform":"cloudflare"'
+
+      - name: Persist D1 binding on rebuild branch
+        shell: bash
+        run: |
+          git config user.name "girschen-crypto"
+          git config user.email "girschen@clingen.com"
+          git add wrangler.jsonc
+          if git diff --cached --quiet; then
+            echo "D1 binding already current."
+            exit 0
+          fi
+          git commit -m "Bind Travel Aweh production D1 database"
+          git push origin HEAD:cloudflare-rebuild
