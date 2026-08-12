@@ -1,14 +1,8 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "travel-aweh",
+  "name": "travel-aweh-api",
   "main": "./cloudflare/worker.ts",
   "compatibility_date": "2026-08-12",
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
-  },
   "d1_databases": [
     {
       "binding": "DB",
@@ -18,6 +12,9 @@
     }
   ],
   "vars": {
-    "APP_ORIGIN": "https://REPLACE_WITH_TRAVEL_AWEH_DOMAIN"
+    "APP_ORIGIN": "https://REPLACE_WITH_TRAVEL_AWEH_FRONTEND"
+  },
+  "limits": {
+    "cpu_ms": 50
   }
 }
