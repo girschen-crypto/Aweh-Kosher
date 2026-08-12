@@ -1,5 +1,6 @@
 interface Env {
   DB: D1Database;
+  ASSETS: Fetcher;
   APP_ORIGIN?: string;
 }
 
@@ -193,9 +194,7 @@ async function handleApi(req: Request, env: Env, path: string) {
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
-    if (!url.pathname.startsWith("/api/")) {
-      return json(req, env, { service: "Travel Aweh API", ok: true });
-    }
-    return handleApi(req, env, url.pathname);
+    if (url.pathname.startsWith("/api/")) return handleApi(req, env, url.pathname);
+    return env.ASSETS.fetch(req);
   },
 };
