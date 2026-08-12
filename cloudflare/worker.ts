@@ -1,16 +1,39 @@
 interface Env {
   DB: D1Database;
-  ASSETS: Fetcher;
   APP_ORIGIN?: string;
 }
 
-const JSON_HEADERS = {
+const BASE_JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
   "cache-control": "no-store",
 };
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
+function allowedOriginValue(req: Request, env: Env) {
+  const origin = req.headers.get("origin");
+  if (!origin) return null;
+  const configured = env.APP_ORIGIN?.trim();
+  if (!configured) return null;
+  return origin === configured ? origin : null;
+}
+
+function corsHeaders(req: Request, env: Env) {
+  const origin = allowedOriginValue(req, env);
+  return origin
+    ? {
+        "access-control-allow-origin": origin,
+        "access-control-allow-methods": "GET,POST,OPTIONS",
+        "access-control-allow-headers": "content-type",
+        "access-control-max-age": "86400",
+        vary: "Origin",
+      }
+    : {};
+}
+
+function json(req: Request, env: Env, data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...BASE_JSON_HEADERS, ...corsHeaders(req, env) },
+  });
 }
 
 function clientIp(req: Request) {
@@ -36,11 +59,10 @@ async function consumeDailyQuota(env: Env, req: Request, action: string, max: nu
   return (row?.count ?? max + 1) <= max;
 }
 
-function allowedOrigin(req: Request, env: Env) {
-  const requestOrigin = req.headers.get("origin");
-  if (!requestOrigin) return true;
-  const expected = env.APP_ORIGIN || new URL(req.url).origin;
-  return requestOrigin === expected;
+function requestOriginAllowed(req: Request, env: Env) {
+  const origin = req.headers.get("origin");
+  if (!origin) return true;
+  return !!allowedOriginValue(req, env);
 }
 
 function cleanText(value: unknown, max = 500) {
@@ -57,7 +79,7 @@ function makeReference() {
   return `AW-${String(random).padStart(6, "0")}`;
 }
 
-async function getTours(env: Env) {
+async function getTours(req: Request, env: Env) {
   const result = await env.DB.prepare(
     `SELECT id, title, destination, description, duration_days, pricing_mode,
             price_per_person, currency, image_url, highlights, kosher_available
@@ -66,23 +88,23 @@ async function getTours(env: Env) {
      ORDER BY created_at DESC`
   ).all();
 
-  return json({ tours: result.results ?? [] });
+  return json(req, env, { tours: result.results ?? [] });
 }
 
 async function createEnquiry(req: Request, env: Env) {
-  if (!allowedOrigin(req, env)) return new Response("Forbidden", { status: 403 });
+  if (!requestOriginAllowed(req, env)) return new Response("Forbidden", { status: 403 });
   if (!(await consumeDailyQuota(env, req, "enquiry", 10))) {
-    return json({ error: "Daily enquiry limit reached" }, 429);
+    return json(req, env, { error: "Daily enquiry limit reached" }, 429);
   }
 
   const contentLength = Number(req.headers.get("content-length") || 0);
-  if (contentLength > 16_384) return json({ error: "Request too large" }, 413);
+  if (contentLength > 16_384) return json(req, env, { error: "Request too large" }, 413);
 
   let body: Record<string, unknown>;
   try {
     body = await req.json();
   } catch {
-    return json({ error: "Invalid JSON" }, 400);
+    return json(req, env, { error: "Invalid JSON" }, 400);
   }
 
   const clientName = cleanText(body.client_name, 120);
@@ -98,11 +120,11 @@ async function createEnquiry(req: Request, env: Env) {
     : 1;
 
   if (!clientName || !clientEmail || !validEmail(clientEmail)) {
-    return json({ error: "Name and a valid email address are required" }, 400);
+    return json(req, env, { error: "Name and a valid email address are required" }, 400);
   }
 
   if (!destination && !tourId) {
-    return json({ error: "Please select a tour or enter a destination" }, 400);
+    return json(req, env, { error: "Please select a tour or enter a destination" }, 400);
   }
 
   let tourTitle: string | null = null;
@@ -110,7 +132,7 @@ async function createEnquiry(req: Request, env: Env) {
     const tour = await env.DB.prepare("SELECT title FROM tours WHERE id = ? AND status = 'active'")
       .bind(tourId)
       .first<{ title: string }>();
-    if (!tour) return json({ error: "Selected tour was not found" }, 400);
+    if (!tour) return json(req, env, { error: "Selected tour was not found" }, 400);
     tourTitle = tour.title;
   }
 
@@ -142,7 +164,7 @@ async function createEnquiry(req: Request, env: Env) {
     notes || null
   ).run();
 
-  return json({
+  return json(req, env, {
     ok: true,
     reference,
     status: "enquiry",
@@ -152,22 +174,28 @@ async function createEnquiry(req: Request, env: Env) {
 
 async function handleApi(req: Request, env: Env, path: string) {
   try {
-    if (path === "/api/health" && req.method === "GET") {
-      return json({ ok: true, service: "travel-aweh", platform: "cloudflare" });
+    if (req.method === "OPTIONS") {
+      if (!requestOriginAllowed(req, env)) return new Response("Forbidden", { status: 403 });
+      return new Response(null, { status: 204, headers: corsHeaders(req, env) });
     }
-    if (path === "/api/tours" && req.method === "GET") return getTours(env);
+    if (path === "/api/health" && req.method === "GET") {
+      return json(req, env, { ok: true, service: "travel-aweh", platform: "cloudflare" });
+    }
+    if (path === "/api/tours" && req.method === "GET") return getTours(req, env);
     if (path === "/api/enquiries" && req.method === "POST") return createEnquiry(req, env);
-    return json({ error: "Not found" }, 404);
+    return json(req, env, { error: "Not found" }, 404);
   } catch (error) {
     console.error("Travel Aweh Worker error", error);
-    return json({ error: "Service temporarily unavailable" }, 503);
+    return json(req, env, { error: "Service temporarily unavailable" }, 503);
   }
 }
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
-    if (url.pathname.startsWith("/api/")) return handleApi(req, env, url.pathname);
-    return env.ASSETS.fetch(req);
+    if (!url.pathname.startsWith("/api/")) {
+      return json(req, env, { service: "Travel Aweh API", ok: true });
+    }
+    return handleApi(req, env, url.pathname);
   },
 };
