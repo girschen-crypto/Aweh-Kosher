@@ -7,14 +7,11 @@
     {
       "binding": "DB",
       "database_name": "travel-aweh-production",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "963ba96f-808a-4320-92f5-3049289bdb11",
       "migrations_dir": "migrations"
     }
   ],
   "vars": {
-    "APP_ORIGIN": "https://REPLACE_WITH_TRAVEL_AWEH_FRONTEND"
-  },
-  "limits": {
-    "cpu_ms": 50
+    "APP_ORIGIN": "https://travel-aweh-api.girschen.workers.dev"
   }
 }
