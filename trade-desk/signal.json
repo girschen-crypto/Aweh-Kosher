@@ -1,11 +1,11 @@
 {
-  "id": "2026-08-28T19:00:00+02:00-bwxt-hold",
-  "ticker": "BWXT",
-  "action": "HOLD",
-  "owned_action": "Hold / watch for add opportunity",
-  "reason": "Starter position is open. Keep it; wait for a better add opportunity rather than chasing.",
-  "position": "~$6 starter",
-  "urgency": "No rush",
-  "updated_at": "2026-08-28T19:00:00+02:00",
-  "updated_label": "28 Aug 2026, 19:00"
+  "id": "2026-08-28T20:07:00+02:00-har-prepare",
+  "ticker": "HAR",
+  "action": "PREPARE",
+  "owned_action": "Not owned — prepare to buy on further weakness, not at any price",
+  "reason": "FY2026 results were strong, but HAR has pulled back after earnings while gold has also weakened on higher-rate expectations. The setup is improving, but confirmation is needed before buying; avoid chasing and use the next JSE session to watch for a controlled entry.",
+  "position": "Not owned",
+  "urgency": "Prepare for the next JSE session; no immediate buy",
+  "updated_at": "2026-08-28T20:07:00+02:00",
+  "updated_label": "28 Aug 2026, 20:07"
 }
