@@ -1,0 +1,11 @@
+{
+  "id": "2026-08-28T19:00:00+02:00-bwxt-hold",
+  "ticker": "BWXT",
+  "action": "HOLD",
+  "owned_action": "Hold / watch for add opportunity",
+  "reason": "Starter position is open. Keep it; wait for a better add opportunity rather than chasing.",
+  "position": "~$6 starter",
+  "urgency": "No rush",
+  "updated_at": "2026-08-28T19:00:00+02:00",
+  "updated_label": "28 Aug 2026, 19:00"
+}
