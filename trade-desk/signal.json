@@ -6,6 +6,18 @@
   "reason": "Harmony's FY2026 results were strong, but the share closed around R333.85 after trading as low as R325.55 on 28 August. The setup is improving after the earnings pullback, but lower expected FY2027 gold output and current gold/rate volatility mean confirmation is still needed before entry.",
   "position": "Not owned",
   "urgency": "GET READY for the next JSE session; do not chase an opening spike",
+  "market": "ZA",
+  "currency": "ZAR",
+  "allocation_pct": null,
+  "entry_price": null,
+  "entry_min": null,
+  "entry_max": null,
+  "entry_zone": null,
+  "take_profit": null,
+  "stop_loss": null,
+  "valid_until": null,
+  "max_hold_days": null,
+  "protection_preference": "STOP_LOSS_FIRST",
   "updated_at": "2026-08-29T07:15:47+02:00",
   "updated_label": "29 Aug 2026, 07:15"
 }
