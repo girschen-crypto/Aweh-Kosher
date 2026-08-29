@@ -1,11 +1,11 @@
 {
-  "id": "2026-08-28T20:07:00+02:00-har-prepare",
+  "id": "2026-08-29T07:15:47+02:00-har-get-ready",
   "ticker": "HAR",
-  "action": "PREPARE",
-  "owned_action": "Not owned — prepare to buy on further weakness, not at any price",
-  "reason": "FY2026 results were strong, but HAR has pulled back after earnings while gold has also weakened on higher-rate expectations. The setup is improving, but confirmation is needed before buying; avoid chasing and use the next JSE session to watch for a controlled entry.",
+  "action": "GET READY",
+  "owned_action": "Not owned — keep cash ready, but do not buy yet",
+  "reason": "Harmony's FY2026 results were strong, but the share closed around R333.85 after trading as low as R325.55 on 28 August. The setup is improving after the earnings pullback, but lower expected FY2027 gold output and current gold/rate volatility mean confirmation is still needed before entry.",
   "position": "Not owned",
-  "urgency": "Prepare for the next JSE session; no immediate buy",
-  "updated_at": "2026-08-28T20:07:00+02:00",
-  "updated_label": "28 Aug 2026, 20:07"
+  "urgency": "GET READY for the next JSE session; do not chase an opening spike",
+  "updated_at": "2026-08-29T07:15:47+02:00",
+  "updated_label": "29 Aug 2026, 07:15"
 }
