@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-01T15:14:59Z-slb-buy",
-  "ticker": "SLB",
+  "id": "2026-09-01T19:51:59Z-sol-buy",
+  "ticker": "SOL",
   "action": "BUY",
-  "owned_action": "Keep the owned starter position. Increasing exposure is reasonable only inside the preferred entry zone; do not chase a renewed spike.",
-  "reason": "SLB has returned to roughly $59.06, inside the preferred $58.00-$59.50 entry zone. The Kelvion acquisition adds a credible AI/data-center cooling growth catalyst while Brent near $92 and continuing Strait of Hormuz supply disruption support the core energy-services cycle. The setup is actionable again, but valuation and integration risk require entry discipline.",
-  "position": "Owned starter position",
-  "urgency": "BUY at $58.00-$59.50; do not chase materially above $60.50-$61.00.",
-  "updated_at": "2026-09-01T15:14:59Z",
-  "updated_label": "SLB — BUY"
+  "owned_action": "If already owned, keep the position. A small increase is reasonable inside the preferred entry zone; do not chase a breakout without confirmation.",
+  "reason": "Sasol closed near R191.68, inside the preferred R190-R195 entry area, after FY2026 results showed adjusted EBITDA up 17% to R61 billion, operating cash flow up 22%, capital expenditure down 18%, and net debt reduced 11% to US$3.3 billion. Brent remains elevated around the low-to-mid $90s amid renewed U.S.-Iran fighting and Strait of Hormuz supply disruption, supporting near-term energy exposure.",
+  "position": "Actionable JSE energy opportunity",
+  "urgency": "BUY around R190-R195; acceptable up to R200 with discipline. Do not chase materially above R205 without a confirmed breakout.",
+  "updated_at": "2026-09-01T19:51:59Z",
+  "updated_label": "SOL — BUY"
 }
