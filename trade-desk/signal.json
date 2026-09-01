@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-01T10:08:00Z-slb-buy",
+  "id": "2026-09-01T10:49:00Z-slb-buy",
   "ticker": "SLB",
   "action": "BUY",
-  "owned_action": "If already owned, keep the position; only increase exposure inside the preferred entry zone and avoid chasing a sharp extension.",
+  "owned_action": "Owned starter position. Keep the existing position; only increase exposure inside the preferred entry zone and avoid chasing a sharp extension.",
   "reason": "SLB has a fresh two-part catalyst: Brent is back above $90 on renewed U.S.-Iran fighting and Hormuz supply risk, while the newly announced $4.1 billion Kelvion acquisition materially expands SLB into fast-growing AI data-center cooling. The stock has broken above recent resistance but is still close enough to the breakout level to remain actionable with entry discipline.",
-  "position": "Actionable liquid energy/AI-infrastructure opportunity",
+  "position": "Owned starter position",
   "urgency": "BUY near $58.00-$59.50; do not chase materially above about $60.50-$61.00",
-  "updated_at": "2026-09-01T10:08:00Z",
+  "updated_at": "2026-09-01T10:49:00Z",
   "updated_label": "SLB — BUY"
 }
