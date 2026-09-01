@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-01T00:07:55Z-slb-buy",
-  "ticker": "SLB",
+  "id": "2026-09-01T05:50:00Z-sol-buy",
+  "ticker": "SOL",
   "action": "BUY",
-  "owned_action": "Not owned — buy only at or below the stated entry zone; do not chase materially higher",
-  "reason": "SLB broke above a fresh technical buy point after announcing the $4.1 billion Kelvion acquisition, which materially expands its AI/data-centre cooling exposure, while Brent settled above $90 amid renewed US-Iran conflict and Hormuz supply risk. The combined company-specific and energy catalysts support a near-term BUY, but entry discipline is essential after the initial jump.",
+  "owned_action": "Not owned — starter position can be taken inside the preferred entry zone; do not chase an opening spike above the stated limit",
+  "reason": "Sasol's FY2026 results delivered a fresh catalyst: stronger adjusted EBITDA, higher sales volumes, sharply improved EPS, lower capital expenditure and lower net debt, while elevated oil prices provide additional near-term energy leverage.",
   "position": "Not owned",
-  "urgency": "BUY only in the $58.00-$59.50 preferred entry zone; do not chase materially above it",
-  "updated_at": "2026-09-01T00:07:55Z",
-  "updated_label": "SLB — BUY"
+  "urgency": "BUY in the R190-R200 preferred entry zone; do not chase above roughly R205",
+  "updated_at": "2026-09-01T05:50:00Z",
+  "updated_label": "SOL — BUY"
 }
