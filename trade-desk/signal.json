@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-02T11:11:13Z-mu-buy",
+  "id": "2026-09-02T17:17:37Z-mu-get-ready",
   "ticker": "MU",
-  "action": "BUY",
-  "owned_action": "If already owned, keep the position; only increase modestly inside the stated entry zone because volatility is high.",
-  "reason": "Micron is around $929 pre-market after a 13%+ three-month pullback and is trading just below its 50-day average. DRAM and NAND remain in tight supply, memory pricing is rising sharply, and fiscal Q4 earnings on September 30 provide a credible near-term catalyst. Forward valuation is still comparatively low despite the strong growth cycle.",
-  "position": "Highest-priority liquid US growth opportunity",
-  "urgency": "BUY around $900-$935. Do not chase above about $950 unless price breaks and holds above resistance with strong volume.",
-  "updated_at": "2026-09-02T11:11:13Z",
-  "updated_label": "MU — BUY"
+  "action": "GET READY",
+  "owned_action": "If already owned, HOLD; do not increase at the current price after the move above the preferred entry zone.",
+  "reason": "Micron remains one of the strongest near-term growth setups because DRAM and NAND supply are tight and fiscal Q4 earnings on September 30 are a credible catalyst, but the share price has moved above the prior $900-$935 BUY zone and above the stated no-chase level near $950. The thesis remains intact, but the current risk/reward is no longer attractive enough for a fresh BUY at this price.",
+  "position": "Highest-priority liquid US growth setup, but not actionable at the current price",
+  "urgency": "GET READY. Preferred re-entry remains roughly $900-$935; reassess if price pulls back into that zone or breaks and holds above resistance with strong volume.",
+  "updated_at": "2026-09-02T17:17:37Z",
+  "updated_label": "MU — GET READY"
 }
