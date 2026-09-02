@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-02T17:17:37Z-mu-get-ready",
-  "ticker": "MU",
-  "action": "GET READY",
-  "owned_action": "If already owned, HOLD; do not increase at the current price after the move above the preferred entry zone.",
-  "reason": "Micron remains one of the strongest near-term growth setups because DRAM and NAND supply are tight and fiscal Q4 earnings on September 30 are a credible catalyst, but the share price has moved above the prior $900-$935 BUY zone and above the stated no-chase level near $950. The thesis remains intact, but the current risk/reward is no longer attractive enough for a fresh BUY at this price.",
-  "position": "Highest-priority liquid US growth setup, but not actionable at the current price",
-  "urgency": "GET READY. Preferred re-entry remains roughly $900-$935; reassess if price pulls back into that zone or breaks and holds above resistance with strong volume.",
-  "updated_at": "2026-09-02T17:17:37Z",
-  "updated_label": "MU — GET READY"
+  "id": "2026-09-02T18:05:15Z-hood-buy",
+  "ticker": "HOOD",
+  "action": "BUY",
+  "owned_action": "If the existing starter order has already executed in the preferred zone, HOLD the position and do not duplicate the order.",
+  "reason": "Robinhood has received a second fresh bullish analyst catalyst: Piper Sandler raised its target to $145 while maintaining Overweight, following Morgan Stanley's upgrade to Overweight and $150 target. Q2 net revenue grew 32% year over year and event-contract revenue expanded sharply. Around the low-$100s the shares remain below the technical handle area near $112.45, leaving a reasonable starter-entry risk/reward despite elevated market and valuation risk.",
+  "position": "Highest-priority actionable liquid US growth setup; small starter position only",
+  "urgency": "BUY in roughly the $100-$106 zone. Do not chase above about $112-$115 without reassessment.",
+  "updated_at": "2026-09-02T18:05:15Z",
+  "updated_label": "HOOD — BUY"
 }
