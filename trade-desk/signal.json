@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-01T21:58:45Z-slb-buy",
-  "ticker": "SLB",
+  "id": "2026-09-02T11:11:13Z-mu-buy",
+  "ticker": "MU",
   "action": "BUY",
-  "owned_action": "If already owned, keep the position; a modest increase is reasonable inside the stated entry zone rather than chasing strength.",
-  "reason": "SLB is around $57.4-$57.6, back inside the preferred entry area after a sharp pullback. The latest quarter beat EPS expectations, the Kelvion acquisition adds a data-centre cooling growth leg, and completion of the S&P Global upstream energy software acquisition strengthens SLB's digital portfolio. Brent is in the low-to-mid $90s amid renewed U.S.-Iran fighting and Strait of Hormuz supply disruption, supporting near-term energy-services demand and sentiment.",
-  "position": "Highest-priority liquid US energy opportunity",
-  "urgency": "BUY around $57-$59. Do not chase materially above $60.50-$61.",
-  "updated_at": "2026-09-01T21:58:45Z",
-  "updated_label": "SLB — BUY"
+  "owned_action": "If already owned, keep the position; only increase modestly inside the stated entry zone because volatility is high.",
+  "reason": "Micron is around $929 pre-market after a 13%+ three-month pullback and is trading just below its 50-day average. DRAM and NAND remain in tight supply, memory pricing is rising sharply, and fiscal Q4 earnings on September 30 provide a credible near-term catalyst. Forward valuation is still comparatively low despite the strong growth cycle.",
+  "position": "Highest-priority liquid US growth opportunity",
+  "urgency": "BUY around $900-$935. Do not chase above about $950 unless price breaks and holds above resistance with strong volume.",
+  "updated_at": "2026-09-02T11:11:13Z",
+  "updated_label": "MU — BUY"
 }
