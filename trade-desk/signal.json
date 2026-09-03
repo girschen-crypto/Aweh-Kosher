@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-02T18:05:15Z-hood-buy",
+  "id": "2026-09-03T08:11:38Z-hood-get-ready",
   "ticker": "HOOD",
-  "action": "BUY",
-  "owned_action": "If the existing starter order has already executed in the preferred zone, HOLD the position and do not duplicate the order.",
-  "reason": "Robinhood has received a second fresh bullish analyst catalyst: Piper Sandler raised its target to $145 while maintaining Overweight, following Morgan Stanley's upgrade to Overweight and $150 target. Q2 net revenue grew 32% year over year and event-contract revenue expanded sharply. Around the low-$100s the shares remain below the technical handle area near $112.45, leaving a reasonable starter-entry risk/reward despite elevated market and valuation risk.",
-  "position": "Highest-priority actionable liquid US growth setup; small starter position only",
-  "urgency": "BUY in roughly the $100-$106 zone. Do not chase above about $112-$115 without reassessment.",
-  "updated_at": "2026-09-02T18:05:15Z",
-  "updated_label": "HOOD — BUY"
+  "action": "GET READY",
+  "owned_action": "If the existing starter order executed in the prior $100-$106 buy zone, HOLD it. Do not duplicate the order.",
+  "reason": "Robinhood's growth catalyst remains intact after Morgan Stanley upgraded the shares to Overweight with a $150 target, citing broader monetisation beyond crypto. However, HOOD closed September 2 at $106.99 and traded around $108.52 after hours, above the prior $100-$106 preferred entry zone. The setup remains constructive but the risk/reward no longer justifies chasing at the current price.",
+  "position": "Growth candidate; wait for a better entry rather than chase",
+  "urgency": "GET READY for a pullback toward roughly $100-$106. Reassess if price action or fundamentals change materially.",
+  "updated_at": "2026-09-03T08:11:38Z",
+  "updated_label": "HOOD — GET READY"
 }
