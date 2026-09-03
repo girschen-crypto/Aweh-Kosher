@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-03T11:14:16Z-nvda-buy",
+  "id": "2026-09-03T15:06:10Z-nvda-get-ready",
   "ticker": "NVDA",
-  "action": "BUY",
-  "owned_action": "For an existing position, HOLD. For a new position, a small starter purchase is reasonable inside the stated entry zone; do not chase above it.",
-  "reason": "Nvidia closed September 2 at $224.41 and is trading around $224-$225, below the $227.92 cup-with-handle buy point. AI infrastructure demand remains strong after Nvidia's Q2 beat and $108B current-quarter revenue outlook, while Dell's results reinforced ongoing AI data-centre spending. The setup offers an actionable entry before a confirmed breakout rather than chasing a spike.",
-  "position": "Preferred entry $222-$228; small starter position",
-  "urgency": "BUY inside $222-$228. Do not chase a sharp move above roughly $232 without reassessing.",
-  "updated_at": "2026-09-03T11:14:16Z",
-  "updated_label": "NVDA — BUY"
+  "action": "GET READY",
+  "owned_action": "For an existing position, HOLD. For new money, keep cash ready but do not chase above the prior entry zone.",
+  "reason": "Nvidia's acquisition of Hugging Face strengthens the strategic AI-platform thesis, but the shares rose after the announcement and have moved beyond the prior $222-$228 preferred entry zone. The catalyst is positive, but the risk/reward is no longer strong enough for a fresh BUY at a chased price.",
+  "position": "Preferred re-entry on a controlled pullback toward $222-$228 or a newly confirmed setup after reassessment.",
+  "urgency": "GET READY. Do not chase the post-announcement move.",
+  "updated_at": "2026-09-03T15:06:10Z",
+  "updated_label": "NVDA — GET READY"
 }
