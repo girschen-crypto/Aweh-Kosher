@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-03T08:11:38Z-hood-get-ready",
-  "ticker": "HOOD",
-  "action": "GET READY",
-  "owned_action": "If the existing starter order executed in the prior $100-$106 buy zone, HOLD it. Do not duplicate the order.",
-  "reason": "Robinhood's growth catalyst remains intact after Morgan Stanley upgraded the shares to Overweight with a $150 target, citing broader monetisation beyond crypto. However, HOOD closed September 2 at $106.99 and traded around $108.52 after hours, above the prior $100-$106 preferred entry zone. The setup remains constructive but the risk/reward no longer justifies chasing at the current price.",
-  "position": "Growth candidate; wait for a better entry rather than chase",
-  "urgency": "GET READY for a pullback toward roughly $100-$106. Reassess if price action or fundamentals change materially.",
-  "updated_at": "2026-09-03T08:11:38Z",
-  "updated_label": "HOOD — GET READY"
+  "id": "2026-09-03T11:14:16Z-nvda-buy",
+  "ticker": "NVDA",
+  "action": "BUY",
+  "owned_action": "For an existing position, HOLD. For a new position, a small starter purchase is reasonable inside the stated entry zone; do not chase above it.",
+  "reason": "Nvidia closed September 2 at $224.41 and is trading around $224-$225, below the $227.92 cup-with-handle buy point. AI infrastructure demand remains strong after Nvidia's Q2 beat and $108B current-quarter revenue outlook, while Dell's results reinforced ongoing AI data-centre spending. The setup offers an actionable entry before a confirmed breakout rather than chasing a spike.",
+  "position": "Preferred entry $222-$228; small starter position",
+  "urgency": "BUY inside $222-$228. Do not chase a sharp move above roughly $232 without reassessing.",
+  "updated_at": "2026-09-03T11:14:16Z",
+  "updated_label": "NVDA — BUY"
 }
