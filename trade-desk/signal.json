@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-03T16:17:16Z-nvda-buy",
+  "id": "2026-09-03T20:59:27Z-nvda-get-ready",
   "ticker": "NVDA",
-  "action": "BUY",
-  "owned_action": "For an existing position, HOLD. For new money, a small starter position is supportable inside the stated entry zone.",
-  "reason": "Nvidia is trading back inside the $222-$228 preferred entry zone while today's $12.93 billion Hugging Face acquisition strengthens its AI-platform catalyst. Easing Treasury yields are also supporting growth stocks, but oil-driven inflation risk remains elevated.",
-  "position": "Preferred entry $222-$228. Do not chase materially above $232 without reassessment.",
-  "urgency": "BUY while price remains inside the entry zone; use a small starter position rather than chasing a spike.",
-  "updated_at": "2026-09-03T16:17:16Z",
-  "updated_label": "NVDA — BUY"
+  "action": "GET READY",
+  "owned_action": "For an existing position, HOLD. For new money, keep cash ready but do not chase above the preferred entry zone.",
+  "reason": "Nvidia's AI-platform catalyst strengthened with the $12.93 billion Hugging Face acquisition, but the share price has moved above the prior $222-$228 preferred entry zone. The thesis remains constructive, while elevated oil prices and macro volatility argue against chasing.",
+  "position": "Preferred re-entry remains around $222-$228 if price returns there with the thesis intact. Reassess rather than chase materially above $232.",
+  "urgency": "GET READY; no new purchase while price remains above the preferred entry zone.",
+  "updated_at": "2026-09-03T20:59:27Z",
+  "updated_label": "NVDA — GET READY"
 }
