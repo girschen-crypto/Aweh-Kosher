@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-04T06:22:09Z-bwxt-hold",
-  "ticker": "BWXT",
-  "action": "HOLD",
-  "owned_action": "HOLD the existing position after the latest small tranche purchase; do not buy another tranche immediately.",
-  "reason": "The recent BWXT buy signal has been acted on. The nuclear and defence catalyst stack remains intact, including Project Janus, raised 2026 guidance, the NNSA lithium-facility conceptual design phase and Investor Day on September 29. Valuation is now the main constraint, so capital preservation favours holding rather than immediately increasing exposure again.",
-  "position": "Existing position. The prior preferred buy zone was approximately $153-$160; reassess before any further purchase, particularly after a sharp rebound.",
-  "urgency": "No new purchase now. Continue monitoring for a fresh asymmetric entry or thesis-breaking development.",
-  "updated_at": "2026-09-04T06:22:09Z",
-  "updated_label": "BWXT — HOLD"
+  "id": "2026-09-04T09:12:51Z-ari-buy",
+  "ticker": "ARI",
+  "action": "BUY",
+  "owned_action": "BUY a small starter tranche inside the preferred entry zone; do not chase a sharp extension above the zone.",
+  "reason": "African Rainbow Minerals reported a 19% increase in annual headline earnings to R3.201 billion, driven by a major PGM recovery, and raised its final dividend to R7 per share. The PGM operations swung from a R1.288 billion loss to a R1.345 billion profit, while the Nkomati nickel restart adds a further company-specific catalyst. The share is up about 4% today but remains down over five days, so the move is not yet an obvious chase.",
+  "position": "Preferred entry zone approximately R179-R184, centred near the current R182.90 trading level.",
+  "urgency": "Actionable now inside the entry zone; reassess rather than chase materially above approximately R188-R190.",
+  "updated_at": "2026-09-04T09:12:51Z",
+  "updated_label": "ARI — BUY"
 }
