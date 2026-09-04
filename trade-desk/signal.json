@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-04T03:23:08Z-bwxt-buy",
+  "id": "2026-09-04T06:22:09Z-bwxt-hold",
   "ticker": "BWXT",
-  "action": "BUY",
-  "owned_action": "HOLD the existing starter position and buy only a small additional tranche inside the preferred entry zone; do not chase a sharp rebound.",
-  "reason": "BWXT has fresh catalyst support: Jefferies initiated Buy coverage with a $181 target, the U.S. Army selected its BANR microreactor for Project Janus, 2026 guidance was raised, and NNSA selected BWXT for a lithium-facility conceptual design phase. Investor Day on September 29 provides a defined near-term catalyst. Valuation remains the main constraint.",
-  "position": "Preferred entry zone: approximately $153-$160. Latest cited trading level is about $155.67. Reassess rather than chase materially above $165 before the next catalyst.",
-  "urgency": "BUY only as a small tranche inside $153-$160; valuation risk argues against a large position.",
-  "updated_at": "2026-09-04T03:23:08Z",
-  "updated_label": "BWXT — BUY"
+  "action": "HOLD",
+  "owned_action": "HOLD the existing position after the latest small tranche purchase; do not buy another tranche immediately.",
+  "reason": "The recent BWXT buy signal has been acted on. The nuclear and defence catalyst stack remains intact, including Project Janus, raised 2026 guidance, the NNSA lithium-facility conceptual design phase and Investor Day on September 29. Valuation is now the main constraint, so capital preservation favours holding rather than immediately increasing exposure again.",
+  "position": "Existing position. The prior preferred buy zone was approximately $153-$160; reassess before any further purchase, particularly after a sharp rebound.",
+  "urgency": "No new purchase now. Continue monitoring for a fresh asymmetric entry or thesis-breaking development.",
+  "updated_at": "2026-09-04T06:22:09Z",
+  "updated_label": "BWXT — HOLD"
 }
