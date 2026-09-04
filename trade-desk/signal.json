@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-03T20:59:27Z-nvda-get-ready",
-  "ticker": "NVDA",
-  "action": "GET READY",
-  "owned_action": "For an existing position, HOLD. For new money, keep cash ready but do not chase above the preferred entry zone.",
-  "reason": "Nvidia's AI-platform catalyst strengthened with the $12.93 billion Hugging Face acquisition, but the share price has moved above the prior $222-$228 preferred entry zone. The thesis remains constructive, while elevated oil prices and macro volatility argue against chasing.",
-  "position": "Preferred re-entry remains around $222-$228 if price returns there with the thesis intact. Reassess rather than chase materially above $232.",
-  "urgency": "GET READY; no new purchase while price remains above the preferred entry zone.",
-  "updated_at": "2026-09-03T20:59:27Z",
-  "updated_label": "NVDA — GET READY"
+  "id": "2026-09-04T03:23:08Z-bwxt-buy",
+  "ticker": "BWXT",
+  "action": "BUY",
+  "owned_action": "HOLD the existing starter position and buy only a small additional tranche inside the preferred entry zone; do not chase a sharp rebound.",
+  "reason": "BWXT has fresh catalyst support: Jefferies initiated Buy coverage with a $181 target, the U.S. Army selected its BANR microreactor for Project Janus, 2026 guidance was raised, and NNSA selected BWXT for a lithium-facility conceptual design phase. Investor Day on September 29 provides a defined near-term catalyst. Valuation remains the main constraint.",
+  "position": "Preferred entry zone: approximately $153-$160. Latest cited trading level is about $155.67. Reassess rather than chase materially above $165 before the next catalyst.",
+  "urgency": "BUY only as a small tranche inside $153-$160; valuation risk argues against a large position.",
+  "updated_at": "2026-09-04T03:23:08Z",
+  "updated_label": "BWXT — BUY"
 }
