@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-04T09:12:51Z-ari-buy",
-  "ticker": "ARI",
+  "id": "2026-09-04T22:02:02Z-nvda-buy",
+  "ticker": "NVDA",
   "action": "BUY",
-  "owned_action": "BUY a small starter tranche inside the preferred entry zone; do not chase a sharp extension above the zone.",
-  "reason": "African Rainbow Minerals reported a 19% increase in annual headline earnings to R3.201 billion, driven by a major PGM recovery, and raised its final dividend to R7 per share. The PGM operations swung from a R1.288 billion loss to a R1.345 billion profit, while the Nkomati nickel restart adds a further company-specific catalyst. The share is up about 4% today but remains down over five days, so the move is not yet an obvious chase.",
-  "position": "Preferred entry zone approximately R179-R184, centred near the current R182.90 trading level.",
-  "urgency": "Actionable now inside the entry zone; reassess rather than chase materially above approximately R188-R190.",
-  "updated_at": "2026-09-04T09:12:51Z",
-  "updated_label": "ARI — BUY"
+  "owned_action": "BUY a small starter tranche only inside the preferred entry zone; do not chase a gap or sharp extension above the zone.",
+  "reason": "NVIDIA has broken above the recent $227.92 technical buy point while semiconductor leadership strengthened. The broader AI infrastructure thesis remains supported by sustained data-centre spending, and Friday's technical readings remain constructive. The main near-term counterweight is the stronger US jobs report, higher Treasury yields and increased probability of a September Fed rate hike.",
+  "position": "Preferred entry zone approximately $228-$231 on the next US trading session, provided price holds the breakout area rather than gapping materially higher.",
+  "urgency": "Actionable at the stated zone; US markets are closed for the weekend and Labor Day Monday, so use the next trading session rather than chase an opening gap.",
+  "updated_at": "2026-09-04T22:02:02Z",
+  "updated_label": "NVDA — BUY"
 }
