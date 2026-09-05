@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-05T20:33:55Z-nvda-get-ready",
-  "ticker": "NVDA",
-  "action": "GET READY",
-  "owned_action": "Keep cash ready, but do not place a new order before the next US session confirms the breakout area after the weekend geopolitical escalation.",
-  "reason": "NVDA closed Friday near $230.35 with semiconductor leadership intact, but the risk/reward changed after fresh US strikes on Iranian oil tankers near Kharg Island. Brent is around $96 and the stronger US jobs report has lifted Treasury yields and rate-hike expectations. With US markets closed Monday and CPI due next week, the prior BUY should not be chased blindly into Tuesday's opening gap or volatility.",
-  "position": "Potential entry remains around $228-$231 only if Tuesday trading confirms support and there is no material gap higher or macro deterioration; reassess before buying.",
-  "urgency": "No purchase now. Reassess at the next US trading session after the holiday closure.",
-  "updated_at": "2026-09-05T20:33:55Z",
-  "updated_label": "NVDA — GET READY"
+  "id": "2026-09-06T01:14:07+02:00-ari-buy",
+  "ticker": "ARI",
+  "action": "BUY",
+  "owned_action": "Use a small starter position if ARI trades in the preferred entry zone; do not chase a gap above the stated ceiling.",
+  "reason": "African Rainbow Minerals reported FY2026 headline earnings up 19% to R3.201bn, with its PGM operations swinging from a R1.288bn loss to a R1.345bn profit as PGM prices strengthened. The final dividend rose to R7 per share and the Nkomati nickel restart adds a company-specific growth catalyst. ARI closed at R183.08 on 4 September, near the preferred entry zone and well below its 52-week high. Risks are weaker iron ore, manganese and coal earnings, large growth capex, and a reversal in PGM prices.",
+  "position": "Preferred entry R179-R184. Do not chase materially above R188-R190 without reassessment.",
+  "urgency": "Actionable at the next JSE session only if the share opens and trades within or close to R179-R184; skip a large opening gap.",
+  "updated_at": "2026-09-06T01:14:07+02:00",
+  "updated_label": "ARI — BUY"
 }
