@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-04T22:02:02Z-nvda-buy",
+  "id": "2026-09-05T20:33:55Z-nvda-get-ready",
   "ticker": "NVDA",
-  "action": "BUY",
-  "owned_action": "BUY a small starter tranche only inside the preferred entry zone; do not chase a gap or sharp extension above the zone.",
-  "reason": "NVIDIA has broken above the recent $227.92 technical buy point while semiconductor leadership strengthened. The broader AI infrastructure thesis remains supported by sustained data-centre spending, and Friday's technical readings remain constructive. The main near-term counterweight is the stronger US jobs report, higher Treasury yields and increased probability of a September Fed rate hike.",
-  "position": "Preferred entry zone approximately $228-$231 on the next US trading session, provided price holds the breakout area rather than gapping materially higher.",
-  "urgency": "Actionable at the stated zone; US markets are closed for the weekend and Labor Day Monday, so use the next trading session rather than chase an opening gap.",
-  "updated_at": "2026-09-04T22:02:02Z",
-  "updated_label": "NVDA — BUY"
+  "action": "GET READY",
+  "owned_action": "Keep cash ready, but do not place a new order before the next US session confirms the breakout area after the weekend geopolitical escalation.",
+  "reason": "NVDA closed Friday near $230.35 with semiconductor leadership intact, but the risk/reward changed after fresh US strikes on Iranian oil tankers near Kharg Island. Brent is around $96 and the stronger US jobs report has lifted Treasury yields and rate-hike expectations. With US markets closed Monday and CPI due next week, the prior BUY should not be chased blindly into Tuesday's opening gap or volatility.",
+  "position": "Potential entry remains around $228-$231 only if Tuesday trading confirms support and there is no material gap higher or macro deterioration; reassess before buying.",
+  "urgency": "No purchase now. Reassess at the next US trading session after the holiday closure.",
+  "updated_at": "2026-09-05T20:33:55Z",
+  "updated_label": "NVDA — GET READY"
 }
