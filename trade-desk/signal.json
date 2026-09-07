@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-06T01:14:07+02:00-ari-buy",
+  "id": "2026-09-07T18:49:53+02:00-ari-get-ready",
   "ticker": "ARI",
-  "action": "BUY",
-  "owned_action": "Use a small starter position if ARI trades in the preferred entry zone; do not chase a gap above the stated ceiling.",
-  "reason": "African Rainbow Minerals reported FY2026 headline earnings up 19% to R3.201bn, with its PGM operations swinging from a R1.288bn loss to a R1.345bn profit as PGM prices strengthened. The final dividend rose to R7 per share and the Nkomati nickel restart adds a company-specific growth catalyst. ARI closed at R183.08 on 4 September, near the preferred entry zone and well below its 52-week high. Risks are weaker iron ore, manganese and coal earnings, large growth capex, and a reversal in PGM prices.",
-  "position": "Preferred entry R179-R184. Do not chase materially above R188-R190 without reassessment.",
-  "urgency": "Actionable at the next JSE session only if the share opens and trades within or close to R179-R184; skip a large opening gap.",
-  "updated_at": "2026-09-06T01:14:07+02:00",
-  "updated_label": "ARI — BUY"
+  "action": "GET READY",
+  "owned_action": "Do not buy at the current post-results level. Keep cash ready for a pullback back into the preferred entry zone rather than chasing strength.",
+  "reason": "African Rainbow Minerals still has a constructive catalyst stack after FY2026 headline earnings rose 19% to R3.201bn, PGM operations swung back to profit, the final dividend increased to R7 per share, and Nkomati nickel restart remains a growth catalyst. However, ARI traded around R184.85 on 7 September after reaching roughly R188.84 intraday, moving beyond the prior R179-R184 preferred entry band. The thesis remains intact, but the immediate risk/reward is less attractive after the rebound. Key risks remain weaker iron ore, manganese and coal earnings, large growth capex, and a reversal in PGM prices.",
+  "position": "Preferred fresh entry remains approximately R179-R184. Reassess if price holds above R188-R190 on strong confirmation rather than chasing.",
+  "urgency": "Keep cash ready for the next JSE session. Buy only if ARI returns to the preferred entry zone with the thesis intact; otherwise do not chase.",
+  "updated_at": "2026-09-07T18:49:53+02:00",
+  "updated_label": "ARI — GET READY"
 }
