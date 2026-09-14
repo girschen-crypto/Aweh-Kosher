@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-14T16:28:09+02:00-no-trade",
-  "ticker": "—",
-  "action": "NO TRADE",
-  "owned_action": "No action required. Wait for the next genuine BUY signal or urgent SELL signal on a confirmed owned position.",
-  "reason": "The signal feed has been reset for the new Trade Signal workflow. Only genuine BUY opportunities and urgent SELL conditions will be treated as actionable. HOLD, GET READY and other non-action states are suppressed from alerts.",
-  "position": "Keep signal cash available. Do not deploy funds until a new BUY signal appears.",
-  "urgency": "None",
-  "updated_at": "2026-09-14T16:28:09+02:00",
-  "updated_label": "NO TRADE"
+  "id": "2026-09-14T18:14:54+02:00-qcom-buy",
+  "ticker": "QCOM",
+  "action": "BUY",
+  "owned_action": "If not already owned, use a small starter tranche only while QCOM remains inside the preferred entry zone. Confirm the actual EasyEquities fill before treating it as owned.",
+  "reason": "Qualcomm has a fresh, material catalyst from its long-term Amazon AI data-centre partnership announced 8 September, covering custom AI chips and connectivity products with potential purchases of up to $60 billion. On 14 September QCOM traded in a $175.74-$185.46 range, putting it back into the preferred accumulation area during a broad semiconductor selloff rather than after a fresh chase higher. The wider chip market is under pressure from AI-slowdown concerns and rising bond yields, so this is a staged entry rather than an all-in trade.",
+  "position": "Preferred entry approximately $178-$183. Use a small starter tranche only; do not chase above about $186. If price loses the lower end of the zone decisively during the current semiconductor selloff, wait for stabilisation rather than averaging down automatically.",
+  "urgency": "Actionable only while QCOM is approximately $178-$183. Check the live EasyEquities price before placing any order.",
+  "updated_at": "2026-09-14T18:14:54+02:00",
+  "updated_label": "QCOM — BUY"
 }
