@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-15T14:35:01+02:00-no-trade",
-  "ticker": "—",
-  "action": "NO TRADE",
-  "owned_action": "QCOM already has a user-confirmed $6 buy order pending execution. Do not place another QCOM order from the prior signal.",
-  "reason": "The prior QCOM BUY signal has been acted on and the order is pending, so it is no longer an actionable fresh-buy alert. The wider US growth backdrop is also risk-heavy ahead of the Federal Reserve decision, with the US 10-year Treasury yield above 5% and oil above $100. No other monitored name currently clears the full BUY threshold without chasing or taking excessive setup risk.",
-  "position": "Keep remaining cash available. Wait for the QCOM order to execute and for a new qualifying BUY or urgent SELL signal.",
-  "urgency": "No action now. Do not duplicate the pending QCOM order.",
-  "updated_at": "2026-09-15T14:35:01+02:00",
-  "updated_label": "NO TRADE"
+  "id": "2026-09-15T21:44:40+02:00-avav-buy",
+  "ticker": "AVAV",
+  "action": "BUY",
+  "owned_action": "Fresh position only. QCOM already has a separate user-confirmed $6 order pending and must not be duplicated.",
+  "reason": "AeroVironment has pulled back into the preferred entry area after strong FY Q1 2027 results and a materially stronger defence catalyst stack. Recent reported fundamentals include $480.5m quarterly revenue, $683m new bookings and about $1.5bn funded backlog, while the company has also secured a $465m US Army LOCUST laser production contract. On 15 September AVAV traded around $148.85 after an intraday range of roughly $147.67-$158.95, putting it back inside a disciplined starter-entry zone rather than requiring a chase.",
+  "position": "Preferred starter entry approximately $146-$149. Use only a small staged position, roughly the same small-ticket approach used for QCOM. Do not chase above about $153; if price loses roughly $143-$144 decisively, reassess before adding.",
+  "urgency": "Actionable starter BUY only while AVAV is in the $146-$149 area. Broader US conditions remain volatile with the 10-year Treasury yield around 5% and a Federal Reserve decision due 16 September, so keep position size small.",
+  "updated_at": "2026-09-15T21:44:40+02:00",
+  "updated_label": "AVAV — BUY"
 }
