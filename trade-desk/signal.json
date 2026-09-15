@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-15T21:44:40+02:00-avav-buy",
-  "ticker": "AVAV",
-  "action": "BUY",
-  "owned_action": "Fresh position only. QCOM already has a separate user-confirmed $6 order pending and must not be duplicated.",
-  "reason": "AeroVironment has pulled back into the preferred entry area after strong FY Q1 2027 results and a materially stronger defence catalyst stack. Recent reported fundamentals include $480.5m quarterly revenue, $683m new bookings and about $1.5bn funded backlog, while the company has also secured a $465m US Army LOCUST laser production contract. On 15 September AVAV traded around $148.85 after an intraday range of roughly $147.67-$158.95, putting it back inside a disciplined starter-entry zone rather than requiring a chase.",
-  "position": "Preferred starter entry approximately $146-$149. Use only a small staged position, roughly the same small-ticket approach used for QCOM. Do not chase above about $153; if price loses roughly $143-$144 decisively, reassess before adding.",
-  "urgency": "Actionable starter BUY only while AVAV is in the $146-$149 area. Broader US conditions remain volatile with the 10-year Treasury yield around 5% and a Federal Reserve decision due 16 September, so keep position size small.",
-  "updated_at": "2026-09-15T21:44:40+02:00",
-  "updated_label": "AVAV — BUY"
+  "id": "2026-09-15T23:19:16+02:00-no-trade",
+  "ticker": "—",
+  "action": "NO TRADE",
+  "owned_action": "No new action. Keep existing confirmed or pending positions separate and do not duplicate QCOM.",
+  "reason": "The prior AVAV starter BUY is no longer actionable: AVAV closed around $156.95 on 15 September, above the $146-$149 preferred entry zone and above the approximately $153 do-not-chase level. QCOM also closed around $188.82, above its prior $178-$183 entry zone and $186 chase limit. No urgent thesis-break SELL is confirmed on the known owned holdings from this scan.",
+  "position": "Keep cash available. Do not chase AVAV or QCOM after today's move. Wait for a fresh qualifying entry or an urgent SELL condition on a confirmed owned holding.",
+  "urgency": "No trade now. The Federal Reserve decision on 16 September and US 10-year Treasury yields around 5% keep near-term growth-stock volatility elevated.",
+  "updated_at": "2026-09-15T23:19:16+02:00",
+  "updated_label": "NO TRADE"
 }
