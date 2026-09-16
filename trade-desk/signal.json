@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-15T23:19:16+02:00-no-trade",
-  "ticker": "—",
-  "action": "NO TRADE",
-  "owned_action": "No new action. Keep existing confirmed or pending positions separate and do not duplicate QCOM.",
-  "reason": "The prior AVAV starter BUY is no longer actionable: AVAV closed around $156.95 on 15 September, above the $146-$149 preferred entry zone and above the approximately $153 do-not-chase level. QCOM also closed around $188.82, above its prior $178-$183 entry zone and $186 chase limit. No urgent thesis-break SELL is confirmed on the known owned holdings from this scan.",
-  "position": "Keep cash available. Do not chase AVAV or QCOM after today's move. Wait for a fresh qualifying entry or an urgent SELL condition on a confirmed owned holding.",
-  "urgency": "No trade now. The Federal Reserve decision on 16 September and US 10-year Treasury yields around 5% keep near-term growth-stock volatility elevated.",
-  "updated_at": "2026-09-15T23:19:16+02:00",
-  "updated_label": "NO TRADE"
+  "id": "2026-09-16T21:11:31+02:00-be-buy",
+  "ticker": "BE",
+  "action": "BUY",
+  "owned_action": "Fresh position only. Do not alter existing AVAV or QCOM positions.",
+  "reason": "Bloom Energy has a fresh AI data-center power catalyst. On 16 September Bloom published analysis showing its 800V DC-native fuel-cell architecture could reduce non-compute capex by 27% and five-year total cost of ownership by 9% for a modeled 1 GW AI data center. This builds on contracted AI infrastructure demand including Oracle's agreement supporting up to 2.8 GW. BE traded around $269 on 16 September and remains below the approximately $283.83 technical breakout area reported today.",
+  "position": "Preferred starter zone approximately $265-$272. Use a small staged position only. Do not chase if price runs materially above $275 before entry; reassess near the $283-$284 breakout area rather than buying an extended move.",
+  "urgency": "Actionable starter while price remains in the preferred zone. Key risks are BE's very large prior-year run, high valuation/volatility, execution risk on large data-center deployments, and tighter US rates after the 16 September Fed hike.",
+  "updated_at": "2026-09-16T21:11:31+02:00",
+  "updated_label": "BE — BUY"
 }
