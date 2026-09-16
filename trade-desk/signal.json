@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-16T21:11:31+02:00-be-buy",
-  "ticker": "BE",
-  "action": "BUY",
-  "owned_action": "Fresh position only. Do not alter existing AVAV or QCOM positions.",
-  "reason": "Bloom Energy has a fresh AI data-center power catalyst. On 16 September Bloom published analysis showing its 800V DC-native fuel-cell architecture could reduce non-compute capex by 27% and five-year total cost of ownership by 9% for a modeled 1 GW AI data center. This builds on contracted AI infrastructure demand including Oracle's agreement supporting up to 2.8 GW. BE traded around $269 on 16 September and remains below the approximately $283.83 technical breakout area reported today.",
-  "position": "Preferred starter zone approximately $265-$272. Use a small staged position only. Do not chase if price runs materially above $275 before entry; reassess near the $283-$284 breakout area rather than buying an extended move.",
-  "urgency": "Actionable starter while price remains in the preferred zone. Key risks are BE's very large prior-year run, high valuation/volatility, execution risk on large data-center deployments, and tighter US rates after the 16 September Fed hike.",
-  "updated_at": "2026-09-16T21:11:31+02:00",
-  "updated_label": "BE — BUY"
+  "id": "2026-09-16T23:22:43+02:00-no-trade",
+  "ticker": "—",
+  "action": "NO TRADE",
+  "owned_action": "No change to existing confirmed or pending positions.",
+  "reason": "The earlier BE starter signal is no longer actionable tonight. BE reversed sharply after the US Federal Reserve raised rates on 16 September and signaled further tightening; after-hours trading was around $259 after reaching roughly $275 intraday. The AI/data-center catalyst remains intact, but the immediate price action and tighter-rate backdrop make it better to wait for regular-session stabilization rather than buy into the reversal.",
+  "position": "Keep cash available. Do not chase BE or average into the after-hours drop. Reassess only after price stabilizes in regular trading and risk/reward becomes clear.",
+  "urgency": "No actionable BUY or urgent SELL at this check.",
+  "updated_at": "2026-09-16T23:22:43+02:00",
+  "updated_label": "NO TRADE"
 }
