@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-17T07:50:03+02:00-bwxt-buy",
-  "ticker": "BWXT",
-  "action": "BUY",
-  "owned_action": "Fresh starter only. Mr G executes the trade himself in EasyEquities.",
-  "reason": "BWXT closed 16 September at $145.66, near its 52-week low of $144.33 after a material pullback. Fundamentals remain constructive: Q2 revenue rose 18% year over year to $901.6 million and management raised 2026 adjusted EBITDA, EPS and free-cash-flow guidance. Recent catalysts include selection for the U.S. Army Janus advanced nuclear reactor program and a DOE/NNSA lithium-processing facility design award. Investor Day is scheduled for 29 September. The setup offers a better entry after the selloff, but broader rate and market volatility remain risks.",
-  "position": "Preferred starter zone approximately $144-$147. Use a small staged position around $5-$6. Do not chase above roughly $150; if price breaks materially below $140 without a new fundamental catalyst, reassess before adding.",
-  "urgency": "Actionable only if the next regular-session price remains in or near the $144-$147 zone. Check the live EasyEquities price before placing the order.",
-  "updated_at": "2026-09-17T07:50:03+02:00",
-  "updated_label": "BWXT — BUY"
+  "id": "2026-09-17T10:42:10+02:00-no-trade",
+  "ticker": "—",
+  "action": "NO TRADE",
+  "owned_action": "No action required.",
+  "reason": "The previous BWXT starter signal is no longer actionable at the stated $144-$147 entry zone; current reporting places BWXT in the mid-$150s. Broader markets also remain volatile after the Federal Reserve rate increase. No new opportunity currently meets the threshold for a fresh actionable BUY, and no confirmed owned holding meets the urgent SELL criteria.",
+  "position": "Keep cash available. Do not chase BWXT above the prior entry zone; wait for a new qualifying setup.",
+  "urgency": "None. Wait for the next genuine BUY or urgent SELL signal.",
+  "updated_at": "2026-09-17T10:42:10+02:00",
+  "updated_label": "NO TRADE"
 }
