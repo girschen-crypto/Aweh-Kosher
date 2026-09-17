@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-17T13:31:19+02:00-bwxt-buy",
-  "ticker": "BWXT",
-  "action": "BUY",
-  "owned_action": "Fresh starter only if the live EasyEquities price remains inside the preferred entry zone; do not chase above the zone.",
-  "reason": "BWXT is again reported around $145.6, inside the preferred $144-$147 starter zone and near its 52-week low. The longer-term nuclear and defense catalyst stack remains intact, including U.S. Army microreactor exposure and expanded nuclear manufacturing capacity. The pullback is technically weak, so this is a small staged entry rather than an aggressive buy.",
-  "position": "Preferred entry $144-$147. Small starter position only, around the established $5-$6 test size. Do not chase above $150. Reassess rather than average down if BWXT breaks materially below $140 without supportive new fundamentals.",
-  "urgency": "Actionable only while the live price remains in the entry zone. Check EasyEquities before placing the order.",
-  "updated_at": "2026-09-17T13:31:19+02:00",
-  "updated_label": "BWXT — BUY"
+  "id": "2026-09-17T20:14:51+02:00-no-trade",
+  "ticker": "—",
+  "action": "NO TRADE",
+  "owned_action": "No urgent sell condition confirmed on the known holdings.",
+  "reason": "The prior BWXT buy is no longer actionable because current reports place it in the mid-$150s, above the $144-$147 preferred entry zone and above the $150 no-chase level. No new opportunity reviewed this run meets the threshold for a genuine actionable BUY or urgent SELL.",
+  "position": "Keep cash available and wait for a fresh entry zone or a materially stronger catalyst. Do not chase BWXT above the established zone.",
+  "urgency": "None — wait for a qualifying setup.",
+  "updated_at": "2026-09-17T20:14:51+02:00",
+  "updated_label": "NO TRADE"
 }
