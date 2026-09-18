@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-17T21:11:27+02:00-nvda-buy",
-  "ticker": "NVDA",
+  "id": "2026-09-19T01:48:34+02:00-bwxt-buy",
+  "ticker": "BWXT",
   "action": "BUY",
   "owned_action": "No urgent sell condition confirmed on the known holdings.",
-  "reason": "Nvidia's AI demand outlook remains exceptionally strong: its latest reported outlook called for about 70% fiscal-2028 revenue growth, and Jensen Huang said on 17 September that chip sales could double next year. Shares are around $219, still below the recent 52-week high near $236.54.",
-  "position": "Preferred starter zone $214-$220. Use a small staged position rather than chasing. Do not chase materially above $223; keep additional cash for a pullback.",
-  "urgency": "Actionable in zone, but staged entry only due to valuation, rate and China-competition risk.",
-  "updated_at": "2026-09-17T21:11:27+02:00",
+  "reason": "BWXT closed 18 September at $147.52, near the bottom of its 52-week range. Q2 revenue rose 18% year over year to $901.6 million, while the nuclear and defence backlog thesis remains intact.",
+  "position": "Preferred starter zone $145-$148. Use a small staged position. Do not chase materially above $150; keep cash available if price runs away from the zone.",
+  "urgency": "Actionable in zone, but staged entry only. Main risks are weak recent momentum, valuation and a clean break below roughly $140-$144.",
+  "updated_at": "2026-09-19T01:48:34+02:00",
   "updated_label": "BUY"
 }
