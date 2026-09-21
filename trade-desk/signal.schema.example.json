@@ -1,0 +1,14 @@
+{
+  "id": "EXAMPLE-ONLY",
+  "action": "HOLD",
+  "ticker": "BWXT",
+  "currency": "USD",
+  "reason": "REPLACE WITH REAL PORTFOLIO MANAGER OUTPUT",
+  "agent_run_at": "2026-09-21T18:00:00Z",
+  "agents": {
+    "fundamental": {"action":"HOLD","confidence":0,"reason":"REPLACE WITH REAL AGENT OUTPUT"},
+    "technical": {"action":"HOLD","confidence":0,"reason":"REPLACE WITH REAL AGENT OUTPUT"},
+    "risk_manager": {"action":"HOLD","confidence":0,"reason":"REPLACE WITH REAL AGENT OUTPUT"},
+    "portfolio_manager": {"action":"HOLD","confidence":0,"reason":"REPLACE WITH REAL AGENT OUTPUT"}
+  }
+}
