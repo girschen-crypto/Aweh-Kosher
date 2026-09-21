@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-21T05:28:17+02:00-no-trade",
-  "ticker": "—",
-  "action": "NO TRADE",
+  "id": "2026-09-21T16:23:29+02:00-bwxt-buy",
+  "ticker": "BWXT",
+  "action": "BUY",
   "owned_action": "No urgent sell condition confirmed on the known holdings.",
-  "reason": "The previous BWXT $145-$148 BUY zone is no longer verified as actionable. Current market evidence places BWXT materially above that entry zone, and the US market is closed, so there is no fresh BUY/SELL signal to act on now.",
-  "position": "Keep cash available. Do not chase BWXT or other growth names outside a clearly verified entry zone; wait for a fresh actionable setup.",
-  "urgency": "None. Reassess on fresh market pricing and material catalysts.",
-  "updated_at": "2026-09-21T05:28:17+02:00",
-  "updated_label": "NO TRADE"
+  "reason": "BWXT is back inside the established $145-$148 starter zone at about $147.39 on 21 Sep 2026. The nuclear/defence growth thesis remains intact, with recent positive sector momentum and Investor Day approaching.",
+  "position": "Small staged starter only while price remains $145-$148. Do not chase above $150; reassess rather than average down automatically on a decisive break below roughly $140-$144.",
+  "urgency": "Actionable in the stated entry zone; verify the live EasyEquities quote before placing the order.",
+  "updated_at": "2026-09-21T16:23:29+02:00",
+  "updated_label": "BUY"
 }
