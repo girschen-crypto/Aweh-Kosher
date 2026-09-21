@@ -1,59 +1,68 @@
-# Trade Desk Auto — V1
+# Trade Desk Auto — V1 Live Micro
 
-This is the automated execution layer for Mr G's Trade Desk.
+This is the real-money execution layer for Mr G's Trade Desk.
 
-## Current stage
+## Direction
 
-V1 is PAPER-TRADING ONLY by default. It consumes the existing Trade Desk signal feed and applies hard risk rules before recording a simulated trade.
+The project is no longer designed as a paper-only destination. The production target is **small real-money automated trading through Interactive Brokers (IBKR)** with hard safety limits.
 
-The live broker target is Interactive Brokers (IBKR) because:
-- South Africa is an available account country.
-- IBKR provides official trading APIs.
-- The API can place and monitor orders programmatically.
+Paper mode remains available as a diagnostic tool, but the live path is already in the code.
 
-## Safety gates
+## Why IBKR
 
-The bot will not trade when:
-- the signal is HOLD
-- required price data is missing
-- the allocation is above the configured max per trade
-- daily loss lock is active
-- the ticker is not allow-listed (when an allow-list is configured)
-- LIVE trading is not explicitly enabled
+- South African residents can open IBKR accounts.
+- IBKR provides official APIs for programmatic trading.
+- The Web API supports order previews and live order submission.
+- The system can use cash-quantity orders, which suits small dollar-sized trades.
 
-Default controls:
-- 5% max account allocation per new trade
-- 20% max exposure to one symbol
-- 2% daily loss lock
-- paper mode
+## Live Micro defaults
 
-These are protective defaults, not investment advice. They can be changed after testing.
+Before any larger capital is used, V1 is deliberately capped:
 
-## Run
+- USD 5 default BUY
+- USD 10 hard maximum BUY
+- maximum 2 live orders per UTC day
+- only tickers on the allow-list may trade
+- the same signal ID cannot execute twice
+- every order is previewed through IBKR What-If before submission
+- IBKR warning/reply messages are never auto-confirmed
+- SELL will not liquidate a position unless the signal contains an explicit quantity
+- no margin, options, shorting or leverage logic is included
 
-1. Copy `.env.example` to `.env`.
-2. Install: `pip install -r requirements.txt`
-3. Run: `python bot.py`
+These controls are designed to limit damage while the live system is being proven. They do not guarantee profit.
 
-The bot reads the current signal from:
+## Signal feed
+
+The bot reads:
+
 `https://raw.githubusercontent.com/girschen-crypto/Aweh-Kosher/main/trade-desk/signal.json`
 
-For a paper BUY/SELL to execute, the signal should contain:
-- ticker
-- action
-- reference_price
-- allocation_pct for BUY
-- optional stop_loss
-- optional take_profit
-- optional conid (required for future IBKR live mode)
+A live BUY may contain:
 
-## Live trading
+- `id`
+- `ticker`
+- `action: "BUY"`
+- optional `cash_usd`
+- optional `conid` (the bot can resolve it through IBKR)
 
-Do not enable live mode until:
-1. an IBKR account is open;
-2. paper trading has been validated;
-3. API authentication works;
-4. order preview / what-if checks pass;
-5. daily-loss and position-size limits are confirmed.
+A live SELL must additionally contain:
 
-The IBKR adapter is included as a guarded scaffold. Live order submission requires `TRADING_MODE=live` and `ENABLE_LIVE_ORDERS=YES_I_ACCEPT_LIVE_RISK`.
+- `quantity`
+
+## Live setup
+
+1. Open and fund an IBKR account.
+2. Install and sign in to IBKR Client Portal Gateway.
+3. Copy `.env.example` to `.env`.
+4. Add the IBKR account ID.
+5. Set `TRADING_MODE=live`.
+6. Keep `ENABLE_LIVE_ORDERS=NO` for the first authenticated What-If preview.
+7. After the preview is confirmed, set:
+   `ENABLE_LIVE_ORDERS=YES_I_ACCEPT_LIVE_RISK`
+8. Run `python bot.py`.
+
+IBKR's retail Client Portal Gateway requires user authentication. The bot cannot and should not bypass that security step.
+
+## Next engineering step
+
+After the first successful small live BUY, add automatic exit management using the confirmed fill quantity plus a protective stop / take-profit order. That is the next milestone before increasing the live order cap.
