@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Mr G Trade Desk</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css?v=15">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="eyebrow">AI TRADE DECISION DESK</div>
+    <h1>Mr G Trade Desk</h1>
+  </div>
+  <div class="monitor-chip"><span></span> Monitoring</div>
+</header>
+
+<main>
+  <section class="hero-signal card" id="heroCard">
+    <div class="signal-top">
+      <div>
+        <div class="eyebrow dark">LATEST ACTION</div>
+        <div class="signal-title"><span id="heroAction">HOLD</span> <strong id="heroTicker">BWXT</strong></div>
+      </div>
+      <span class="pill hold" id="heroPill">HOLD</span>
+    </div>
+    <p id="heroReason">Starter position is open. Keep it; wait for a better add opportunity rather than chasing.</p>
+    <div class="signal-grid">
+      <div><span>Position</span><strong id="heroPosition">~$6 starter</strong></div>
+      <div><span>Cash ready</span><strong id="heroCash">$24.89</strong></div>
+      <div><span>Urgency</span><strong id="heroUrgency">No rush</strong></div>
+      <div><span>Signal updated</span><strong id="signalUpdated">28 Aug 2026</strong></div>
+    </div>
+    <div class="freshness-row">
+      <div><span class="sync-dot" id="syncDot"></span><strong id="syncStatus">Checking signal…</strong></div>
+      <div class="signal-actions">
+        <button class="mini secondary" onclick="syncSignal(true)">Sync now</button>
+        <button class="mini" id="notifyBtn" onclick="enableNotifications()">Enable push alerts</button>
+      </div>
+    </div>
+    <div class="warning-strip" id="warningStrip">TradeDesk gives the decision. You still approve every live broker order.</div>
+    <div class="hero-trade-actions">
+      <button class="buy-btn" id="heroBuyBtn" onclick="openTrade(document.getElementById('heroTicker').textContent,'buy')">BUY</button>
+      <button class="sell-btn" id="heroSellBtn" onclick="openTrade(document.getElementById('heroTicker').textContent,'sell')">SELL</button>
+    </div>
+  </section>
+
+  <section class="summary-grid">
+    <article class="card"><div class="label">USD CASH</div><div class="value" id="usdCash">$24.89</div><button class="link-btn" onclick="editCash('usd')">Update</button></article>
+    <article class="card"><div class="label">ZAR CASH</div><div class="value" id="zarCash">R0.00</div><button class="link-btn" onclick="editCash('zar')">Update</button></article>
+    <article class="card"><div class="label">HOLDINGS</div><div class="value" id="holdingsCount">1</div><div class="muted" id="holdingsNote">BWXT</div></article>
+  </section>
+
+
+  <section class="section-head agent-head">
+    <div><div class="eyebrow dark">AI DECISION COUNCIL</div><h2>Four-agent verdict</h2></div>
+    <span class="pill wait" id="engineStatusPill">WAITING</span>
+  </section>
+  <article class="card agent-council-card">
+    <div class="agent-grid">
+      <div class="agent-card"><span>Fundamental Analyst</span><strong id="agentFundamentalAction">WAITING</strong><small id="agentFundamentalReason">No agent result attached to the current signal yet.</small><em id="agentFundamentalConfidence">—</em></div>
+      <div class="agent-card"><span>Technical Analyst</span><strong id="agentTechnicalAction">WAITING</strong><small id="agentTechnicalReason">No agent result attached to the current signal yet.</small><em id="agentTechnicalConfidence">—</em></div>
+      <div class="agent-card"><span>Risk Manager</span><strong id="agentRiskAction">WAITING</strong><small id="agentRiskReason">No agent result attached to the current signal yet.</small><em id="agentRiskConfidence">—</em></div>
+      <div class="agent-card"><span>Portfolio Manager</span><strong id="agentPortfolioAction">WAITING</strong><small id="agentPortfolioReason">No agent result attached to the current signal yet.</small><em id="agentPortfolioConfidence">—</em></div>
+    </div>
+    <div class="agent-summary">
+      <div><span>Combined decision</span><strong id="agentCombinedDecision">WAITING</strong></div>
+      <div><span>Decision source</span><strong id="agentDecisionSource">Legacy signal</strong></div>
+      <div><span>Agent run</span><strong id="agentRunTime">—</strong></div>
+    </div>
+    <p class="tracker-note" id="agentCouncilNote">The app will not invent agent opinions. Until the four-agent runner publishes its output, TradeDesk shows the existing signal only.</p>
+  </article>
+
+  <section class="section-head">
+    <div><div class="eyebrow dark">BROKER CONTROL</div><h2>Where the order goes</h2></div>
+    <span class="pill hold" id="brokerPill">EASY EQUITIES</span>
+  </section>
+  <article class="card broker-card">
+    <div class="broker-options">
+      <button id="brokerEEBtn" class="broker-option selected" onclick="setBroker('EasyEquities')"><strong>EasyEquities</strong><span>Current account · manual approval</span></button>
+      <button id="brokerIBKRBtn" class="broker-option secondary" onclick="setBroker('IBKR')"><strong>Interactive Brokers</strong><span>API-ready route · manual approval first</span></button>
+    </div>
+    <p class="tracker-note" id="brokerNote">Existing positions stay at EasyEquities. Broker selection changes only where new trade tickets are handed off.</p>
+  </article>
+
+  <section class="section-head signal-head">
+    <div><div class="eyebrow dark">SIGNAL TRADING</div><h2>Tonight's signal</h2></div>
+    <span class="pill wait" id="signalTradePill">NO TRADE</span>
+  </section>
+  <article class="card signal-trade-card" id="signalTradeCard">
+    <div class="signal-wallet-grid">
+      <div><span>USD signal cash</span><strong id="signalCashUsd">$0.00</strong><button class="tiny-link" onclick="editSignalCash('USD')">Set amount</button></div>
+      <div><span>ZAR signal cash</span><strong id="signalCashZar">R0.00</strong><button class="tiny-link" onclick="editSignalCash('ZAR')">Set amount</button></div>
+      <div><span>Signal cash invested</span><strong id="signalInvested">—</strong><small id="signalInvestedNote">No active signal trade</small></div>
+      <div><span>Signal realised P/L</span><strong id="signalRealized">—</strong><small id="signalRealizedNote">All completed signal trades</small></div>
+    </div>
+
+    <div class="signal-plan-head">
+      <div><span class="eyebrow dark">ACTIVE PLAN</span><h3><span id="signalTradeAction">NO</span> <strong id="signalTradeTicker">—</strong></h3></div>
+      <div class="signal-amount"><span>USE NOW</span><strong id="signalTradeAmount">—</strong></div>
+    </div>
+    <p id="signalTradeReason" class="signal-plan-reason">Waiting for a valid BUY signal. Cash stays ready until the setup meets the rules.</p>
+
+    <div class="signal-plan-grid">
+      <div><span>Entry zone</span><strong id="signalEntry">—</strong></div>
+      <div><span>Take profit</span><strong id="signalTarget">—</strong></div>
+      <div><span>Stop loss</span><strong id="signalStop">—</strong></div>
+      <div><span>Allocation</span><strong id="signalAllocation">—</strong></div>
+      <div><span>Reward / risk</span><strong id="signalRR">—</strong></div>
+      <div><span>Valid until</span><strong id="signalValidUntil">—</strong></div>
+    </div>
+    <div class="signal-risk-line" id="signalRiskLine">No capital is committed until you confirm the BUY in EasyEquities.</div>
+    <button class="signal-buy-now" id="signalBuyNow" onclick="openSignalBuy()" disabled>NO ACTIVE BUY</button>
+    <p class="signal-help">TradeDesk never moves money by itself. It hands the approved decision to your selected broker; you remain the final confirmation.</p>
+  </article>
+
+  <section class="section-head">
+    <div><div class="eyebrow dark">OWNED POSITION</div><h2>BWX Technologies</h2></div>
+    <span class="pill hold" id="bwxtPill">HOLD</span>
+  </section>
+
+  <article class="position-card">
+    <div class="position-main">
+      <div><div class="ticker">BWXT</div><div class="muted">BWX Technologies Inc.</div></div>
+      <div class="qty"><strong>~0.0388</strong><span>fractional shares</span></div>
+    </div>
+
+    <div class="holding-stats">
+      <div><span>Invested</span><strong>$6.00</strong></div>
+      <div><span>Current price</span><strong id="bwxtPrice">—</strong></div>
+      <div><span>Est. value</span><strong id="bwxtValue">—</strong></div>
+      <div><span>Est. P/L</span><strong id="bwxtPL">—</strong></div>
+    </div>
+
+    <div class="signal compact"><span class="signal-label">CURRENT ACTION</span><strong id="bwxtAction">Hold / watch for add opportunity</strong></div>
+    <div class="buttons trade-four">
+      <button class="buy-btn" onclick="openTrade('BWXT','buy')">BUY BWXT</button>
+      <button class="sell-btn" onclick="openTrade('BWXT','sell')">SELL BWXT</button>
+      <button class="secondary" onclick="updateBWXTPrice()">Update price</button>
+      <button class="secondary" onclick="copyText('BWXT')">Copy ticker</button>
+    </div>
+  </article>
+
+  <section class="section-head"><div><div class="eyebrow dark">US WATCHLIST</div><h2>Growth candidates</h2></div></section>
+  <div id="usList" class="watchlist"></div>
+
+  <section class="section-head"><div><div class="eyebrow dark">SOUTH AFRICA</div><h2>Mining watchlist</h2></div></section>
+  <div id="zaList" class="watchlist"></div>
+
+
+  <section class="section-head"><div><div class="eyebrow dark">TRADE HISTORY</div><h2>Profit tracker</h2></div></section>
+  <article class="card tracker-card">
+    <div class="tracker-summary">
+      <div><span>USD realised P/L</span><strong id="realizedUsd">$0.00</strong></div>
+      <div><span>ZAR realised P/L</span><strong id="realizedZar">R0.00</strong></div>
+      <div><span>Open positions</span><strong id="openPositions">1</strong></div>
+      <div><span>Logged trades</span><strong id="tradeCount">0</strong></div>
+    </div>
+    <div id="pendingTradeBox" class="pending-trade" hidden></div>
+    <div class="tracker-title-row"><h3>Open positions</h3><button class="secondary mini" onclick="recordTrade()">Record trade</button></div>
+    <div id="openPositionList" class="portfolio-list"></div>
+    <div class="tracker-title-row history-row"><h3>Completed trade log</h3><button class="secondary mini" onclick="exportTrades()">Export CSV</button></div>
+    <div id="tradeHistory" class="trade-history"></div>
+    <p class="tracker-note">Trade history and Signal Cash are stored only on this device. Enter the actual EasyEquities fill amount and quantity after a trade completes; the app does not read your brokerage account automatically.</p>
+  </article>
+
+  <section class="section-head"><div><div class="eyebrow dark">SIGNAL POSITIONS</div><h2>Exit plan</h2></div></section>
+  <article class="card signal-positions-card">
+    <div id="protectionPrompt" class="pending-trade" hidden></div>
+    <div id="activeSignalTrades" class="signal-position-list"></div>
+    <p class="tracker-note">EasyEquities supports Take Profit and Stop Loss only on qualifying instruments. Its published rules say only one SELL order per share can be active at a time, so Trade Desk recommends protecting downside first with a Stop Loss. If you switch to Take Profit, confirm that you cancelled or updated the existing sell order. Advanced orders can carry an additional order-admin fee, so the signal engine is instructed to allow for normal costs and spread before issuing BUY.</p>
+  </article>
+
+  <section class="section-head"><div><div class="eyebrow dark">TRADE CHECK</div><h2>Before you press Buy or Sell</h2></div></section>
+  <article class="rules card">
+    <div class="rule"><b>1</b><span>Use the latest signal and check its timestamp.</span></div>
+    <div class="rule"><b>2</b><span>Do not chase a share after a vertical move.</span></div>
+    <div class="rule"><b>3</b><span>For signal trades, never override the planned amount, Stop Loss or target because of emotion.</span></div>
+    <div class="rule"><b>4</b><span>You remain the final approval for every live broker trade.</span></div>
+  </article>
+
+  <section class="footer-actions">
+    <button id="openBrokerBtn" onclick="openPortfolio()">Open EasyEquities</button>
+    <button class="secondary" onclick="syncSignal(true)">Refresh trade signal</button>
+  </section>
+
+  <p class="disclaimer">Personal decision-support dashboard. It does not access broker credentials, move funds or place trades without your approval. Signal amounts are calculated from the Signal Cash you set on this device. Prices can move between the signal and your actual fill. Every brokerage order still requires your approval.</p>
+</main>
+
+<div id="toast" class="toast">Copied</div>
+<script src="app.js?v=15"></script>
+</body>
+</html>
