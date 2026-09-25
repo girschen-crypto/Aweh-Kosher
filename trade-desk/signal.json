@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-24T10:31:17+02:00-avav-buy",
-  "ticker": "AVAV",
-  "action": "BUY",
-  "owned_action": "Already a confirmed small holding; treat this only as a staged add opportunity, not a fresh full-size position.",
-  "reason": "AVAV closed 23 Sep near $155.94. Fiscal Q1 2027 non-GAAP EPS was $0.59 and funded backlog rose to $1.5bn from $1.2bn at April 30, while FY2027 guidance was maintained. The pullback from recent highs creates an actionable but volatile entry zone.",
-  "position": "Preferred staged-add zone $150-$156. Keep any add small. Do not chase above about $163; if price loses the recent $138-$145 support area, reassess rather than average down automatically.",
-  "urgency": "Actionable entry zone, but not urgent; volatility is high and position sizing should stay small.",
-  "updated_at": "2026-09-24T10:31:17+02:00",
-  "updated_label": "BUY"
+  "id": "2026-09-25T02:52:50+02:00-no-trade",
+  "ticker": "—",
+  "action": "NO TRADE",
+  "owned_action": "No urgent sell condition confirmed on known owned holdings.",
+  "reason": "The prior AVAV staged-add signal is no longer inside its preferred $150-$156 entry zone after AVAV closed 24 Sep at $158.55. No replacement BUY or urgent SELL meets the established threshold in this scan.",
+  "position": "Keep cash available and wait for a cleaner entry or a new catalyst-backed signal. Do not chase.",
+  "urgency": "None",
+  "updated_at": "2026-09-25T02:52:50+02:00",
+  "updated_label": "NO TRADE"
 }
