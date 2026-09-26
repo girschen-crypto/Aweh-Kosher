@@ -30,6 +30,12 @@ jobs:
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "Missing CLOUDFLARE_API_TOKEN"; exit 1; }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "Missing CLOUDFLARE_ACCOUNT_ID"; exit 1; }
 
+      - name: Install app dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build public app
+        run: npm run build
+
       - name: Bundle Worker safety check
         run: npx esbuild@0.25.8 cloudflare/worker.ts --bundle --format=esm --platform=browser --outfile=/tmp/travel-aweh-worker.js
 
