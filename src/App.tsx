@@ -36,6 +36,63 @@ const initialEnquiry: Enquiry = {
   notes: '',
 };
 
+type Planner = {
+  days: string;
+  base: string;
+  style: string;
+  adults: string;
+  children: string;
+};
+
+const initialPlanner: Planner = {
+  days: '3',
+  base: 'Tsitsikamma',
+  style: 'Adventure + scenery',
+  adults: '2',
+  children: '0',
+};
+
+const partnerLinks = {
+  activities: (import.meta.env.VITE_VIATOR_AFFILIATE_URL || '').trim(),
+  stays: (import.meta.env.VITE_BOOKING_AFFILIATE_URL || '').trim(),
+  guides: (import.meta.env.VITE_GUIDEGO_PUBLIC_URL || '').trim(),
+};
+
+function buildQuickPlan(planner: Planner) {
+  const days = Math.max(1, Math.min(5, Number(planner.days) || 3));
+  const base = planner.base || 'Tsitsikamma';
+  const style = planner.style || 'Adventure + scenery';
+  const templates: Record<string, string[]> = {
+    'Tsitsikamma': [
+      'Storms River Mouth: suspension-bridge area, viewpoints and an easy coastal walk.',
+      'Tsitsikamma Forest: Big Tree / forest experience plus a local lunch stop.',
+      'Adventure day: zipline, kayaking or a guided activity matched to the group.',
+      'Nature’s Valley / The Crags: scenic Garden Route drive with an experience stop.',
+      'Plettenberg Bay: beach, viewpoints and a flexible activity or food stop.',
+    ],
+    'Plettenberg Bay': [
+      'Plettenberg Bay orientation: viewpoints, beach time and a relaxed local meal.',
+      'The Crags / Nature’s Valley: wildlife or adventure experience and scenic stops.',
+      'Tsitsikamma day trip: Storms River Mouth and forest highlights.',
+      'Ocean day: marine, boat or coastal activity subject to conditions.',
+      'Flexible final day: food, shopping, beach or another booked experience.',
+    ],
+    'Garden Route': [
+      'George / Wilderness: scenic start with lakes, viewpoints and local stops.',
+      'Knysna: lagoon, Heads and a flexible experience.',
+      'Plettenberg Bay / The Crags: beach, wildlife or adventure.',
+      'Tsitsikamma: forest and Storms River Mouth.',
+      'Buffer day: use for weather, a premium activity or onward transfer.',
+    ],
+  };
+  const selected = templates[base] || templates['Tsitsikamma'];
+  return {
+    title: `${days}-day ${base} starter plan`,
+    subtitle: `${style} · ${planner.adults || '2'} adult(s) · ${planner.children || '0'} child(ren)`,
+    days: selected.slice(0, days),
+  };
+}
+
 const money = (value: number, currency = 'ZAR') =>
   new Intl.NumberFormat('en-ZA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
 
@@ -51,6 +108,8 @@ export default function App() {
   const [enquiry, setEnquiry] = useState<Enquiry>(initialEnquiry);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string; reference?: string } | null>(null);
+  const [planner, setPlanner] = useState<Planner>(initialPlanner);
+  const [quickPlan, setQuickPlan] = useState<ReturnType<typeof buildQuickPlan> | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +130,22 @@ export default function App() {
     () => tours.find((tour) => String(tour.id) === enquiry.tour_id),
     [tours, enquiry.tour_id],
   );
+
+  const requestService = (service: 'activities' | 'stays' | 'guides') => {
+    const external = partnerLinks[service];
+    if (external) {
+      window.open(external, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    const labels = { activities: 'activities / experiences', stays: 'accommodation', guides: 'a local guide' };
+    setEnquiry((current) => ({
+      ...current,
+      destination: planner.base || current.destination,
+      num_guests: String((Number(planner.adults) || 0) + (Number(planner.children) || 0) || 1),
+      notes: `Revenue-engine lead: Please help me book ${labels[service]} for a ${planner.days}-day ${planner.base} trip. Travel style: ${planner.style}. Adults: ${planner.adults}. Children: ${planner.children}.`,
+    }));
+    document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const chooseTour = (tour: Tour) => {
     setEnquiry((current) => ({
@@ -120,6 +195,7 @@ export default function App() {
             <span><strong>Travel Aweh</strong><small>Southern Africa, your way</small></span>
           </a>
           <nav className="navlinks" aria-label="Main navigation">
+            <a href="#planner">Quick planner</a>
             <a href="#journeys">Journeys</a>
             <a href="#kosher">Kosher available</a>
             <a href="#plan" className="navCta">Plan a trip</a>
@@ -156,6 +232,55 @@ export default function App() {
       <section className="intro shell">
         <div><p className="eyebrow dark">WHY TRAVEL AWEH</p><h2>Africa is better when the logistics disappear.</h2></div>
         <p>We focus on practical, well-coordinated travel. That means a journey that makes sense on the ground, not an itinerary that only looks good on paper.</p>
+      </section>
+
+
+      <section className="section plannerSection" id="planner">
+        <div className="shell plannerGrid">
+          <div className="plannerIntro">
+            <p className="eyebrow dark">FREE GARDEN ROUTE PLANNER</p>
+            <h2>Build a useful trip outline in under a minute.</h2>
+            <p>Start with a simple route. Then book the parts you need: accommodation, activities and a local guide.</p>
+            <div className="plannerForm">
+              <label>Days
+                <select value={planner.days} onChange={(e) => setPlanner({ ...planner, days: e.target.value })}>
+                  <option value="1">1 day</option><option value="2">2 days</option><option value="3">3 days</option><option value="4">4 days</option><option value="5">5 days</option>
+                </select>
+              </label>
+              <label>Base
+                <select value={planner.base} onChange={(e) => setPlanner({ ...planner, base: e.target.value })}>
+                  <option>Tsitsikamma</option><option>Plettenberg Bay</option><option>Garden Route</option>
+                </select>
+              </label>
+              <label>Travel style
+                <select value={planner.style} onChange={(e) => setPlanner({ ...planner, style: e.target.value })}>
+                  <option>Adventure + scenery</option><option>Family</option><option>Relaxed</option><option>Food + scenery</option>
+                </select>
+              </label>
+              <label>Adults<input min="1" max="20" type="number" value={planner.adults} onChange={(e) => setPlanner({ ...planner, adults: e.target.value })} /></label>
+              <label>Children<input min="0" max="20" type="number" value={planner.children} onChange={(e) => setPlanner({ ...planner, children: e.target.value })} /></label>
+              <button className="button primary plannerButton" type="button" onClick={() => setQuickPlan(buildQuickPlan(planner))}>Build my free plan</button>
+            </div>
+          </div>
+          <div className="plannerResult">
+            {!quickPlan ? (
+              <div className="plannerEmpty"><strong>Your route appears here.</strong><span>No login. No AI charge. Just a practical starting plan.</span></div>
+            ) : (
+              <>
+                <p className="eyebrow dark">YOUR STARTER PLAN</p>
+                <h3>{quickPlan.title}</h3>
+                <p className="plannerSubtitle">{quickPlan.subtitle}</p>
+                <ol>{quickPlan.days.map((day, index) => <li key={day}><span>Day {index + 1}</span><p>{day}</p></li>)}</ol>
+                <div className="moneyActions">
+                  <button onClick={() => requestService('stays')}>Find accommodation</button>
+                  <button onClick={() => requestService('activities')}>Book activities</button>
+                  <button onClick={() => requestService('guides')}>Get a local guide</button>
+                </div>
+                <small className="plannerDisclosure">Partner booking links can earn Travel Aweh commission at no extra cost to the traveller. Where a partner link is not yet active, we convert the request into a Travel Aweh booking enquiry.</small>
+              </>
+            )}
+          </div>
+        </div>
       </section>
 
       <section className="section journeys" id="journeys">
