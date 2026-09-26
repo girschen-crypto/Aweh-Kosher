@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-25T02:52:50+02:00-no-trade",
-  "ticker": "—",
-  "action": "NO TRADE",
-  "owned_action": "No urgent sell condition confirmed on known owned holdings.",
-  "reason": "The prior AVAV staged-add signal is no longer inside its preferred $150-$156 entry zone after AVAV closed 24 Sep at $158.55. No replacement BUY or urgent SELL meets the established threshold in this scan.",
-  "position": "Keep cash available and wait for a cleaner entry or a new catalyst-backed signal. Do not chase.",
-  "urgency": "None",
-  "updated_at": "2026-09-25T02:52:50+02:00",
-  "updated_label": "NO TRADE"
+  "id": "2026-09-26-avav-buy",
+  "ticker": "AVAV",
+  "action": "BUY",
+  "owned_action": "Staged add only; no urgent sell condition confirmed.",
+  "reason": "AVAV is inside the established $150-$156 preferred entry zone. Defence/autonomy growth thesis remains intact; use controlled position sizing because volatility and execution risk remain high.",
+  "position": "Small staged buy/add only while inside the preferred entry zone. Do not chase materially above $156.",
+  "urgency": "Actionable in entry zone",
+  "updated_at": "2026-09-26T19:26:00+02:00",
+  "updated_label": "BUY"
 }
