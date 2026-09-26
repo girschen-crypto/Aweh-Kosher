@@ -42,6 +42,8 @@ type Planner = {
   style: string;
   adults: string;
   children: string;
+  kosher: boolean;
+  kosher_level: string;
 };
 
 const initialPlanner: Planner = {
@@ -50,6 +52,8 @@ const initialPlanner: Planner = {
   style: 'Adventure + scenery',
   adults: '2',
   children: '0',
+  kosher: false,
+  kosher_level: 'Kosher meals where arranged',
 };
 
 const partnerLinks = {
@@ -88,7 +92,7 @@ function buildQuickPlan(planner: Planner) {
   const selected = templates[base] || templates['Tsitsikamma'];
   return {
     title: `${days}-day ${base} starter plan`,
-    subtitle: `${style} · ${planner.adults || '2'} adult(s) · ${planner.children || '0'} child(ren)`,
+    subtitle: `${style} · ${planner.adults || '2'} adult(s) · ${planner.children || '0'} child(ren)${planner.kosher ? ` · ${planner.kosher_level}` : ''}`,
     days: selected.slice(0, days),
   };
 }
@@ -142,7 +146,7 @@ export default function App() {
       ...current,
       destination: planner.base || current.destination,
       num_guests: String((Number(planner.adults) || 0) + (Number(planner.children) || 0) || 1),
-      notes: `Revenue-engine lead: Please help me book ${labels[service]} for a ${planner.days}-day ${planner.base} trip. Travel style: ${planner.style}. Adults: ${planner.adults}. Children: ${planner.children}.`,
+      notes: `Revenue-engine lead: Please help me book ${labels[service]} for a ${planner.days}-day ${planner.base} trip. Travel style: ${planner.style}. Adults: ${planner.adults}. Children: ${planner.children}. Kosher requirement: ${planner.kosher ? planner.kosher_level : 'No'}.`,
     }));
     document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -259,6 +263,19 @@ export default function App() {
               </label>
               <label>Adults<input min="1" max="20" type="number" value={planner.adults} onChange={(e) => setPlanner({ ...planner, adults: e.target.value })} /></label>
               <label>Children<input min="0" max="20" type="number" value={planner.children} onChange={(e) => setPlanner({ ...planner, children: e.target.value })} /></label>
+              <label className="kosherToggle">
+                <span>Do you require Kosher arrangements?</span>
+                <input type="checkbox" checked={planner.kosher} onChange={(e) => setPlanner({ ...planner, kosher: e.target.checked })} />
+              </label>
+              {planner.kosher && <label className="wide">Kosher requirement
+                <select value={planner.kosher_level} onChange={(e) => setPlanner({ ...planner, kosher_level: e.target.value })}>
+                  <option>Kosher meals where arranged</option>
+                  <option>Strictly Kosher itinerary</option>
+                  <option>Shabbat-aware itinerary</option>
+                  <option>Kosher group / family travel</option>
+                  <option>Discuss requirements with me</option>
+                </select>
+              </label>}
               <button className="button primary plannerButton" type="button" onClick={() => setQuickPlan(buildQuickPlan(planner))}>Build my free plan</button>
             </div>
           </div>
@@ -271,6 +288,10 @@ export default function App() {
                 <h3>{quickPlan.title}</h3>
                 <p className="plannerSubtitle">{quickPlan.subtitle}</p>
                 <ol>{quickPlan.days.map((day, index) => <li key={day}><span>Day {index + 1}</span><p>{day}</p></li>)}</ol>
+                {planner.kosher && <div className="kosherPlanNote">
+                  <strong>Kosher planning is active</strong>
+                  <span>We will treat meals, accommodation suitability, routing and Shabbat considerations as part of the trip design rather than a last-minute request.</span>
+                </div>}
                 <div className="moneyActions">
                   <button onClick={() => requestService('stays')}>Find accommodation</button>
                   <button onClick={() => requestService('activities')}>Book activities</button>
