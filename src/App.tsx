@@ -176,7 +176,9 @@ export default function App() {
           destination: enquiry.destination,
           start_date: enquiry.start_date || undefined,
           num_guests: Number(enquiry.num_guests || 1),
-          notes: enquiry.notes,
+          notes: planner.kosher
+            ? `${enquiry.notes}\n\nKOSHER SPECIALIST HANDOFF: Travel Aweh remains client-facing and keeps all normal travel bookings. Coordinate only the Kosher component with OR Africa. Requirement: ${planner.kosher_level}.`
+            : enquiry.notes,
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -290,7 +292,7 @@ export default function App() {
                 <ol>{quickPlan.days.map((day, index) => <li key={day}><span>Day {index + 1}</span><p>{day}</p></li>)}</ol>
                 {planner.kosher && <div className="kosherPlanNote">
                   <strong>Kosher planning is active</strong>
-                  <span>We will treat meals, accommodation suitability, routing and Shabbat considerations as part of the trip design rather than a last-minute request.</span>
+                  <span>Travel Aweh remains your point of contact and handles the normal travel booking. Only the specialist Kosher component is coordinated with OR Africa where needed.</span>
                 </div>}
                 <div className="moneyActions">
                   <button onClick={() => requestService('stays')}>Find accommodation</button>
@@ -359,8 +361,8 @@ export default function App() {
             <h2>Tell us what you require before we build the route.</h2>
           </div>
           <div className="kosherCopy">
-            <p>Kosher requirements can affect accommodation, meals, routing, Shabbat planning and the people needed on the ground. We treat that as part of the trip design, not as a note added at the end.</p>
-            <p>Availability and arrangements differ by destination and itinerary, so we confirm the actual requirements for each journey rather than making blanket promises.</p>
+            <p>Travel Aweh remains your point of contact for the full journey. Hotels, flights, transfers, activities and normal travel planning stay with Travel Aweh.</p>
+            <p>When specialist Kosher support is needed — including Kosher food or supervision, Shabbat requirements, functions, large events or specialist Kosher questions — Travel Aweh coordinates that component with OR Africa behind the scenes.</p>
           </div>
         </div>
       </section>
