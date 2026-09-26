@@ -1,0 +1,27 @@
+name: Validate Travel Aweh Cloudflare Rebuild
+
+on:
+  push:
+    branches: [cloudflare-rebuild]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Bundle Cloudflare Worker
+        run: npx esbuild@0.25.8 cloudflare/worker.ts --bundle --format=esm --platform=browser --outfile=/tmp/travel-aweh-worker.js
+
+      - name: Validate D1 migration SQL
+        run: sqlite3 :memory: < migrations/0001_init.sql
