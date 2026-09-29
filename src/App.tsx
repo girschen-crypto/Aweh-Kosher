@@ -122,6 +122,7 @@ export default function App() {
           <nav className="navlinks" aria-label="Main navigation">
             <a href="#journeys">Journeys</a>
             <a href="#kosher">Kosher available</a>
+            <a href="#books">Books</a>
             <a href="#plan" className="navCta">Plan a trip</a>
           </nav>
         </div>
@@ -219,6 +220,55 @@ export default function App() {
         </div>
       </section>
 
+
+      <section className="section booksSection" id="books">
+        <div className="shell">
+          <div className="sectionHead booksHead">
+            <div>
+              <p className="eyebrow dark">AWEH KOSHER BOOKS</p>
+              <h2>Take the planning guide with you.</h2>
+            </div>
+            <p>Practical Southern African kosher travel guidance for routes, Shabbat planning, Jewish communities, food arrangements and real-world travel logistics.</p>
+          </div>
+
+          <div className="bookGrid">
+            <article className="bookCard">
+              <div className="bookCover englishCover" aria-label="Aweh Kosher Southern Africa Journeys English book cover">
+                <span className="bookTopLine">AWEH KOSHER</span>
+                <strong>Southern Africa<br />Journeys</strong>
+                <span className="bookCoverMeta">OR AFRICA TOURS &amp; TRAVEL</span>
+              </div>
+              <div className="bookBody">
+                <span className="bookLanguage">English edition</span>
+                <h3>Aweh Kosher: Southern Africa Journeys</h3>
+                <p>A practical companion for kosher travellers exploring Southern Africa, with route planning, Shabbat considerations, Jewish community information and destination guidance.</p>
+                <a className="button bookButton" href="https://www.amazon.com/dp/B0HGL7Z13Y" target="_blank" rel="noreferrer">Buy on Amazon</a>
+              </div>
+            </article>
+
+            <article className="bookCard">
+              <div className="bookCover hebrewCover" dir="rtl" aria-label="Aweh Kosher Hebrew edition book cover">
+                <span className="bookTopLine">אווה כשר</span>
+                <strong>מסעות כשרים<br />בדרום אפריקה</strong>
+                <span className="bookCoverMeta">MR G &amp; MR URI COHEN</span>
+              </div>
+              <div className="bookBody">
+                <span className="bookLanguage">Hebrew edition</span>
+                <h3 dir="rtl">אווה כשר: מסעות בדרום אפריקה</h3>
+                <p>Hebrew-language edition for travellers who want practical kosher guidance while exploring South Africa and the wider Southern African region.</p>
+                <a className="button bookButton" href="https://www.amazon.com/dp/B0HGG4B2VL" target="_blank" rel="noreferrer">Buy on Amazon</a>
+              </div>
+            </article>
+          </div>
+
+          <div className="booksNote">
+            <strong>Planning a kosher group, Shabbat stay or event?</strong>
+            <span>The books help you prepare. Travel Aweh can coordinate the travel, while specialist kosher requirements are arranged with the appropriate partners.</span>
+            <a href="#plan">Plan a kosher journey →</a>
+          </div>
+        </div>
+      </section>
+
       <section className="section planSection" id="plan">
         <div className="shell planGrid">
           <div className="planIntro">
@@ -259,8 +309,8 @@ export default function App() {
       <footer className="footer">
         <div className="shell footerGrid">
           <a className="brand footerBrand" href="#top"><span className="brandMark">A</span><span><strong>Travel Aweh</strong><small>Southern Africa, your way</small></span></a>
-          <p>Tailored travel · Tours & safaris · Kosher available where arranged</p>
-          <a href="#plan">Plan a trip →</a>
+          <p>Tailored travel · Tours & safaris · Kosher available where arranged · Books</p>
+          <div className="footerLinks"><a href="#books">Books</a><a href="#plan">Plan a trip →</a></div>
         </div>
       </footer>
     </main>
