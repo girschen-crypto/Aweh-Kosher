@@ -4,7 +4,7 @@ on:
   push:
     branches: [cloudflare-rebuild]
   pull_request:
-    branches: [main]
+    branches: [main, cloudflare-rebuild]
 
 jobs:
   validate:
