@@ -2,7 +2,7 @@ name: Validate Travel Aweh Cloudflare Rebuild
 
 on:
   push:
-    branches: [cloudflare-rebuild]
+    branches: [cloudflare-rebuild, 'feature/travel-aweh-sales-engine-20260930']
   pull_request:
     branches: [main, cloudflare-rebuild]
 
@@ -19,6 +19,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Install app dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build public app
+        run: npm run build
 
       - name: Bundle Cloudflare Worker
         run: npx esbuild@0.25.8 cloudflare/worker.ts --bundle --format=esm --platform=browser --outfile=/tmp/travel-aweh-worker.js
