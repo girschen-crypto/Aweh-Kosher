@@ -168,6 +168,7 @@ export default function App() {
       ...current,
       tour_id: '',
       destination: details.base || current.destination,
+      start_date: details.start_date || current.start_date,
       num_guests: String((Number(details.adults) || 0) + (Number(details.children) || 0) || 1),
       notes: `Booking enquiry: Please help me book ${labels[service]} for a ${details.days}-day ${details.base} trip. Travel style: ${details.style}. Adults: ${details.adults}. Children: ${details.children}. Kosher requirement: ${details.kosher ? details.kosher_level : 'No'}.`,
     }));
