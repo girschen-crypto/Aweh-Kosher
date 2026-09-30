@@ -36,6 +36,69 @@ const initialEnquiry: Enquiry = {
   notes: '',
 };
 
+type Planner = {
+  days: string;
+  start_date: string;
+  base: string;
+  style: string;
+  adults: string;
+  children: string;
+  kosher: boolean;
+  kosher_level: string;
+};
+
+const initialPlanner: Planner = {
+  days: '3',
+  start_date: '',
+  base: 'Tsitsikamma',
+  style: 'Adventure + scenery',
+  adults: '2',
+  children: '0',
+  kosher: false,
+  kosher_level: 'Kosher meals where arranged',
+};
+
+const partnerLinks = {
+  activities: (import.meta.env.VITE_VIATOR_AFFILIATE_URL || '').trim(),
+  stays: (import.meta.env.VITE_BOOKING_AFFILIATE_URL || '').trim(),
+  guides: (import.meta.env.VITE_GUIDEGO_PUBLIC_URL || '').trim(),
+};
+
+function buildQuickPlan(planner: Planner) {
+  const days = Math.max(1, Math.min(5, Number(planner.days) || 3));
+  const base = planner.base || 'Tsitsikamma';
+  const style = planner.style || 'Adventure + scenery';
+  const templates: Record<string, string[]> = {
+    'Tsitsikamma': [
+      'Storms River Mouth: suspension-bridge area, viewpoints and an easy coastal walk.',
+      'Tsitsikamma Forest: Big Tree / forest experience plus a local lunch stop.',
+      'Adventure day: zipline, kayaking or a guided activity matched to the group.',
+      'Nature’s Valley / The Crags: scenic Garden Route drive with an experience stop.',
+      'Plettenberg Bay: beach, viewpoints and a flexible activity or food stop.',
+    ],
+    'Plettenberg Bay': [
+      'Plettenberg Bay orientation: viewpoints, beach time and a relaxed local meal.',
+      'The Crags / Nature’s Valley: wildlife or adventure experience and scenic stops.',
+      'Tsitsikamma day trip: Storms River Mouth and forest highlights.',
+      'Ocean day: marine, boat or coastal activity subject to conditions.',
+      'Flexible final day: food, shopping, beach or another booked experience.',
+    ],
+    'Garden Route': [
+      'George / Wilderness: scenic start with lakes, viewpoints and local stops.',
+      'Knysna: lagoon, Heads and a flexible experience.',
+      'Plettenberg Bay / The Crags: beach, wildlife or adventure.',
+      'Tsitsikamma: forest and Storms River Mouth.',
+      'Buffer day: use for weather, a premium activity or onward transfer.',
+    ],
+  };
+  const selected = templates[base] || templates['Tsitsikamma'];
+  return {
+    title: `${days}-day ${base} starter plan`,
+    subtitle: `${style} · ${planner.adults || '2'} adult(s) · ${planner.children || '0'} child(ren)${planner.kosher ? ` · ${planner.kosher_level}` : ''}`,
+    days: selected.slice(0, days),
+  };
+}
+
 const money = (value: number, currency = 'ZAR') =>
   new Intl.NumberFormat('en-ZA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
 
@@ -51,6 +114,10 @@ export default function App() {
   const [enquiry, setEnquiry] = useState<Enquiry>(initialEnquiry);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string; reference?: string } | null>(null);
+
+  const [planner, setPlanner] = useState<Planner>(initialPlanner);
+  const [generated, setGenerated] = useState<{ plan: ReturnType<typeof buildQuickPlan>; details: Planner } | null>(null);
+  const [enquiryKosher, setEnquiryKosher] = useState<{ required: boolean; level: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +138,41 @@ export default function App() {
     () => tours.find((tour) => String(tour.id) === enquiry.tour_id),
     [tours, enquiry.tour_id],
   );
+
+  const requestFullQuote = () => {
+    if (!generated) return;
+    const details = generated.details;
+    const dayNotes = generated.plan.days.map((day, index) => `Day ${index + 1}: ${day}`).join('\n');
+    setEnquiryKosher({ required: details.kosher, level: details.kosher_level });
+    setEnquiry((current) => ({
+      ...current,
+      tour_id: '',
+      destination: details.base,
+      start_date: details.start_date || current.start_date,
+      num_guests: String(Number(details.adults) + Number(details.children)),
+      notes: [`Quick planner request: ${generated.plan.title}`, generated.plan.subtitle, dayNotes, `Kosher requirements: ${details.kosher ? details.kosher_level : 'None indicated'}`].filter(Boolean).join('\n\n'),
+    }));
+    document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const requestService = (service: 'activities' | 'stays' | 'guides') => {
+    const details = generated?.details || planner;
+    const external = partnerLinks[service];
+    if (external) {
+      window.open(external, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    const labels = { activities: 'activities / experiences', stays: 'accommodation', guides: 'a local guide' };
+    setEnquiryKosher({ required: details.kosher, level: details.kosher_level });
+    setEnquiry((current) => ({
+      ...current,
+      tour_id: '',
+      destination: details.base || current.destination,
+      num_guests: String((Number(details.adults) || 0) + (Number(details.children) || 0) || 1),
+      notes: `Booking enquiry: Please help me book ${labels[service]} for a ${details.days}-day ${details.base} trip. Travel style: ${details.style}. Adults: ${details.adults}. Children: ${details.children}. Kosher requirement: ${details.kosher ? details.kosher_level : 'No'}.`,
+    }));
+    document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const chooseTour = (tour: Tour) => {
     setEnquiry((current) => ({
@@ -97,13 +199,16 @@ export default function App() {
           destination: enquiry.destination,
           start_date: enquiry.start_date || undefined,
           num_guests: Number(enquiry.num_guests || 1),
-          notes: enquiry.notes,
+          notes: [enquiry.notes, (enquiryKosher?.required ?? planner.kosher) ? `KOSHER SPECIALIST HANDOFF: Travel Aweh remains the client-facing travel organiser. Coordinate specialist kosher components only with OR Africa. Requirement: ${enquiryKosher?.level ?? planner.kosher_level}.` : '', (() => { const tags = new URLSearchParams(window.location.search); const values = ['utm_source', 'utm_medium', 'utm_campaign'].map((key) => { const value = (tags.get(key) || '').replace(/[^a-zA-Z0-9 _.-]/g, '').slice(0, 60); return value ? `${key}=${value}` : ''; }).filter(Boolean); return `Lead source: ${values.join('; ') || 'direct / untagged'}`; })()].filter(Boolean).join('\n\n'),
         }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Your enquiry could not be sent.');
       setResult({ ok: true, message: data.message || 'Your Travel Aweh enquiry has been received.', reference: data.reference });
       setEnquiry(initialEnquiry);
+      setPlanner(initialPlanner);
+      setGenerated(null);
+      setEnquiryKosher(null);
     } catch (error) {
       setResult({ ok: false, message: error instanceof Error ? error.message : 'Your enquiry could not be sent.' });
     } finally {
@@ -120,6 +225,7 @@ export default function App() {
             <span><strong>Travel Aweh</strong><small>Southern Africa, your way</small></span>
           </a>
           <nav className="navlinks" aria-label="Main navigation">
+            <a href="#planner">Free trip planner</a>
             <a href="#journeys">Journeys</a>
             <a href="#kosher">Kosher available</a>
             <a href="#books">Books</a>
@@ -157,6 +263,74 @@ export default function App() {
       <section className="intro shell">
         <div><p className="eyebrow dark">WHY TRAVEL AWEH</p><h2>Africa is better when the logistics disappear.</h2></div>
         <p>We focus on practical, well-coordinated travel. That means a journey that makes sense on the ground, not an itinerary that only looks good on paper.</p>
+      </section>
+
+      <section className="section plannerSection" id="planner">
+        <div className="shell plannerGrid">
+          <div className="plannerIntro">
+            <p className="eyebrow dark">FREE GARDEN ROUTE PLANNER</p>
+            <h2>Build a useful trip outline in under a minute.</h2>
+            <p>Start with a simple route. Then book the parts you need: accommodation, activities and a local guide.</p>
+            <div className="plannerForm">
+              <label>Days
+                <select value={planner.days} onChange={(e) => setPlanner({ ...planner, days: e.target.value })}>
+                  <option value="1">1 day</option><option value="2">2 days</option><option value="3">3 days</option><option value="4">4 days</option><option value="5">5 days</option>
+                </select>
+              </label>
+              <label>Approximate start date<input type="date" value={planner.start_date} onChange={(e) => setPlanner({ ...planner, start_date: e.target.value })} /></label>
+              <label>Base
+                <select value={planner.base} onChange={(e) => setPlanner({ ...planner, base: e.target.value })}>
+                  <option>Tsitsikamma</option><option>Plettenberg Bay</option><option>Garden Route</option>
+                </select>
+              </label>
+              <label>Travel style
+                <select value={planner.style} onChange={(e) => setPlanner({ ...planner, style: e.target.value })}>
+                  <option>Adventure + scenery</option><option>Family</option><option>Relaxed</option><option>Food + scenery</option>
+                </select>
+              </label>
+              <label>Adults<input min="1" max="20" type="number" value={planner.adults} onChange={(e) => setPlanner({ ...planner, adults: e.target.value })} /></label>
+              <label>Children<input min="0" max="20" type="number" value={planner.children} onChange={(e) => setPlanner({ ...planner, children: e.target.value })} /></label>
+              <label className="kosherToggle">
+                <span>Do you require Kosher arrangements?</span>
+                <input type="checkbox" checked={planner.kosher} onChange={(e) => setPlanner({ ...planner, kosher: e.target.checked })} />
+              </label>
+              {planner.kosher && <label className="wide">Kosher requirement
+                <select value={planner.kosher_level} onChange={(e) => setPlanner({ ...planner, kosher_level: e.target.value })}>
+                  <option>Kosher meals where arranged</option>
+                  <option>Strictly Kosher itinerary</option>
+                  <option>Shabbat-aware itinerary</option>
+                  <option>Kosher group / family travel</option>
+                  <option>Discuss requirements with me</option>
+                </select>
+              </label>}
+              <button className="button primary plannerButton" type="button" onClick={() => setGenerated({ plan: buildQuickPlan(planner), details: { ...planner } })}>Build my free plan</button>
+            </div>
+          </div>
+          <div className="plannerResult">
+            {!generated ? (
+              <div className="plannerEmpty"><strong>Your route appears here.</strong><span>No login. No AI charge. Just a practical starting plan.</span></div>
+            ) : (
+              <>
+                <p className="eyebrow dark">YOUR STARTER PLAN</p>
+                <h3>{generated.plan.title}</h3>
+                <p className="plannerSubtitle">{generated.plan.subtitle}</p>
+                <ol>{generated.plan.days.map((day, index) => <li key={day}><span>Day {index + 1}</span><p>{day}</p></li>)}</ol>
+                {generated.details.kosher && <div className="kosherPlanNote">
+                  <strong>Kosher planning is active</strong>
+                  <span>Travel Aweh remains your point of contact and handles the normal travel booking. Only the specialist Kosher component is coordinated with OR Africa where needed.</span>
+                </div>}
+                <p className="plannerHint">A starter route, not confirmed availability. We will check suitability, opening times and suppliers before quoting.</p>
+                <button className="button primary quoteButton" type="button" onClick={requestFullQuote}>Request a tailored quote for this route</button>
+                <div className="moneyActions">
+                  <button onClick={() => requestService('stays')}>Find accommodation</button>
+                  <button onClick={() => requestService('activities')}>Book activities</button>
+                  <button onClick={() => requestService('guides')}>Get a local guide</button>
+                </div>
+                <small className="plannerDisclosure">Partner booking links can earn Travel Aweh commission at no extra cost to the traveller. Where a partner link is not yet active, we convert the request into a Travel Aweh booking enquiry.</small>
+              </>
+            )}
+          </div>
+        </div>
       </section>
 
       <section className="section journeys" id="journeys">
@@ -214,8 +388,8 @@ export default function App() {
             <h2>Tell us what you require before we build the route.</h2>
           </div>
           <div className="kosherCopy">
-            <p>Kosher requirements can affect accommodation, meals, routing, Shabbat planning and the people needed on the ground. We treat that as part of the trip design, not as a note added at the end.</p>
-            <p>Availability and arrangements differ by destination and itinerary, so we confirm the actual requirements for each journey rather than making blanket promises.</p>
+            <p>Travel Aweh remains your point of contact for the full journey. Hotels, flights, transfers, activities and normal travel planning stay with Travel Aweh.</p>
+            <p>When specialist Kosher support is needed — including Kosher food or supervision, Shabbat requirements, functions, large events or specialist Kosher questions — Travel Aweh coordinates that component with OR Africa behind the scenes.</p>
           </div>
         </div>
       </section>
@@ -297,7 +471,7 @@ export default function App() {
             </div>
             <button className="button primary submitButton" disabled={submitting}>{submitting ? 'Sending enquiry…' : 'Send trip enquiry'}</button>
             {result && <div className={`formResult ${result.ok ? 'success' : 'error'}`}>
-              <strong>{result.ok ? 'Enquiry received' : 'Please check your enquiry'}</strong>
+              <strong>{result.ok ? 'Enquiry received — not yet booked' : 'Please check your enquiry'}</strong>
               <span>{result.message}</span>
               {result.reference && <span>Reference: <b>{result.reference}</b></span>}
             </div>}
@@ -310,7 +484,7 @@ export default function App() {
         <div className="shell footerGrid">
           <a className="brand footerBrand" href="#top"><span className="brandMark">A</span><span><strong>Travel Aweh</strong><small>Southern Africa, your way</small></span></a>
           <p>Tailored travel · Tours & safaris · Kosher available where arranged · Books</p>
-          <div className="footerLinks"><a href="#books">Books</a><a href="#plan">Plan a trip →</a></div>
+          <div className="footerLinks"><a href="#planner">Free planner</a><a href="#books">Books</a><a href="#plan">Plan a trip →</a></div>
         </div>
       </footer>
     </main>
