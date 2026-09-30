@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-29-avav-buy",
-  "ticker": "AVAV",
-  "action": "BUY",
+  "id": "2026-09-30-no-trade",
+  "ticker": "—",
+  "action": "NO TRADE",
   "owned_action": "No urgent sell condition confirmed on known owned holdings.",
-  "reason": "AVAV closed 28 Sep at $147.23, inside the established $147-$150 staged entry zone. The defence/autonomy catalyst remains intact, but momentum is weak, so this is a staged entry rather than a breakout buy.",
-  "position": "Small first tranche in the $147-$150 zone; keep cash for a second tranche. Do not chase materially above $156.",
-  "urgency": "Actionable entry zone; staged position only",
-  "updated_at": "2026-09-29T06:21:48+02:00",
-  "updated_label": "BUY"
+  "reason": "No current BUY meets the established entry and confirmation criteria. AVAV has slipped below its prior $147-$150 entry zone with weak momentum, while NVDA failed to hold the $229.98 breakout area.",
+  "position": "Keep cash available and wait for a fresh confirmed entry or a stronger catalyst.",
+  "urgency": "No action required",
+  "updated_at": "2026-09-30T04:05:05+02:00",
+  "updated_label": "NO TRADE"
 }
