@@ -1,11 +1,11 @@
 {
-  "id": "2026-09-30-no-trade",
-  "ticker": "—",
-  "action": "NO TRADE",
+  "id": "2026-10-01-bwxt-buy",
+  "ticker": "BWXT",
+  "action": "BUY",
   "owned_action": "No urgent sell condition confirmed on known owned holdings.",
-  "reason": "No current BUY meets the established entry and confirmation criteria. AVAV has slipped below its prior $147-$150 entry zone with weak momentum, while NVDA failed to hold the $229.98 breakout area.",
-  "position": "Keep cash available and wait for a fresh confirmed entry or a stronger catalyst.",
-  "urgency": "No action required",
-  "updated_at": "2026-09-30T04:05:05+02:00",
-  "updated_label": "NO TRADE"
+  "reason": "BWXT remains in the $136-$141 preferred entry zone after its Investor Day, with fresh Buy ratings from BTIG and Guggenheim reinforcing the nuclear and defence growth catalyst.",
+  "position": "Small first tranche in the $136-$141 zone; stage further exposure only if support holds. Do not chase a sharp move above about $145.",
+  "urgency": "Actionable in entry zone",
+  "updated_at": "2026-10-01T06:07:48+02:00",
+  "updated_label": "BUY"
 }
