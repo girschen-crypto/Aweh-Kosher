@@ -7,6 +7,7 @@
 <title>Mr G Trade Desk</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="styles.css?v=15">
+<link rel="stylesheet" href="binance.css?v=1">
 </head>
 <body>
 <header class="topbar">
@@ -81,8 +82,29 @@
     <div class="broker-options">
       <button id="brokerEEBtn" class="broker-option selected" onclick="setBroker('EasyEquities')"><strong>EasyEquities</strong><span>Current account · manual approval</span></button>
       <button id="brokerIBKRBtn" class="broker-option secondary" onclick="setBroker('IBKR')"><strong>Interactive Brokers</strong><span>API-ready route · manual approval first</span></button>
+      <button id="brokerBinanceBtn" class="broker-option secondary" onclick="setBroker('Binance')"><strong>Binance</strong><span>Crypto desk · live market data · manual orders</span></button>
     </div>
     <p class="tracker-note" id="brokerNote">Existing positions stay at EasyEquities. Broker selection changes only where new trade tickets are handed off.</p>
+  </article>
+
+
+  <section class="section-head">
+    <div><div class="eyebrow dark">BINANCE CRYPTO DESK</div><h2>Live crypto market</h2></div>
+    <span class="pill wait" id="binanceStatusPill">CONNECTING</span>
+  </section>
+  <article class="card binance-card">
+    <div class="binance-summary">
+      <div><span>Market source</span><strong>Binance Spot</strong></div>
+      <div><span>Account link</span><strong id="binanceAccountState">Market data only</strong></div>
+      <div><span>Execution</span><strong>Manual approval</strong></div>
+      <div><span>Last refresh</span><strong id="binanceRefreshTime">—</strong></div>
+    </div>
+    <p class="tracker-note">TradeDesk reads public Binance market data. Your Binance API secret is never stored in this browser. Account balances and automated orders stay locked until a secure server-side connection is configured.</p>
+    <div id="cryptoWatchlist" class="crypto-watchlist"></div>
+    <div class="crypto-actions">
+      <button onclick="refreshBinanceMarket(true)">Refresh Binance</button>
+      <button class="secondary" onclick="openBinance()">Open Binance</button>
+    </div>
   </article>
 
   <section class="section-head signal-head">
@@ -191,5 +213,6 @@
 
 <div id="toast" class="toast">Copied</div>
 <script src="app.js?v=15"></script>
+<script src="binance.js?v=1"></script>
 </body>
 </html>
