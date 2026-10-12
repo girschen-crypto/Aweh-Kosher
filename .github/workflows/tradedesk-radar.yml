@@ -20,6 +20,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
+      - name: Compile scanner before running
+        run: python3 -m py_compile trade-desk/scripts/radar_scan.py
       - name: Scan public Binance Spot and delayed US stock closes
         run: python3 trade-desk/scripts/radar_scan.py
       - name: Publish timestamped research snapshot
