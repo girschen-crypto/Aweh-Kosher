@@ -186,9 +186,44 @@ def stock_scan():
     return results, None if results else "Equity price feed unavailable; no stocks scored"
 
 
+
+def attach_news_leads(rows):
+    """RSS headlines are research leads, not confirmation or buy signals."""
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+    for row in rows[:6]:
+        query = '"' + row["name"] + '" stock when:7d'
+        url = "https://news.google.com/rss/search?" + urllib.parse.urlencode({
+            "q": query, "hl": "en-US", "gl": "US", "ceid": "US:en"
+        })
+        leads = []
+        try:
+            root = ET.fromstring(fetch_text(url, timeout=8))
+            for item in root.findall("./channel/item")[:5]:
+                title = (item.findtext("title") or "").strip()
+                link = (item.findtext("link") or "").strip()
+                published = (item.findtext("pubDate") or "").strip()
+                if not title or not link.startswith("https://news.google.com/"):
+                    continue
+                try:
+                    age = datetime.now(timezone.utc) - parsedate_to_datetime(published)
+                    if age < timedelta(0) or age > timedelta(days=7):
+                        continue
+                except (TypeError, ValueError, OverflowError):
+                    continue
+                leads.append({"headline": title[:220], "url": link,
+                              "published": published, "source": "Google News RSS, unverified"})
+                if len(leads) == 2:
+                    break
+        except (OSError, ValueError, ET.ParseError):
+            pass
+        row["headline_leads"] = leads
+    return rows
+
 def main():
     coins, crypto_error = crypto_scan()
     stocks, stock_error = stock_scan()
+    stocks = attach_news_leads(stocks)
     document = {
         "schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
         "execution_enabled": False, "recommendation": "RESEARCH ONLY",
