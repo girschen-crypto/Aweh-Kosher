@@ -1,6 +1,6 @@
 (() => {
   const BINANCE_HOME='https://www.binance.com/en/trade/';
-  const BINANCE_API='https://api.binance.com/api/v3';
+  const BINANCE_API='https://data-api.binance.vision/api/v3';
   const SYMBOLS=[
     {symbol:'BTCUSDT',ticker:'BTC',name:'Bitcoin'},
     {symbol:'ETHUSDT',ticker:'ETH',name:'Ethereum'},
