@@ -58,14 +58,15 @@ def crypto_scan():
             if not symbol.endswith("USDT"):
                 continue
             base = symbol[:-4]
-            if (base in EXCLUDED or base.endswith(("UP", "DOWN", "BULL", "BEAR")) or
+            if (base in EXCLUDED or base.startswith(("USD", "EUR", "GBP")) or len(base) < 2 or
+                    base.endswith(("UP", "DOWN", "BULL", "BEAR")) or
                     not base.isalnum() or len(base) > 14):
                 continue
             change = number(row.get("priceChangePercent"))
             quote_volume = number(row.get("quoteVolume"))
             bid, ask = number(row.get("bidPrice")), number(row.get("askPrice"))
             spread = (ask - bid) / ((ask + bid) / 2) * 100 if bid > 0 and ask >= bid else 999
-            if quote_volume < 15000000 or spread > 0.30 or number(row.get("count")) < 2500:
+            if quote_volume < 25000000 or spread > 0.20 or number(row.get("count")) < 2500:
                 continue
             if change < -4 or change > 13:
                 continue
@@ -121,6 +122,8 @@ def crypto_scan():
                 label = ("AVOID CHASING" if warning else
                          "BREAKOUT WATCH" if score >= 72 and breakout else
                          "EARLY WATCH" if score >= 55 else "MONITOR")
+                if warning or score < 55 or not above_trend or recent_move <= 0:
+                    continue
                 candidates.append({
                     "ticker": symbol[:-4], "pair": symbol, "price_usdt": round(price, 8),
                     "change_24h_pct": round(change, 2), "move_4h_pct": round(recent_move, 2),
@@ -132,25 +135,60 @@ def crypto_scan():
                 })
             except (OSError, ValueError, KeyError, IndexError, TypeError):
                 continue
-        candidates.sort(key=lambda x: (x["status"] == "AVOID CHASING", -x["score"]))
-        return candidates[:12], None if candidates else "No valid crypto candles returned"
+        candidates.sort(key=lambda x: -x["score"])
+        return candidates[:12], None if candidates else "No liquid crypto pairs currently meet the breakout/momentum quality gate"
     except Exception as exc:
         return [], "Crypto feed unavailable: " + type(exc).__name__
 
 
+
+def fetch_yahoo_bars(symbol):
+    """Unofficial Yahoo daily candles; indicative historical data, never trade quotes."""
+    url = "https://query1.finance.yahoo.com/v8/finance/chart/" + urllib.parse.quote(symbol) + "?range=3mo&interval=1d"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; personal research)"})
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        payload = json.loads(resp.read().decode("utf-8"))
+    dataset = payload["chart"]["result"][0]
+    timestamps = dataset["timestamp"]
+    q = dataset["indicators"]["quote"][0]
+    out = []
+    for i, stamp in enumerate(timestamps):
+        close = (q.get("close") or [])[i]
+        high = (q.get("high") or [])[i]
+        vol = (q.get("volume") or [])[i]
+        if close is None or high is None:
+            continue
+        out.append({
+            "Date": datetime.fromtimestamp(stamp, timezone.utc).strftime("%Y-%m-%d"),
+            "Close": close, "High": high, "Volume": vol or 0
+        })
+    return out
+
+
 def stock_scan():
     results = []
+    priced_count = 0
     for symbol, name in STOCKS.items():
         url = "https://stooq.com/q/d/l/?" + urllib.parse.urlencode({
             "s": symbol.lower() + ".us", "i": "d",
             "d1": (datetime.now(timezone.utc) - timedelta(days=140)).strftime("%Y%m%d")
         })
         try:
-            content = fetch_text(url)
-            prices = list(csv.DictReader(io.StringIO(content)))
+            source = "Stooq end-of-day CSV (delayed, unofficial)"
+            try:
+                content = fetch_text(url, timeout=8)
+                prices = list(csv.DictReader(io.StringIO(content)))
+            except (OSError, ValueError):
+                prices = []
             prices = [r for r in prices if number(r.get("Close")) > 0]
             if len(prices) < 31:
-                continue
+                try:
+                    prices = fetch_yahoo_bars(symbol)
+                    source = "Yahoo Finance chart (unofficial, delayed)"
+                except (OSError, ValueError, KeyError, TypeError, IndexError):
+                    prices = []
+            if len(prices) < 31:
+                raise ValueError("No valid daily OHLCV data")
             prices.sort(key=lambda r: r["Date"])
             recent = prices[-1]
             day = datetime.strptime(recent["Date"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -173,17 +211,22 @@ def stock_scan():
                 risks.append("Sharp daily decline")
             status = ("CAUTION" if risks else "BREAKOUT WATCH" if score >= 70 and breakout else
                       "WATCH" if score >= 48 else "MONITOR")
+            priced_count += 1
             results.append({
                 "ticker": symbol, "name": name, "price_usd": round(close, 2),
                 "day_change_pct": round(change, 2), "volume_ratio": round(vol_ratio, 2),
                 "breakout_20d": breakout, "above_sma20d": trend, "score": score,
                 "status": status, "warnings": risks, "as_of": recent["Date"],
-                "source": "Stooq end-of-day US equity CSV (delayed, unofficial)"
+                "source": source
             })
-        except (OSError, ValueError, KeyError, TypeError):
-            continue
+        except (OSError, ValueError, KeyError, TypeError, IndexError):
+            results.append({"ticker": symbol, "name": name, "price_usd": None,
+                "day_change_pct": None, "volume_ratio": None, "breakout_20d": False,
+                "above_sma20d": False, "score": 0, "status": "NEWS RESEARCH ONLY",
+                "warnings": ["No verified daily price; not a buy signal"],
+                "as_of": None, "source": "No available equity quote"})
     results.sort(key=lambda r: (r["status"] == "CAUTION", -r["score"]))
-    return results, None if results else "Equity price feed unavailable; no stocks scored"
+    return results, None if priced_count else "Equity prices unavailable; news research only"
 
 
 
