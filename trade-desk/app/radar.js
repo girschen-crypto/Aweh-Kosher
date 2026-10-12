@@ -9,7 +9,7 @@
   const node = id => document.getElementById(id);
   const safe = value => String(value ?? '').replace(/[&<>"']/g,
     ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const formatNum = (v, digits=2) => Number.isFinite(Number(v)) ?
+  const formatNum = (v, digits=2) => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ?
     Number(v).toLocaleString('en-US',{maximumFractionDigits:digits,minimumFractionDigits:digits}) : '—';
   const usd = (v, digits=2) => '$' + formatNum(v,digits);
   const positive = n => Number(n) > 0 ? '+' : '';
@@ -37,7 +37,7 @@
     const change = isCrypto ? item.change_24h_pct : item.day_change_pct;
     const priceAsOf = isCrypto ? '24h' : 'Day';
     const volume = formatNum(item.volume_ratio,2) + '× volume';
-    const source = isCrypto ? 'Binance Spot' : 'Stooq · daily close ' + (item.as_of || '?');
+    const source = isCrypto ? 'Binance Spot' : (item.source || 'Source unavailable') + (item.as_of ? ' · ' + item.as_of : '');
     const headlines = !isCrypto && Array.isArray(item.headline_leads) ?
       item.headline_leads.filter(h => String(h.url||'').startsWith('https://news.google.com/'))
         .slice(0,2).map(h => '<div class="radar-news"><a href="' + safe(h.url) +
@@ -49,7 +49,7 @@
     return '<article class="radar-item">' +
       '<div class="radar-item-head"><strong>' + ticker + '</strong><span class="radar-badge '+ badgeClass +'">' +
       (stale ? 'DATA STALE' : status) + '</span></div>' +
-      '<div class="radar-numbers"><b>'+ price +'</b><span>' + priceAsOf + ': ' + pct(change) +
+      '<div class="radar-numbers"><b>'+ price +'</b><span>' + priceAsOf + ': ' + (change == null ? '—' : pct(change)) +
       '</span><span>'+ volume +'</span><span>Screen score '+safe(item.score)+'/100</span></div>' +
       '<p>'+safe(explain(status,item))+'</p><small>' + safe(source) +
       (isCrypto ? ' · 1h closed candles' : ' · not a live quote') + '</small>' +
