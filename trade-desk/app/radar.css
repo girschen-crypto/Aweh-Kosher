@@ -20,3 +20,7 @@
 .radar-warning{margin-top:14px;border-top:1px solid #e2e8f0;padding-top:10px;font-size:.85rem;line-height:1.55;color:#475569}
 .radar-warning p{margin:7px 0}
 @media(max-width:760px){.radar-tabs{grid-template-columns:1fr}.radar-numbers{gap:7px}}
+
+.radar-news{margin-top:7px;padding:7px 9px;border-left:3px solid #cbd5e1;background:#f8fafc;font-size:.79rem}
+.radar-news a{color:#1d4ed8;text-decoration:underline}
+.radar-news small{display:block;color:#64748b;font-size:.7rem;margin-top:3px}
