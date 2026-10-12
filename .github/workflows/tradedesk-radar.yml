@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: tradedesk-opportunity-radar
+  group: tradedesk-data-writer
   cancel-in-progress: false
 
 jobs:
