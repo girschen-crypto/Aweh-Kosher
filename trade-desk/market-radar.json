@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-12T20:06:35.465198+00:00",
+  "generated_at": "2026-10-12T20:09:29.699518+00:00",
   "execution_enabled": false,
   "recommendation": "RESEARCH ONLY",
   "notes": [
@@ -10,255 +10,267 @@
     "No broker keys, orders, transfers, leverage, margin, futures or withdrawals."
   ],
   "crypto": {
-    "data": [
-      {
-        "ticker": "U",
-        "pair": "UUSDT",
-        "price_usdt": 1.0004,
-        "change_24h_pct": 0.03,
-        "move_4h_pct": 0.03,
-        "quote_volume_usdt": 27113038,
-        "volume_ratio": 0.89,
-        "spread_pct": 0.01,
-        "rsi_1h": 57.1,
-        "breakout_20h": false,
-        "above_sma20h": true,
-        "score": 39,
-        "status": "MONITOR",
-        "warnings": [],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "CTK",
-        "pair": "CTKUSDT",
-        "price_usdt": 0.1406,
-        "change_24h_pct": 3.92,
-        "move_4h_pct": -21.0,
-        "quote_volume_usdt": 36127199,
-        "volume_ratio": 0.17,
-        "spread_pct": 0.213,
-        "rsi_1h": 52.9,
-        "breakout_20h": false,
-        "above_sma20h": true,
-        "score": 49,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict",
-          "No volume confirmation"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "PYTH",
-        "pair": "PYTHUSDT",
-        "price_usdt": 0.08246,
-        "change_24h_pct": 4.02,
-        "move_4h_pct": -7.86,
-        "quote_volume_usdt": 16258530,
-        "volume_ratio": 0.39,
-        "spread_pct": 0.024,
-        "rsi_1h": 54.6,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 40,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict",
-          "No volume confirmation"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "USD1",
-        "pair": "USD1USDT",
-        "price_usdt": 1.00036,
-        "change_24h_pct": 0.04,
-        "move_4h_pct": 0.02,
-        "quote_volume_usdt": 156405760,
-        "volume_ratio": 0.9,
-        "spread_pct": 0.001,
-        "rsi_1h": 78.0,
-        "breakout_20h": false,
-        "above_sma20h": true,
-        "score": 35,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Overbought 1h RSI"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "LINK",
-        "pair": "LINKUSDT",
-        "price_usdt": 13.034,
-        "change_24h_pct": -1.89,
-        "move_4h_pct": -0.32,
-        "quote_volume_usdt": 22667228,
-        "volume_ratio": 1.82,
-        "spread_pct": 0.008,
-        "rsi_1h": 28.1,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 33,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "MUBARAK",
-        "pair": "MUBARAKUSDT",
-        "price_usdt": 0.07205,
-        "change_24h_pct": 0.97,
-        "move_4h_pct": 1.17,
-        "quote_volume_usdt": 23270848,
-        "volume_ratio": 0.22,
-        "spread_pct": 0.028,
-        "rsi_1h": 50.4,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 30,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "No volume confirmation"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "ZRO",
-        "pair": "ZROUSDT",
-        "price_usdt": 2.195,
-        "change_24h_pct": 5.12,
-        "move_4h_pct": -3.23,
-        "quote_volume_usdt": 29221276,
-        "volume_ratio": 0.85,
-        "spread_pct": 0.046,
-        "rsi_1h": 38.5,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 28,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "ICP",
-        "pair": "ICPUSDT",
-        "price_usdt": 3.266,
-        "change_24h_pct": -2.6,
-        "move_4h_pct": -1.48,
-        "quote_volume_usdt": 18889816,
-        "volume_ratio": 1.72,
-        "spread_pct": 0.031,
-        "rsi_1h": 14.6,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 24,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "BTC",
-        "pair": "BTCUSDT",
-        "price_usdt": 83014.0,
-        "change_24h_pct": -0.79,
-        "move_4h_pct": 0.16,
-        "quote_volume_usdt": 1011435380,
-        "volume_ratio": 0.72,
-        "spread_pct": 0.0,
-        "rsi_1h": 31.8,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 18,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict",
-          "No volume confirmation"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "ETH",
-        "pair": "ETHUSDT",
-        "price_usdt": 2523.39,
-        "change_24h_pct": -0.51,
-        "move_4h_pct": -0.35,
-        "quote_volume_usdt": 643787269,
-        "volume_ratio": 0.55,
-        "spread_pct": 0.0,
-        "rsi_1h": 32.4,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 18,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict",
-          "No volume confirmation"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "NEAR",
-        "pair": "NEARUSDT",
-        "price_usdt": 5.509,
-        "change_24h_pct": -2.99,
-        "move_4h_pct": -1.55,
-        "quote_volume_usdt": 212493894,
-        "volume_ratio": 0.93,
-        "spread_pct": 0.018,
-        "rsi_1h": 14.2,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 18,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      },
-      {
-        "ticker": "SOL",
-        "pair": "SOLUSDT",
-        "price_usdt": 108.6,
-        "change_24h_pct": -2.35,
-        "move_4h_pct": -0.53,
-        "quote_volume_usdt": 204500025,
-        "volume_ratio": 1.24,
-        "spread_pct": 0.009,
-        "rsi_1h": 17.1,
-        "breakout_20h": false,
-        "above_sma20h": false,
-        "score": 18,
-        "status": "AVOID CHASING",
-        "warnings": [
-          "Momentum conflict"
-        ],
-        "source": "Binance Spot public API",
-        "interval": "1h closed candles"
-      }
-    ],
-    "error": null
+    "data": [],
+    "error": "No liquid crypto pairs currently meet the breakout/momentum quality gate"
   },
   "stocks": {
-    "data": [],
-    "error": "Equity price feed unavailable; no stocks scored",
+    "data": [
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft",
+        "price_usd": 541.15,
+        "day_change_pct": 1.14,
+        "volume_ratio": 0.76,
+        "breakout_20d": true,
+        "above_sma20d": true,
+        "score": 72,
+        "status": "BREAKOUT WATCH",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)",
+        "headline_leads": [
+          {
+            "headline": "Dear Microsoft Stock Fans, Mark Your Calendars for October 7 - Barchart.com",
+            "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxONEYtR3ZjSFJZRXZZRFBpaWtITUg3UGF1S0ZBTjJWc0lkb0hzRW4tZTMzc3ZobFZsREt1TFkxSTBPdUFpX1B6UGZ0V1NlZFlJZnJxQURvUEM4QUUtbkU3R1M2Tjg0OHJjV2xLRXM3bkpsa0kzMm1mVnZua2hGY1lhbDVkNDFEWHF0WndWT1ZsRFAwNVZMR0dlV2szYWJEaDhWU1AzZDh3?oc=5",
+            "published": "Tue, 06 Oct 2026 18:55:39 GMT",
+            "source": "Google News RSS, unverified"
+          },
+          {
+            "headline": "If You Invest $500 a Month in Microsoft Starting Now, This is What You’d Have in 2030 - 24/7 Wall St.",
+            "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxOaVhnVWFqWUFvbDk1Ymo5UXdRaWQ0WG9WZmRKazJyRmJpX2lDOHluN0x1QXFiWXdMeTlwSndPUzFDbVo2T0E2VDVnSnZFNmlqS3pEVXE0eW5nM2dObUxxZUJ1cVkxaEl5ZThON3ZmblBrSW1WNWdNWHJ2ZnpoZ0t1LURXVVo0TDRwU0NOYXlPdW81TmRHMWQ5SXByWFRLb2tPOFVvblY0SzVrZElld04yM05iR2pSUXd1Z0J5QXZYaTk2aFFZ?oc=5",
+            "published": "Mon, 12 Oct 2026 15:30:00 GMT",
+            "source": "Google News RSS, unverified"
+          }
+        ]
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Alphabet",
+        "price_usd": 352.72,
+        "day_change_pct": 0.3,
+        "volume_ratio": 0.59,
+        "breakout_20d": false,
+        "above_sma20d": true,
+        "score": 40,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)",
+        "headline_leads": [
+          {
+            "headline": "Prediction: Alphabet Stock Could Be Worth $700 by 2030 - Yahoo Finance",
+            "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNTWREdXV0RFJ1UUVIcE5oWWtYbDRHUnlNc2k0YWxVSG5TMWMzOXl0eVpzeVZrbVdBbktKSGF3ZDU0U0lLcUx4WG9uS3B0QkNSbmRBX3h2Y2pKdWp4VXZmeUJiX1RnbDFkSElQWHZIdVl0UVROcFlGeG5IWXhMV0JkbTkyVkVIR3dTM0M0NmJUcG1xNC1WNFVlbXF0OUFXb0ppWUpOUw?oc=5",
+            "published": "Mon, 12 Oct 2026 14:00:12 GMT",
+            "source": "Google News RSS, unverified"
+          },
+          {
+            "headline": "Now Is the Perfect Time to Buy Amazon and Alphabet Stock - The Motley Fool",
+            "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOUUYxOWxCbjItS3JKOWItTVZXYmNJajV0c041dy1zTjlSZHdoYW10RUFtc3VtZk1rUWJrZXFZMEd5Y25lZnVhaEsycmJqX1BPaGptVFEtYjNBUkJDbV9EcU42dlFiVGo0V0VJZ2ZURGxCcVphbmt3UmpwNUR1QmtBZC13Y0dKWE9STTJCWG03SkQ3S215N2kySg?oc=5",
+            "published": "Wed, 07 Oct 2026 19:49:00 GMT",
+            "source": "Google News RSS, unverified"
+          }
+        ]
+      },
+      {
+        "ticker": "HOOD",
+        "name": "Robinhood Markets",
+        "price_usd": 109.22,
+        "day_change_pct": 0.18,
+        "volume_ratio": 0.55,
+        "breakout_20d": false,
+        "above_sma20d": false,
+        "score": 20,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)",
+        "headline_leads": [
+          {
+            "headline": "What Could Lift Robinhood Stock? - Yahoo Finance",
+            "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNck9GR1RJNXNWTzQyaHAwdnZjMEktc1JpcDRPTGU3UkwxQV9Rc2FrUllVMVVWdVFUeHMxcjR1RTZaVGtGVHh4RXRmWEpJRThXMG41UXMtMXltaVV3NnphWXJCTFdiNkVnUGJ1RmhoazZYbVUxb2RqMUI5T0h0NVRWTFVTbjdwSE9qS3AwOWF1MFpnd1BHeGc?oc=5",
+            "published": "Thu, 08 Oct 2026 23:45:45 GMT",
+            "source": "Google News RSS, unverified"
+          },
+          {
+            "headline": "Robinhood Markets (NASDAQ:HOOD) Stock Jumps 1.2% - What's Next? - MarketBeat",
+            "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQdnpMa2xjdjlXRXBoM2lzWkYxRnc5am9UX21VVGlYVnpPekZxQ2phU0VQaTNEM1ZDYWIwdmt0QzBEQXNvUjJWZmc2Yk8tRUQ3MU1venI4MkFWUUdTRjV2Ny0xZGY1NmswWjA2TGJjSXRleTdhRnRHajRQaHMyaXZfbHFUbUxzUW1kdWlCaTdUbEcxWjk1ODJUbWlZQk9YcEhXSG8xSmx6SVhpcTFaeUtKblUtOF8tQQ?oc=5",
+            "published": "Mon, 05 Oct 2026 21:24:38 GMT",
+            "source": "Google News RSS, unverified"
+          }
+        ]
+      },
+      {
+        "ticker": "MRVL",
+        "name": "Marvell Technology",
+        "price_usd": 265.86,
+        "day_change_pct": -3.42,
+        "volume_ratio": 0.92,
+        "breakout_20d": false,
+        "above_sma20d": true,
+        "score": 20,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)",
+        "headline_leads": [
+          {
+            "headline": "Marvell Technology Stock: Raising Valuation on Bullish Long-Term Guidance - Morningstar",
+            "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNem9mUDRtd3g5TV9oMkZxZTFhYUExSWwwbXZsZ1llb3I5V2h1M2dpbDF6OGw4SVZHZGxWMU1wbVFmbXdyRnBvdkxWMG9OaGFtUHN2Z2NBaTg4anByNGlZYkc2UE0yMWdYd0JNUEZVTDRBN2FIVnVvclZQajZScC1iNEx4TGVjVWdZQzJoektPbHRlUEhiMWZhOW5yd2dsSXRjaFVkdWxIRUV5WEswZ2pIX0J6OA?oc=5",
+            "published": "Wed, 07 Oct 2026 09:42:17 GMT",
+            "source": "Google News RSS, unverified"
+          },
+          {
+            "headline": "Marvell Technology stock rallies following ambitious investor day targets By Investing.com - Investing.com",
+            "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNdjBJbEg3RnEwWnE4M3NqN3JWTURwd0RiWjhPTzdmYzdYQ2dUMzBuTXVjNTZVZnd2QkhyX1ViSjVlUGNHOVNGZmNPaEZOZHYzMmF3TS1BMHNYWGp5Umo4a1BFU3ZPVm1razdKVk5zSUdGZXl0UFBrYWtESkxRX3pTQlRLM2djNUdycHhaVV9DalIyaU5LVzFmSEc5MG5lbVV2SzFpS3dlc3lmazEyRG1mdVpTVnNTVHM1MkFiRFBQUF9HLVYzVWRpaVRn?oc=5",
+            "published": "Wed, 07 Oct 2026 00:56:14 GMT",
+            "source": "Google News RSS, unverified"
+          }
+        ]
+      },
+      {
+        "ticker": "PLTR",
+        "name": "Palantir",
+        "price_usd": 209.0,
+        "day_change_pct": -0.02,
+        "volume_ratio": 0.96,
+        "breakout_20d": false,
+        "above_sma20d": true,
+        "score": 20,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)",
+        "headline_leads": [
+          {
+            "headline": "Palantir stock hits all-time high after Wall Street grows bullish on next phase of growth - Yahoo Finance",
+            "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxPbXQ0UDNaRHFFRU1SZ2padHIwMGgwV3hocEhhd0pMcGVhNmx1STg2WTBLUF9zaDc0ZE4yZG9UT253SmszcUs4OHVlMXBXY2MtTDVGYjRoX0hoWnRXcnpSOVNsdnlCMUJpZk0tUTgxM1lrTFBZX3JJa1pzT2JPQjd6Y2hQLVVRWnlvYnJOWTl5S0c5SEdveTJNb3M2Q3QtYWxiMEgtSW80bWM0RjVKNllfSHhpYVotQjVQZGJUWFRUTG5VcDFXLXZUaVhtRGxQVEVUSW1Bb25iTUk2eUtXZVlXaHBpNA?oc=5",
+            "published": "Fri, 09 Oct 2026 20:05:07 GMT",
+            "source": "Google News RSS, unverified"
+          },
+          {
+            "headline": "Palantir Stock Has a Secret Weapon in the AI Boom, Goldman Sachs Says - Barron's",
+            "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPRURmS1FjdlFkVmhqdElDcGlPSFpZSUo1VWZmZUdWVDdjNWpaYzhfMXRzZFNrNlJ0RFdiTzFyMXk2bGNySC1hUFZhcG9DZzZ0Z3BJOUZreG41OTREMXN3M29xQ044MXNGNWdReDRpbXAtamstNUZyQU9VSlA4VWpvWkVVMVM?oc=5",
+            "published": "Thu, 08 Oct 2026 18:31:00 GMT",
+            "source": "Google News RSS, unverified"
+          }
+        ]
+      },
+      {
+        "ticker": "TSLA",
+        "name": "Tesla",
+        "price_usd": 378.03,
+        "day_change_pct": -1.22,
+        "volume_ratio": 0.54,
+        "breakout_20d": false,
+        "above_sma20d": true,
+        "score": 20,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)",
+        "headline_leads": [
+          {
+            "headline": "Tesla Stock Rises as Elon Musk Asserts Control Over Terafab Chip Project - Barron's",
+            "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNVTFCSjgtU1laOVpiLW9sY3YxZ3ZHc2VyRDRVMXI0MHUtSFlKbjhFaHpfSjYxTnVSeF9GVUxmRkcwbmtrSmxHSWx6aC1nMXI2cVpLSldFenh3bmFpMW94WWJyTUZaZU5YOFJsQ1hBM0k1MUlEZGhRZVp4aGU0Z1E2ZUREcw?oc=5",
+            "published": "Mon, 12 Oct 2026 19:48:30 GMT",
+            "source": "Google News RSS, unverified"
+          },
+          {
+            "headline": "Should You Buy, Hold or Sell TSLA Stock After Its Cybercab Fleet Jump? - Yahoo Finance",
+            "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOZktVTkV4TkV1RUlkOTdlOXhmbElHVVZocU5CZDdVT1dVdVNQSDk3ZlBIWktPV2cwZkx5VDVBMm9WNkZJdWVTLUVPbzl6VmtyWDB0NHotWHJqZ2ZZamt0VUZpV0t4ck40MGlTNXFFQ3l4aWVhNGtRa2stYVo3M1RsNjdHQ0ljTm9vN3hFNkEyRDlHbnc?oc=5",
+            "published": "Mon, 12 Oct 2026 12:57:00 GMT",
+            "source": "Google News RSS, unverified"
+          }
+        ]
+      },
+      {
+        "ticker": "QCOM",
+        "name": "Qualcomm",
+        "price_usd": 174.43,
+        "day_change_pct": -0.61,
+        "volume_ratio": 0.46,
+        "breakout_20d": false,
+        "above_sma20d": false,
+        "score": 0,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)"
+      },
+      {
+        "ticker": "BWXT",
+        "name": "BWX Technologies",
+        "price_usd": 139.86,
+        "day_change_pct": -2.76,
+        "volume_ratio": 0.53,
+        "breakout_20d": false,
+        "above_sma20d": false,
+        "score": 0,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)"
+      },
+      {
+        "ticker": "MU",
+        "name": "Micron Technology",
+        "price_usd": 989.04,
+        "day_change_pct": -3.88,
+        "volume_ratio": 0.9,
+        "breakout_20d": false,
+        "above_sma20d": false,
+        "score": 0,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)"
+      },
+      {
+        "ticker": "NVDA",
+        "name": "NVIDIA",
+        "price_usd": 226.32,
+        "day_change_pct": -1.29,
+        "volume_ratio": 0.61,
+        "breakout_20d": false,
+        "above_sma20d": false,
+        "score": 0,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)"
+      },
+      {
+        "ticker": "AMD",
+        "name": "Advanced Micro Devices",
+        "price_usd": 594.24,
+        "day_change_pct": -2.28,
+        "volume_ratio": 0.67,
+        "breakout_20d": false,
+        "above_sma20d": false,
+        "score": 0,
+        "status": "MONITOR",
+        "warnings": [],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)"
+      },
+      {
+        "ticker": "AVAV",
+        "name": "AeroVironment",
+        "price_usd": 131.51,
+        "day_change_pct": -4.08,
+        "volume_ratio": 1.11,
+        "breakout_20d": false,
+        "above_sma20d": false,
+        "score": 0,
+        "status": "CAUTION",
+        "warnings": [
+          "Sharp daily decline"
+        ],
+        "as_of": "2026-10-12",
+        "source": "Yahoo Finance chart (unofficial, delayed)"
+      }
+    ],
+    "error": null,
     "excluded_markets": [
       "JSE data not integrated or verified"
     ]
