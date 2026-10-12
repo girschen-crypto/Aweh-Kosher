@@ -8,6 +8,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="styles.css?v=15">
 <link rel="stylesheet" href="binance.css?v=1">
+<link rel="stylesheet" href="radar.css?v=1">
 </head>
 <body>
 <header class="topbar">
@@ -87,6 +88,36 @@
     <p class="tracker-note" id="brokerNote">Existing positions stay at EasyEquities. Broker selection changes only where new trade tickets are handed off.</p>
   </article>
 
+
+
+  <section class="section-head">
+    <div><div class="eyebrow dark">OPPORTUNITY RADAR</div><h2>Find early market signals</h2></div>
+    <span class="pill wait" id="radarStatus">WAITING FOR PUBLIC SCAN</span>
+  </section>
+  <article class="card">
+    <div class="radar-toolbar">
+      <div>
+        <strong id="radarUpdated">No verified market scan yet</strong>
+        <p class="radar-intro">Screens Binance Spot pairs and US shares for unusual price and volume. A breakout is a research lead, not proof that the price will rise.</p>
+      </div>
+      <button class="secondary mini" onclick="refreshOpportunityRadar(true)">Load latest scan</button>
+    </div>
+    <div class="radar-tabs">
+      <section class="radar-pane" aria-label="Crypto opportunities">
+        <h3>Crypto · Binance Spot</h3>
+        <div class="radar-items" id="radarCrypto"><p class="radar-empty">Waiting for price and volume checks.</p></div>
+      </section>
+      <section class="radar-pane" aria-label="US share opportunities">
+        <h3>US shares · delayed daily data</h3>
+        <div class="radar-items" id="radarEquities"><p class="radar-empty">Waiting for verified share prices.</p></div>
+      </section>
+    </div>
+    <div class="radar-warning">
+      <p id="radarAlert">Real money stays untouched. Market screening never sends a broker order.</p>
+      <p id="radarCost">Trial positions capped at the previously agreed micro-trading limits; broker approval required.</p>
+      <p>JSE real-time screening is not connected. Catalyst news, earnings and filings still need independent verification. Cash balances on this device are not proof of broker buying power.</p>
+    </div>
+  </article>
 
   <section class="section-head">
     <div><div class="eyebrow dark">BINANCE CRYPTO DESK</div><h2>Live crypto market</h2></div>
@@ -214,5 +245,6 @@
 <div id="toast" class="toast">Copied</div>
 <script src="app.js?v=15"></script>
 <script src="binance.js?v=1"></script>
+<script src="radar.js?v=1"></script>
 </body>
 </html>
