@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="styles.css?v=15">
 <link rel="stylesheet" href="binance.css?v=1">
 <link rel="stylesheet" href="radar.css?v=1">
+<link rel="stylesheet" href="auto-cycle.css?v=1">
 </head>
 <body>
 <header class="topbar">
@@ -89,6 +90,40 @@
   </article>
 
 
+
+
+  <section class="section-head">
+    <div><div class="eyebrow dark">AUTOMATED SIGNAL CYCLE</div><h2>Buy → Exit → Reserve profits</h2></div>
+    <span class="pill wait" id="cycleStatusPill">PAPER MODE ONLY</span>
+  </section>
+  <article class="card">
+    <div class="cycle-top">
+      <div>
+        <strong>Unattended virtual trading</strong>
+        <p class="cycle-intro">The scheduled engine watches validated crypto signals, simulates buys and exits, and separates realised profits from capital. This is testing, not money in an exchange account.</p>
+      </div>
+      <button class="secondary mini" onclick="refreshAutoCycle(true)">Refresh cycle</button>
+    </div>
+    <div class="cycle-kpi">
+      <div><small>Virtual trading cash</small><strong id="cycleCash">—</strong></div>
+      <div><small>Virtual profit reserve</small><strong id="cycleReserve">—</strong></div>
+      <div><small>Realised virtual P/L</small><strong id="cycleNetPnl">—</strong></div>
+      <div><small>Open virtual positions</small><strong id="cycleOpen">—</strong></div>
+    </div>
+    <p class="cycle-muted" id="cycleUpdateTime">Awaiting first server cycle</p>
+    <p class="cycle-intro" id="cycleSummary">No broker account is connected for automated execution. Real-money trading and withdrawals are off.</p>
+    <div class="cycle-grid">
+      <section aria-label="Virtual open positions">
+        <h3>Currently held (virtual)</h3>
+        <div id="cyclePositions"><p class="cycle-muted">Waiting for verified cycle data.</p></div>
+      </section>
+      <section aria-label="Virtual completed trades">
+        <h3>Recent completed exits</h3>
+        <div id="cycleHistory"><p class="cycle-muted">No verified trades yet.</p></div>
+      </section>
+    </div>
+    <div class="cycle-warning">Default simulation: $25 starting cash; maximum $5 per position; 2% stop loss; 3.5% take-profit target; 2% daily realised-loss limit; fees and slippage modelled. Stop orders are <strong>simulated checks</strong>, not guaranteed exchange orders. A five-minute scheduled check may run late or miss a fast price move. Real-money order execution and bank or wallet withdrawals remain disabled.</div>
+  </article>
 
   <section class="section-head">
     <div><div class="eyebrow dark">OPPORTUNITY RADAR</div><h2>Find early market signals</h2></div>
@@ -246,5 +281,6 @@
 <script src="app.js?v=15"></script>
 <script src="binance.js?v=1"></script>
 <script src="radar.js?v=1"></script>
+<script src="auto-cycle.js?v=1"></script>
 </body>
 </html>

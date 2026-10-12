@@ -1,0 +1,57 @@
+name: TradeDesk Profit Cycle — Paper Only
+on:
+  push:
+    branches: [main]
+    paths:
+      - "trade-desk/scripts/auto_cycle.py"
+      - "trade-desk/scripts/tests/test_auto_cycle.py"
+      - ".github/workflows/tradedesk-auto-cycle.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trade-desk/scripts/auto_cycle.py'
+      - 'trade-desk/scripts/tests/test_auto_cycle.py'
+      - '.github/workflows/tradedesk-auto-cycle.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tradedesk-data-writer
+  cancel-in-progress: false
+
+jobs:
+  paper-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check out current TradeDesk engine
+        uses: actions/checkout@v4
+      - name: Validate syntax and simulation tests
+        run: |
+          python3 -m py_compile trade-desk/scripts/auto_cycle.py
+          python3 -m unittest discover -s trade-desk/scripts/tests -p 'test_auto_cycle.py' -v
+      - name: Preserve verified code before switching to data branch
+        if: github.event_name != 'pull_request'
+        run: cp trade-desk/scripts/auto_cycle.py /tmp/tradedesk-paper-cycle.py
+      - name: Run unattended PAPER cycle, with no broker credentials
+        if: github.event_name != 'pull_request'
+        run: |
+          git fetch origin refs/heads/tradedesk-radar-data:refs/remotes/origin/tradedesk-radar-data
+          git checkout -B tradedesk-radar-data refs/remotes/origin/tradedesk-radar-data
+          python3 /tmp/tradedesk-paper-cycle.py \
+            --radar trade-desk/market-radar.json \
+            --state trade-desk/auto-cycle-state.json
+      - name: Publish virtual ledger (never real brokerage trades)
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "tradedesk-paper[bot]"
+          git config user.email "tradedesk-paper[bot]@users.noreply.github.com"
+          git add trade-desk/auto-cycle-state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: TradeDesk paper profit cycle status"
+            git push origin HEAD:tradedesk-radar-data
+          fi
