@@ -1,7 +1,7 @@
 /* TradeDesk Opportunity Radar — research-only; never places an order. */
 (() => {
   'use strict';
-  const SNAPSHOT = 'https://raw.githubusercontent.com/girschen-crypto/Aweh-Kosher/main/trade-desk/market-radar.json';
+  const SNAPSHOT = 'https://raw.githubusercontent.com/girschen-crypto/Aweh-Kosher/tradedesk-radar-data/trade-desk/market-radar.json';
   const MAX_SNAPSHOT_AGE_MS = 6 * 60 * 60 * 1000;
   const DEFAULT_PILOT_USD = 5;
   let loading = false;
