@@ -38,6 +38,11 @@
     const priceAsOf = isCrypto ? '24h' : 'Day';
     const volume = formatNum(item.volume_ratio,2) + '× volume';
     const source = isCrypto ? 'Binance Spot' : 'Stooq · daily close ' + (item.as_of || '?');
+    const headlines = !isCrypto && Array.isArray(item.headline_leads) ?
+      item.headline_leads.filter(h => String(h.url||'').startsWith('https://news.google.com/'))
+        .slice(0,2).map(h => '<div class="radar-news"><a href="' + safe(h.url) +
+          '" target="_blank" rel="noopener noreferrer">' + safe(h.headline) +
+          '</a><small> Google News RSS lead · unverified</small></div>').join('') : '';
     const researchUrl = isCrypto
       ? 'https://www.binance.com/en/trade/' + encodeURIComponent(cleanTicker(item.pair || ticker+'USDT').replace(/USDT$/,'_USDT'))
       : 'https://finance.yahoo.com/quote/' + encodeURIComponent(ticker);
@@ -48,7 +53,7 @@
       '</span><span>'+ volume +'</span><span>Screen score '+safe(item.score)+'/100</span></div>' +
       '<p>'+safe(explain(status,item))+'</p><small>' + safe(source) +
       (isCrypto ? ' · 1h closed candles' : ' · not a live quote') + '</small>' +
-      '<div class="radar-actions"><a class="radar-research" href="'+researchUrl+
+      headlines + '<div class="radar-actions"><a class="radar-research" href="'+researchUrl+
       '" target="_blank" rel="noopener noreferrer">'+ (isCrypto ? 'Check Binance' : 'Research share') +
       ' ↗</a><span>Research only · no automatic order</span></div>' +
       '</article>';
