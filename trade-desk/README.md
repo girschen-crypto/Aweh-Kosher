@@ -18,7 +18,7 @@ The PWA deliberately refuses to invent missing agent opinions. If `signal.json` 
 
 ## Opportunity Radar (October 2026)
 - Public Binance **Spot** ticker and hourly candles. Screens liquid USDT pairs using spread, turnover, volume ratio, 20-hour breakout, short trend and RSI. A screen score is **not** a probability of profit.
-- US-company watchlist uses **delayed/unofficial Stooq end-of-day** CSV. It does not represent executable live stock prices. Queries Google News RSS for possible headline leads; articles and facts have **not** been verified.
+- US-company watchlist first attempts **delayed/unofficial Stooq end-of-day** CSV and then the unofficial Yahoo Finance historical chart feed. If both fail, TradeDesk displays news-only research with **no price or buy signal**. Neither feed represents executable stock prices or a licensed commercial market-data subscription. Queries Google News RSS for possible headline leads; articles and facts have **not** been verified.
 - There is currently **no reliable JSE automated pricing feed**. Never represent JSE tickers as scanned.
 - `trade-desk/scripts/radar_scan.py` writes `trade-desk/market-radar.json`; a free GitHub Actions workflow runs every three hours, subject to Actions scheduling and the availability/terms of public sources. Open the GitHub Actions tab to run manually.
 - The app `trade-desk/app/index.html` fetches the **published** public JSON file. Until a real run succeeds, the placeholder is explicitly stale. More than six hours after a scan, the screen warns that all results are stale.
