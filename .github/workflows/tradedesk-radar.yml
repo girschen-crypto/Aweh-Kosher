@@ -1,5 +1,10 @@
 name: TradeDesk Opportunity Radar
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'trade-desk/scripts/radar_scan.py'
+      - '.github/workflows/tradedesk-radar.yml'
   workflow_dispatch:
   schedule:
     - cron: "37 */3 * * *"
