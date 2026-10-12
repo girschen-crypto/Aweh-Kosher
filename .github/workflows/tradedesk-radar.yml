@@ -29,13 +29,17 @@ jobs:
         run: python3 -m py_compile trade-desk/scripts/radar_scan.py
       - name: Scan public Binance Spot and delayed US stock closes
         run: python3 trade-desk/scripts/radar_scan.py
-      - name: Publish timestamped research snapshot
+      - name: Publish research to data-only branch (avoid Netlify builds)
         if: success()
         run: |
+          cp trade-desk/market-radar.json /tmp/tradedesk-radar.json
+          git fetch origin refs/heads/tradedesk-radar-data:refs/remotes/origin/tradedesk-radar-data
+          git checkout -B tradedesk-radar-data refs/remotes/origin/tradedesk-radar-data
+          cp /tmp/tradedesk-radar.json trade-desk/market-radar.json
           git config user.name "tradedesk-radar[bot]"
           git config user.email "tradedesk-radar[bot]@users.noreply.github.com"
           git add trade-desk/market-radar.json
           if ! git diff --cached --quiet; then
             git commit -m "data: refresh TradeDesk public opportunity radar"
-            git push
+            git push origin HEAD:tradedesk-radar-data
           fi
