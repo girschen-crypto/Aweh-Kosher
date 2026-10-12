@@ -1,21 +1,266 @@
 {
   "schema_version": 1,
-  "generated_at": "1970-01-01T00:00:00+00:00",
+  "generated_at": "2026-10-12T20:06:35.465198+00:00",
   "execution_enabled": false,
   "recommendation": "RESEARCH ONLY",
   "notes": [
-    "Waiting for first real scheduled market-data scan. This is not market data.",
-    "No orders, transfers, leverage, futures or withdrawals."
+    "A high screen score is not a prediction or permission to invest.",
+    "Crypto is Binance Spot public market data; stock prices are delayed US daily closes.",
+    "Headlines, rumours and filings require independent verification before any trade.",
+    "No broker keys, orders, transfers, leverage, margin, futures or withdrawals."
   ],
   "crypto": {
-    "data": [],
-    "error": "Scanner has not run and published verified data yet."
+    "data": [
+      {
+        "ticker": "U",
+        "pair": "UUSDT",
+        "price_usdt": 1.0004,
+        "change_24h_pct": 0.03,
+        "move_4h_pct": 0.03,
+        "quote_volume_usdt": 27113038,
+        "volume_ratio": 0.89,
+        "spread_pct": 0.01,
+        "rsi_1h": 57.1,
+        "breakout_20h": false,
+        "above_sma20h": true,
+        "score": 39,
+        "status": "MONITOR",
+        "warnings": [],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "CTK",
+        "pair": "CTKUSDT",
+        "price_usdt": 0.1406,
+        "change_24h_pct": 3.92,
+        "move_4h_pct": -21.0,
+        "quote_volume_usdt": 36127199,
+        "volume_ratio": 0.17,
+        "spread_pct": 0.213,
+        "rsi_1h": 52.9,
+        "breakout_20h": false,
+        "above_sma20h": true,
+        "score": 49,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict",
+          "No volume confirmation"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "PYTH",
+        "pair": "PYTHUSDT",
+        "price_usdt": 0.08246,
+        "change_24h_pct": 4.02,
+        "move_4h_pct": -7.86,
+        "quote_volume_usdt": 16258530,
+        "volume_ratio": 0.39,
+        "spread_pct": 0.024,
+        "rsi_1h": 54.6,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 40,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict",
+          "No volume confirmation"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "USD1",
+        "pair": "USD1USDT",
+        "price_usdt": 1.00036,
+        "change_24h_pct": 0.04,
+        "move_4h_pct": 0.02,
+        "quote_volume_usdt": 156405760,
+        "volume_ratio": 0.9,
+        "spread_pct": 0.001,
+        "rsi_1h": 78.0,
+        "breakout_20h": false,
+        "above_sma20h": true,
+        "score": 35,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Overbought 1h RSI"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "LINK",
+        "pair": "LINKUSDT",
+        "price_usdt": 13.034,
+        "change_24h_pct": -1.89,
+        "move_4h_pct": -0.32,
+        "quote_volume_usdt": 22667228,
+        "volume_ratio": 1.82,
+        "spread_pct": 0.008,
+        "rsi_1h": 28.1,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 33,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "MUBARAK",
+        "pair": "MUBARAKUSDT",
+        "price_usdt": 0.07205,
+        "change_24h_pct": 0.97,
+        "move_4h_pct": 1.17,
+        "quote_volume_usdt": 23270848,
+        "volume_ratio": 0.22,
+        "spread_pct": 0.028,
+        "rsi_1h": 50.4,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 30,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "No volume confirmation"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "ZRO",
+        "pair": "ZROUSDT",
+        "price_usdt": 2.195,
+        "change_24h_pct": 5.12,
+        "move_4h_pct": -3.23,
+        "quote_volume_usdt": 29221276,
+        "volume_ratio": 0.85,
+        "spread_pct": 0.046,
+        "rsi_1h": 38.5,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 28,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "ICP",
+        "pair": "ICPUSDT",
+        "price_usdt": 3.266,
+        "change_24h_pct": -2.6,
+        "move_4h_pct": -1.48,
+        "quote_volume_usdt": 18889816,
+        "volume_ratio": 1.72,
+        "spread_pct": 0.031,
+        "rsi_1h": 14.6,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 24,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "BTC",
+        "pair": "BTCUSDT",
+        "price_usdt": 83014.0,
+        "change_24h_pct": -0.79,
+        "move_4h_pct": 0.16,
+        "quote_volume_usdt": 1011435380,
+        "volume_ratio": 0.72,
+        "spread_pct": 0.0,
+        "rsi_1h": 31.8,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 18,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict",
+          "No volume confirmation"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "ETH",
+        "pair": "ETHUSDT",
+        "price_usdt": 2523.39,
+        "change_24h_pct": -0.51,
+        "move_4h_pct": -0.35,
+        "quote_volume_usdt": 643787269,
+        "volume_ratio": 0.55,
+        "spread_pct": 0.0,
+        "rsi_1h": 32.4,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 18,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict",
+          "No volume confirmation"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "NEAR",
+        "pair": "NEARUSDT",
+        "price_usdt": 5.509,
+        "change_24h_pct": -2.99,
+        "move_4h_pct": -1.55,
+        "quote_volume_usdt": 212493894,
+        "volume_ratio": 0.93,
+        "spread_pct": 0.018,
+        "rsi_1h": 14.2,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 18,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      },
+      {
+        "ticker": "SOL",
+        "pair": "SOLUSDT",
+        "price_usdt": 108.6,
+        "change_24h_pct": -2.35,
+        "move_4h_pct": -0.53,
+        "quote_volume_usdt": 204500025,
+        "volume_ratio": 1.24,
+        "spread_pct": 0.009,
+        "rsi_1h": 17.1,
+        "breakout_20h": false,
+        "above_sma20h": false,
+        "score": 18,
+        "status": "AVOID CHASING",
+        "warnings": [
+          "Momentum conflict"
+        ],
+        "source": "Binance Spot public API",
+        "interval": "1h closed candles"
+      }
+    ],
+    "error": null
   },
   "stocks": {
     "data": [],
-    "error": "Scanner has not run and published delayed stock prices yet.",
+    "error": "Equity price feed unavailable; no stocks scored",
     "excluded_markets": [
-      "JSE has no verified feed."
+      "JSE data not integrated or verified"
     ]
   }
 }
