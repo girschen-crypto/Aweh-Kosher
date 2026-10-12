@@ -1,0 +1,34 @@
+name: TradeDesk Opportunity Radar
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 */3 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tradedesk-opportunity-radar
+  cancel-in-progress: false
+
+jobs:
+  scan-public-markets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out default branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Scan public Binance Spot and delayed US stock closes
+        run: python3 trade-desk/scripts/radar_scan.py
+      - name: Publish timestamped research snapshot
+        if: success()
+        run: |
+          git config user.name "tradedesk-radar[bot]"
+          git config user.email "tradedesk-radar[bot]@users.noreply.github.com"
+          git add trade-desk/market-radar.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh TradeDesk public opportunity radar"
+            git push
+          fi
