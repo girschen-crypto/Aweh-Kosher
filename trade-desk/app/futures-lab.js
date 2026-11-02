@@ -38,7 +38,7 @@ function valid(){
   const pair=$("pair").value.trim().toUpperCase(),direction=$("direction").value;
   const stop=$("stop").value.trim()===""?null:num("stop");
   const target=$("target").value.trim()===""?null:num("target");
-  if(!(Number.isFinite(balance)&&balance>0&&pct>0&&pct<=100&&Number.isInteger(lev)&&lev>=1&&lev<=125&&perunit>0&&entry>0&&fee>=0&&
+  if(!(Number.isFinite(balance)&&balance>0&&pct>0&&pct<=100&&Number.isInteger(lev)&&lev>=1&&lev<=125&&Number.isFinite(perunit)&&perunit>0&&Number.isFinite(entry)&&entry>0&&Number.isFinite(fee)&&fee>=0&&
     /^[A-Z0-9]{2,12}\/(USDT|USDC)$/.test(pair)&&
     (direction==="LONG"||direction==="SHORT")&&
     (stop===null||(stop>0&&stop<100))&&(target===null||(target>0&&target<=1000)))){
