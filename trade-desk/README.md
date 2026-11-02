@@ -42,3 +42,16 @@ TradeDesk implements the requested signal → invest → exit → recover capita
 **Live deployment prerequisites:** A trade-enabled broker API (Binance Spot or suitably supported equity broker) and read access to actual account balances and fills; exchange-side contingent exits, reconciliation of fees and partial fills, trading-only API credentials held on a secure server, an account kill switch, emergency alerts, maximum real account budget and explicit approval. No live broker integration currently exists. Broker-cash proceeds after a sale are different from **bank withdrawals**, which require a separate authorised process.
 
 The existing Netlify production site was a manual upload. GitHub code changes do not update its pages until the existing site is connected for continuous deployment or manually redeployed.
+
+## Futures Signal Lab — offline paper mode (2 November 2026)
+
+- Open `trade-desk/app/futures-lab.html` via the new main-dashboard link.
+- Supports WhatsApp-style signals for `PAIR/USDT` or `PAIR/USDC`, leverage, market order, allocation percentage and LONG/SHORT.
+- Based on the user-supplied Vantera example, 200 USDT × 10% allocation = 20 USDT margin; with assumed 10 USDT initial margin per whole contract = **2 contracts**; at 100× this models 2,000 USDT notional exposure. The assumed 10 USDT per contract **is not verified exchange contract information**.
+- By default, models 0.25 USDT estimated fee per contract per side (from screenshot), with an editable input. Fees, funding, spread, slippage, real exchange mark-price and liquidation methodology remain unknown. All P/L is illustrative and should not be represented as an actual fill or cash withdrawal.
+- Scenario: 2 contracts, 2,000 USDT notional and 1 USDT round-trip fee. A +0.5% favourable price move yields a +9 USDT **estimated net** gain. An adverse −0.5% move yields a −11 USDT **estimated net** loss. At +1%, gross P/L would be +20 USDT (100% return on 20 USDT margin), before fees.
+- Sample screenshot inputs: 1 contract at 47.8673, new mark 47.9657, 1,000 USDT modelled notional, yields about +2.06 USDT gross before fees; estimated two-side fee is 0.50 USDT, making net ≈1.56 USDT. This is not a verified price feed.
+- Simulated entry, margin lock, manual mark-price check, LONG and SHORT P/L, optional price-distance stop/target, manual close, realised net P/L, separate virtual profit reserve, and browser-local history are included.
+- Stop/target checks **only run when the user clicks Check manual price**; not when closed, not in the background, not at an exchange. Losses are capped at simulated isolated margin to avoid representing cross-margin debt, but actual liquidation can occur earlier and real trading terms can differ. No real broker API, orders, exchange account readings or withdrawals.
+- Existing automated spot paper-cycle remains unchanged. The Futures Signal Lab is a separate **manual-input futures simulator** and is not an autonomous bot or live trading integration.
+- Deployment: The existing Netlify site is recorded as a manual drop deployment. GitHub commits and merged PRs **do not necessarily publish this lab** without connecting the site for Git-based builds or manually redeploying the existing publish directory. No new paid service was created.
