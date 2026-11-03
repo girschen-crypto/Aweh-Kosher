@@ -1,57 +1,43 @@
-# Mr G Trade Desk v15
+# Mr G TradeDesk — Signals Only
 
-Broker-independent personal decision-support dashboard.
+**Product decision (3 November 2026):** TradeDesk focuses exclusively on futures-style trading signals. The old multi-market investment dashboard, stock watchlists, equity broker selectors, public-market radar, and unattended spot paper-cycle are no longer part of the visible application.
 
-## Architecture
+## One supported workflow
 
-1. Fundamental Analyst
-2. Technical Analyst
-3. Risk Manager
-4. Portfolio Manager
-5. `trade-desk/signal.json` is the contract consumed by the PWA.
-6. User approves every live brokerage order.
+1. Paste a futures signal such as `ETT/USDT`, market order, LONG, 100×, allocation 10%.
+2. The local parser extracts pair, leverage, direction, position allocation, and order type. It does not discover market opportunities or create its own signals.
+3. Enter a **hypothetical** balance, per-contract margin, entry price and fee estimate. These are assumptions, NOT verified exchange terms.
+4. Review estimated whole contracts, used margin, notional exposure, two-sided fees and 0.5% movement scenarios.
+5. Optionally open a **paper-only** position, manually check a new hypothetical price, and close it in the local trade journal. Virtual positive net P/L goes into a separate virtual reserve rather than being reinvested.
+6. Stop-loss and target controls are optional **manual checks only**, not actual exchange protection or monitoring.
 
-Current broker hand-off: EasyEquities (default) or IBKR Client Portal. IBKR API execution stays disabled until the signal engine is proven with tracked results.
+### Example based on user's supplied Vantera message
 
-The PWA deliberately refuses to invent missing agent opinions. If `signal.json` does not contain all four agent outputs, the UI marks the engine as WAITING/PARTIAL.
+- Account example: 200 USDT; position size: 10% → 20 USDT planned margin
+- Margin per unit: **assumed** 10 USDT → two whole contracts
+- Leverage: 100× → **assumed** 2,000 USDT notional exposure
+- Estimated fee: **assumed** 0.25 USDT per contract per side → 1 USDT round-trip
+- +0.5% favourable market movement → ~+9 USDT **illustrative** net P/L
+- −0.5% adverse movement → ~−11 USDT **illustrative** net P/L
 
+Actual liquidation, slippage, funding, insurance funds, position sizes and rules depend on the venue and instrument. At 100× an adverse move of approximately 1% can exhaust the margin, and liquidation can occur earlier. Never infer a verified market or withdrawable profits from the Vantera screenshot. Binance's USDⓈ-M ticker API rejected `ETTUSDT` and `CLSUSDT` during a read-only check; these symbols are **not automatically portable** to Binance.
 
-## Opportunity Radar (October 2026)
-- Public Binance **Spot** ticker and hourly candles. Screens liquid USDT pairs using spread, turnover, volume ratio, 20-hour breakout, short trend and RSI. A screen score is **not** a probability of profit.
-- US-company watchlist first attempts **delayed/unofficial Stooq end-of-day** CSV and then the unofficial Yahoo Finance historical chart feed. If both fail, TradeDesk displays news-only research with **no price or buy signal**. Neither feed represents executable stock prices or a licensed commercial market-data subscription. Queries Google News RSS for possible headline leads; articles and facts have **not** been verified.
-- There is currently **no reliable JSE automated pricing feed**. Never represent JSE tickers as scanned.
-- `trade-desk/scripts/radar_scan.py` writes a public, research-only JSON snapshot; a free GitHub Actions workflow runs every three hours, subject to Actions scheduling and public-source availability. The workflow publishes updates to branch `tradedesk-radar-data`, **not** the deployed app's `main` branch, to avoid needless Netlify builds. Open GitHub Actions to run manually.
-- The app `trade-desk/app/index.html` fetches the public JSON file from branch `tradedesk-radar-data`. Until a real run succeeds, the placeholder is explicitly stale. More than six hours after a scan, the screen warns that all results are stale.
-- Recommended practice: verify actual exchange liquidity, current news, company filings, slippage, brokerage fees and risk/reward **before** considering a trade. A screen does not authorize an investment.
-- No API keys are stored or used, no browser-side trade credentials, and no automated orders/transfers. The $5 display is a *hypothetical pilot size*, not a live instruction or proof of account balance.
-- Existing Netlify site `mrg-trade-desk` has a **manual drop deployment**. GitHub changes alone do **not** publish the updated dashboard. Link the existing Netlify project to GitHub `girschen-crypto/Aweh-Kosher`, branch `main`, base directory blank, build command blank, publish directory `trade-desk/app`; verify the first deployment before relying on it.
-- If scheduled feeds fail, the prior snapshot will become stale rather than silently recommending old opportunities.
+## Code and operating status
 
-## Unattended Profit Cycle — PAPER MODE (12 October 2026)
+- Main app homepage: `trade-desk/app/index.html`, using `futures-lab.js` only.
+- Legacy `futures-lab.html` redirects to the same new homepage.
+- Offline cache: `trade-desk/app/sw.js`, caches only signal-related files.
+- Source of signal: **user-pasted text**, not an exchange feed or bot's prediction.
+- Data: browser-local storage under `mrgTradeDeskFuturesLabV1`; it does **not** sync to an account or broker.
+- No real funds, deposits, broker credentials, broker account connection, real order placement, cash withdrawals, realtime market feeds, background monitoring or exchange-native stops.
+- No unrelated equity or spot-crypto investment screens remain in the homepage.
+- Legacy scanning/spot engine source files remain in Git history and/or unused source paths for reversibility, but the two GitHub Actions scheduled workflows `tradedesk-radar.yml` and `tradedesk-auto-cycle.yml` were removed from the branch.
+- TradeDesk operations must only work with user-provided futures trading signals. Do **not** automatically restore or run the earlier market scans and share investment features.
 
-TradeDesk implements the requested signal → invest → exit → recover capital cycle in **paper mode only**. The current code cannot place real-money broker orders:
+## Test and publish
 
-1. GitHub Actions runs trade-desk/scripts/auto_cycle.py roughly every five minutes (scheduling may be delayed) while the dashboard is closed. It reads Binance Spot public market data and the fresh research snapshot on the tradedesk-radar-data branch.
-2. Simulated BUY requires a BREAKOUT WATCH candidate with score ≥80, 20-hour breakout, positive momentum, 24-hour liquidity, abnormal volume, RSI 48–68, spread ≤0.12%, snapshot age under 90 minutes and live quote within 0.5% of the research price. These technical factors do not forecast returns.
-3. Starting virtual balance: **25 USDT** (fictional, not the user's brokerage balance). Maximum simulated exposure is 5 USDT and 20% of virtual cash, with a 1% per-trade planned equity-risk cap; no more than one position, two entries per day or 2% daily realised loss.
-4. A simulated position exits at a 2% stop, 3.5% target or 24-hour time limit, factoring 0.1% per-side estimated fee and 0.1% per-side slippage. Market gaps over a stop are simulated at the worse observed price. These are scheduled checks, **not exchange-native protective orders**. They are unsafe to substitute for live trading stops.
-5. At exit, capital returns to the virtual trading-cash balance. **100% of realised positive net profit** moves into a separate virtual reserve and is not reinvested. Losses reduce trading cash. Neither movement transfers any real money or represents a withdrawal.
-6. State and history are saved in trade-desk/auto-cycle-state.json on the tradedesk-radar-data branch to avoid unnecessary Netlify builds. The dashboard reads it through trade-desk/app/auto-cycle.js and clearly labels virtual values.
-7. Unit tests cover profits, gaps, stops, signals, stale research, idempotency, risk limits and a strict refusal to enable live orders.
+Run `node trade-desk/tests/futures-lab.test.cjs` in a clone of the repository. Tests cover position sizing, fees, LONG/SHORT parsing, virtual closing and the signal-only homepage.
 
-**Live deployment prerequisites:** A trade-enabled broker API (Binance Spot or suitably supported equity broker) and read access to actual account balances and fills; exchange-side contingent exits, reconciliation of fees and partial fills, trading-only API credentials held on a secure server, an account kill switch, emergency alerts, maximum real account budget and explicit approval. No live broker integration currently exists. Broker-cash proceeds after a sale are different from **bank withdrawals**, which require a separate authorised process.
+**Deployment note:** The existing Netlify project `mrg-trade-desk` currently has a manual drop deployment, not continuous Git builds. Merging source updates is not a live production publish. To publish the signal-only version, deploy `trade-desk/app` to the same existing Netlify project or connect that project to branch `main` with publish directory `trade-desk/app`. No new paid service is required.
 
-The existing Netlify production site was a manual upload. GitHub code changes do not update its pages until the existing site is connected for continuous deployment or manually redeployed.
-
-## Futures Signal Lab — offline paper mode (2 November 2026)
-
-- Open `trade-desk/app/futures-lab.html` via the new main-dashboard link.
-- Supports WhatsApp-style signals for `PAIR/USDT` or `PAIR/USDC`, leverage, market order, allocation percentage and LONG/SHORT.
-- Based on the user-supplied Vantera example, 200 USDT × 10% allocation = 20 USDT margin; with assumed 10 USDT initial margin per whole contract = **2 contracts**; at 100× this models 2,000 USDT notional exposure. The assumed 10 USDT per contract **is not verified exchange contract information**.
-- By default, models 0.25 USDT estimated fee per contract per side (from screenshot), with an editable input. Fees, funding, spread, slippage, real exchange mark-price and liquidation methodology remain unknown. All P/L is illustrative and should not be represented as an actual fill or cash withdrawal.
-- Scenario: 2 contracts, 2,000 USDT notional and 1 USDT round-trip fee. A +0.5% favourable price move yields a +9 USDT **estimated net** gain. An adverse −0.5% move yields a −11 USDT **estimated net** loss. At +1%, gross P/L would be +20 USDT (100% return on 20 USDT margin), before fees.
-- Sample screenshot inputs: 1 contract at 47.8673, new mark 47.9657, 1,000 USDT modelled notional, yields about +2.06 USDT gross before fees; estimated two-side fee is 0.50 USDT, making net ≈1.56 USDT. This is not a verified price feed.
-- Simulated entry, margin lock, manual mark-price check, LONG and SHORT P/L, optional price-distance stop/target, manual close, realised net P/L, separate virtual profit reserve, and browser-local history are included.
-- Stop/target checks **only run when the user clicks Check manual price**; not when closed, not in the background, not at an exchange. Losses are capped at simulated isolated margin to avoid representing cross-margin debt, but actual liquidation can occur earlier and real trading terms can differ. No real broker API, orders, exchange account readings or withdrawals.
-- Existing automated spot paper-cycle remains unchanged. The Futures Signal Lab is a separate **manual-input futures simulator** and is not an autonomous bot or live trading integration.
-- Deployment: The existing Netlify site is recorded as a manual drop deployment. GitHub commits and merged PRs **do not necessarily publish this lab** without connecting the site for Git-based builds or manually redeploying the existing publish directory. No new paid service was created.
+The earlier multi-asset TradeDesk and detailed development history are preserved by Git commits, not by maintaining duplicate user-facing features.
