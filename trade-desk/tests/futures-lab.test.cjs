@@ -75,4 +75,16 @@ function harness(overrides={}){
   const h=harness({fee:"1e999"});
   assert.equal(h.get("open").disabled,true); // reject Infinity
 }
-console.log("Futures Signal Lab: all paper-trading regression checks passed.");
+// Home page and service worker must expose no unrelated investment choices.
+{
+  const home=fs.readFileSync(path.join(__dirname,"../app/index.html"),"utf8");
+  const sw=fs.readFileSync(path.join(__dirname,"../app/sw.js"),"utf8");
+  assert.match(home,/Futures Trading Signals/);
+  assert.match(home,/id="signal"/);
+  assert.match(home,/futures-lab\.js/);
+  assert.doesNotMatch(home,/binance\.js|radar\.js|auto-cycle\.js|app\.js\?v=/i);
+  assert.doesNotMatch(home,/EasyEquities|IBKR|BWXT|Opportunity Radar|US WATCHLIST|Mining watchlist/i);
+  assert.match(sw,/mrg-tradedesk-signals-v1/);
+  assert.doesNotMatch(sw,/radar\.js|auto-cycle\.js|binance\.js/);
+}
+console.log("Futures Signal Lab: all regression checks and signal-only home checks passed.");
