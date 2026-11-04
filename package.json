@@ -1,0 +1,13 @@
+{
+  "name": "mrg-tradedesk-functions",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Server-only dependencies for TradeDesk biometric read-only balance access",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@netlify/blobs": "11.1.6",
+    "@simplewebauthn/server": "14.0.3"
+  }
+}

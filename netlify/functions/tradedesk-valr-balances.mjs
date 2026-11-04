@@ -4,6 +4,7 @@
  * Owner access is a separate, long, server-side secret and is never persisted by the UI.
  */
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
+import { validSession } from "./_shared/tradedesk-passkey-session.mjs";
 
 const PATH = "/v1/account/balances";
 const VALR_ENDPOINT = "https://api.valr.com" + PATH;
@@ -58,7 +59,7 @@ export async function handleRequest(request, env = process.env, fetchFn = fetch,
 
   const auth = request.headers.get("authorization") || "";
   const suppliedToken = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (!matchesSecret(suppliedToken, ownerToken))
+  if (!matchesSecret(suppliedToken, ownerToken) && !validSession(request, env))
     return reply(401, { ok: false, error: "ACCESS_DENIED", message: "Owner access password is incorrect." });
 
   const timestamp = String(now());
