@@ -97,10 +97,30 @@ test("VALR returns 401 for rejected key and diagnostic remains owner-protected",
   const response=await decode(await handleRequest(makeRequest(),ENV,async()=>{
     calls++;return {ok:false,status:401};
   },()=>1600000000000));
-  assert.equal(calls,2);
+  assert.equal(calls,3);
   assert.equal(response.body.error,"VALR_AUTH_FAILED");
   assert.equal(response.body.valrHttpStatus,401);
   assert.equal(response.body.keyCheck,"REJECTED");
+});
+
+test("Swapped credentials are detected using read-only key-info endpoint",async()=>{
+  let calls=0;
+  const response=await decode(await handleRequest(makeRequest(),ENV,async(url,opts)=>{
+    calls++;
+    if(calls<3)return {ok:false,status:401};
+    assert.equal(url,"https://api.valr.com/v1/account/api-keys/current");
+    assert.equal(opts.method,"GET");
+    assert.equal(opts.headers["X-VALR-API-KEY"],API_SECRET);
+    assert.equal(opts.headers["X-VALR-SIGNATURE"],signValr(API_KEY,"1600000000000","GET","/v1/account/api-keys/current"));
+    return {ok:true,status:200};
+  },()=>1600000000000));
+  assert.equal(calls,3);
+  assert.equal(response.status,502);
+  assert.equal(response.body.error,"VALR_CREDENTIALS_SWAPPED");
+  assert.equal(response.body.keyCheck,"SWAPPED");
+  assert.ok(!JSON.stringify(response.body).includes(API_KEY));
+  assert.ok(!JSON.stringify(response.body).includes(API_SECRET));
+  assert.ok(!JSON.stringify(response.body).includes(OWNER));
 });
 
 test("Network errors show generic error only",async()=>{

@@ -102,7 +102,29 @@ export async function handleRequest(request, env = process.env, fetchFn = fetch,
             checkResponse.status === 401 ? "REJECTED" :
             checkResponse.status === 403 ? "RESTRICTED" : "UNAVAILABLE";
         } catch (_) { /* Fail closed. VALR and Netlify secrets stay server-side. */ }
-        const code = keyCheck === "ACCEPTED" ? "VALR_BALANCE_ACCESS_DENIED" :
+        // Verify whether the two Netlify values were entered in reverse.
+        // The alternative request remains a READ-ONLY API-key information GET.
+        if (response.status === 401 && keyCheck === "REJECTED") {
+          try {
+            const swappedPath = "/v1/account/api-keys/current";
+            const swappedTime = String(now());
+            const swapped = await fetchFn("https://api.valr.com" + swappedPath, {
+              method: "GET",
+              headers: {
+                "X-VALR-API-KEY": apiSecret,
+                "X-VALR-SIGNATURE": signValr(apiKey, swappedTime, "GET", swappedPath),
+                "X-VALR-TIMESTAMP": swappedTime,
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+              },
+              redirect: "error", cache: "no-store",
+              signal: AbortSignal.timeout(10000),
+            });
+            if (swapped.ok) keyCheck = "SWAPPED";
+          } catch (_) { /* Fail closed, no upstream bodies or secrets. */ }
+        }
+        const code = keyCheck === "SWAPPED" ? "VALR_CREDENTIALS_SWAPPED" :
+          keyCheck === "ACCEPTED" ? "VALR_BALANCE_ACCESS_DENIED" :
           response.status === 403 ? "VALR_ACCESS_RESTRICTED" : "VALR_AUTH_FAILED";
         // Safe operational codes only. Never log response bodies or sensitive values.
         console.info("TradeDesk VALR diagnostics", { balanceHttpStatus: response.status, keyCheck });
