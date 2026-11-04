@@ -197,6 +197,22 @@ $("valrUsePasskey").addEventListener("click",async()=>{
   } catch(e) {passStatus(passkeyError(e));}
   finally {$("valrUsePasskey").disabled=!passkeyEnrolled;}
 });
+$("valrResetPasskeys").addEventListener("click",async()=>{
+  const field=$("valrOwnerPassword");
+  const password=field.value.trim();field.value="";
+  if(password.length<32)return passStatus("Enter the owner password to remove registered biometrics.");
+  if(!window.confirm("Remove ALL TradeDesk passkeys? You will need to register a device again with your owner password."))return;
+  $("valrResetPasskeys").disabled=true;
+  try {
+    await postPasskey("reset-passkeys",{},password);
+    passkeyEnrolled=false;
+    clear();
+    passStatus("Registered TradeDesk passkeys removed. If a device was lost or stolen, also rotate your owner password in Netlify to invalidate any remaining sessions.");
+    status("Balance viewer signed out.");
+    await refreshStatus();
+  }catch(e){passStatus(passkeyError(e));}
+  finally{$("valrResetPasskeys").disabled=false;}
+});
 $("valrSignOut").addEventListener("click",async()=>{
   try{await postPasskey("logout");clear();status("Signed out of the balance viewer.");}
   catch {passStatus("Sign-out failed; close this tab and try again.");}

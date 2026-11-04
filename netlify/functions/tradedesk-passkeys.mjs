@@ -84,6 +84,18 @@ export async function handlePasskeyRequest(request, env = process.env, injectedS
       return result(200, {ok:true,enrolled:credentials.length>0,signedIn:validSession(request,env)});
     }
 
+    if (data.action === "reset-passkeys") {
+      if (!verifyOwnerToken(request,env)) return result(401,{ok:false,error:"OWNER_PASSWORD_REQUIRED"});
+      const previous=await readList(store);
+      if (previous.credentials.length) {
+        const saved=await saveList(store,previous,[]);
+        if (!saved) return result(409,{ok:false,error:"STORE_CONFLICT"});
+      }
+      // Also rotate TRADEDESK_OWNER_TOKEN in Netlify after a lost/stolen phone:
+      // previously issued cookies stay valid until expiry unless signing key rotates.
+      return result(200,{ok:true,removed:true},clearSession());
+    }
+
     if (data.action === "register-begin") {
       if (!verifyOwnerToken(request,env)) return result(401,{ok:false,error:"OWNER_PASSWORD_REQUIRED"});
       const previous = await readList(store);

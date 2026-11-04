@@ -84,7 +84,7 @@ function harness(overrides={}){
   assert.match(home,/futures-lab\.js/);
   assert.doesNotMatch(home,/binance\.js|radar\.js|auto-cycle\.js|app\.js\?v=/i);
   assert.doesNotMatch(home,/EasyEquities|IBKR|BWXT|Opportunity Radar|US WATCHLIST|Mining watchlist/i);
-  assert.match(sw,/mrg-tradedesk-signals-v5/);
+  assert.match(sw,/mrg-tradedesk-signals-v6/);
   assert.doesNotMatch(sw,/radar\.js|auto-cycle\.js|binance\.js/);
 }
 console.log("Futures Signal Lab: all regression checks and signal-only home checks passed.");

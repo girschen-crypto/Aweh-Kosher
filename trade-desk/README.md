@@ -95,3 +95,5 @@ The balance reader supports an optional **WebAuthn passkey**. Supported phones a
 - Test: `npm install --no-audit --no-fund && node --test trade-desk/tests/passkey-auth.test.mjs`; deployment also runs the existing VALR and futures paper tests. Verify registration, fingerprint sign-in, balance read, sign out and recovery on a real device before considering the feature fully validated.
 
 There are no additional subscriptions required. If the production passkey function is unavailable, the old **owner-password balance reader** stays available.
+
+**Lost-phone or compromised-passkey recovery:** Use **Remove saved passkeys** on the production dashboard. It requires the current separate TradeDesk owner password and revokes all registered passkeys, after which you can register a new device. If a phone was actually lost or compromised, **also rotate `TRADEDESK_OWNER_TOKEN` directly in Netlify** to invalidate any previously issued signed sessions (cookies can otherwise remain usable until their eight-hour expiry). Redeploy after changing that secret. Neither action requires changes to your VALR API key. Never share owner token or VALR API credentials in chat.
