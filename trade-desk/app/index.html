@@ -27,9 +27,18 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <section class="card" aria-label="VALR connection">
 <div class="valr-balance-head"><h2>VALR · TradeDesk sub-account</h2><span class="valr-label">VIEW ONLY</span></div>
 <p class="caption">Optional secure balance check. These are your <strong>actual VALR account balances</strong>, separate from the virtual signal simulator below. This connection cannot place trades or move money.</p>
-<label for="valrOwnerPassword">TradeDesk owner password</label>
-<input id="valrOwnerPassword" type="password" autocomplete="off" spellcheck="false" placeholder="Separate owner password from Netlify (not your VALR API key)">
-<div class="buttons"><button type="button" id="valrReadBalance">Read VALR balance</button></div>
+<p class="caption"><strong>Biometric sign-in:</strong> Your phone's fingerprint or face unlock can replace repeated password entry. Sign in using a secure passkey; no biometric data leaves your device.</p>
+<p id="valrPasskeyStatus" class="status" role="status">Checking whether your device has a TradeDesk passkey...</p>
+<div class="buttons">
+<button type="button" id="valrUsePasskey" disabled>Use fingerprint / face unlock</button>
+<button type="button" id="valrSignOut" class="secondary">Sign out</button>
+</div>
+<label for="valrOwnerPassword">Owner password — first-time setup or recovery only</label>
+<input id="valrOwnerPassword" type="password" autocomplete="off" spellcheck="false" placeholder="Enter once to enable biometrics, or to use password recovery">
+<div class="buttons">
+<button type="button" id="valrEnrollPasskey" class="secondary">Enable biometrics on this device</button>
+<button type="button" id="valrReadBalance">Read VALR balance</button>
+</div>
 <p id="valrConnectionStatus" class="status" role="status">Not connected. Private server credentials and an owner password must first be configured in Netlify.</p>
 <div id="valrBalanceList" aria-live="polite"></div>
 <p class="caption">Never paste your VALR API key, API secret or 2FA code into this page. The owner password is not stored in the browser or trade log.</p>
@@ -82,6 +91,6 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <h2>Completed virtual trades</h2><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Units</th><th>Net P/L</th><th>Reason</th></tr></thead><tbody id="history"></tbody></table></div>
 </section>
 <div class="notice good"><strong>Real-money execution remains disabled.</strong> Before integration, independently verify the exchange, market instrument, contract specification, fees, withdrawal rights, exchange-native stop protection and API permissions. TradeDesk never sends deposits or orders from this page.</div>
-</main><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=3"></script>
+</main><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=4"></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}</script>
 </body></html>
