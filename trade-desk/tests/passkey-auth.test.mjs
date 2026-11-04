@@ -104,3 +104,18 @@ test("Logout clears the browser's secure cookie",async()=>{
   assert.equal(r.status,200);
   assert.match(r.headers.get("set-cookie"),/Max-Age=0/);
 });
+
+test("Only owner password can revoke passkeys; removal clears session",async()=>{
+  const store=fakeStore();
+  store.map.set("owner-passkeys",{
+    data:[{id:"credential",publicKey:"abc",counter:0}],etag:"1",
+  });
+  const denied=await decode(await handlePasskeyRequest(req("reset-passkeys"),ENV,store));
+  assert.equal(denied.status,401);
+  assert.equal(store.map.get("owner-passkeys").data.length,1);
+  const accepted=await decode(await handlePasskeyRequest(req("reset-passkeys",PASS),ENV,store));
+  assert.equal(accepted.status,200);
+  assert.equal(accepted.body.removed,true);
+  assert.equal(store.map.get("owner-passkeys").data.length,0);
+  assert.match(accepted.headers.get("set-cookie"),/Max-Age=0/);
+});
