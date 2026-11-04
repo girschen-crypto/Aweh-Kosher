@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "travel-aweh-api",
+  "main": "./cloudflare/worker.ts",
+  "compatibility_date": "2026-08-12",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "travel-aweh-production",
+      "database_id": "963ba96f-808a-4320-92f5-3049289bdb11",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "APP_ORIGIN": "https://travel-aweh-api.girschen.workers.dev"
+  }
+}
