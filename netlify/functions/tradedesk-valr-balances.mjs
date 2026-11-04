@@ -79,11 +79,38 @@ export async function handleRequest(request, env = process.env, fetchFn = fetch,
     });
 
     if (!response.ok) {
-      if (response.status === 401 || response.status === 403)
-        return reply(502, { ok: false, error: "VALR_AUTH_FAILED", message: "VALR rejected the read-only credentials." });
+      if (response.status === 401 || response.status === 403) {
+        // Diagnose using a SECOND read-only endpoint. Never return upstream error bodies,
+        // secrets, headers, account IDs or any permissions details to the browser/logs.
+        let keyCheck = "UNAVAILABLE";
+        try {
+          const checkPath = "/v1/account/api-keys/current";
+          const checkTimestamp = String(now());
+          const checkResponse = await fetchFn("https://api.valr.com" + checkPath, {
+            method: "GET",
+            headers: {
+              "X-VALR-API-KEY": apiKey,
+              "X-VALR-SIGNATURE": signValr(apiSecret, checkTimestamp, "GET", checkPath),
+              "X-VALR-TIMESTAMP": checkTimestamp,
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+            },
+            redirect: "error", cache: "no-store",
+            signal: AbortSignal.timeout(10000),
+          });
+          keyCheck = checkResponse.ok ? "ACCEPTED" : 
+            checkResponse.status === 401 ? "REJECTED" :
+            checkResponse.status === 403 ? "RESTRICTED" : "UNAVAILABLE";
+        } catch (_) { /* Fail closed. VALR and Netlify secrets stay server-side. */ }
+        const code = keyCheck === "ACCEPTED" ? "VALR_BALANCE_ACCESS_DENIED" :
+          response.status === 403 ? "VALR_ACCESS_RESTRICTED" : "VALR_AUTH_FAILED";
+        // Safe operational codes only. Never log response bodies or sensitive values.
+        console.info("TradeDesk VALR diagnostics", { balanceHttpStatus: response.status, keyCheck });
+        return reply(502, { ok: false, error: code, valrHttpStatus: response.status, keyCheck });
+      }
       if (response.status === 429)
         return reply(503, { ok: false, error: "VALR_RATE_LIMITED" });
-      return reply(502, { ok: false, error: "VALR_UNAVAILABLE" });
+      return reply(502, { ok: false, error: "VALR_UNAVAILABLE", valrHttpStatus: response.status });
     }
 
     const body = await response.json();
