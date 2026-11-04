@@ -79,3 +79,19 @@ Use `node --test trade-desk/tests/valr-balances.test.mjs` for backend permission
 ### Applying rotated VALR credentials (4 November 2026)
 
 TradeDesk reads its VALR credentials from secret Netlify environment variables at deployment time. When the owner corrects the read-only VALR API secret in the existing Netlify project, publish a new production deployment before checking the connection. Never paste or commit any actual API credential into GitHub or the public TradeDesk interface. Live trading remains disabled.
+
+## Fingerprint / face-unlock (passkeys) for read-only VALR balances
+
+The balance reader supports an optional **WebAuthn passkey**. Supported phones and computers use their device fingerprint, face unlock or device PIN to approve an authentication signature. TradeDesk does **not** see or store any face/fingerprint data.
+
+- First enrolment requires the **TradeDesk owner password** as a one-time proof of ownership. **Rotate the owner token privately in Netlify before enrolling**, as the old token was previously shared in a chat. Publish the environment change before enrolment. Never use a VALR API key or secret as the owner password.
+- On your phone: open the **production** site at `https://mrg-trade-desk.netlify.app` in Chrome or another passkey-compatible browser, enter the **separate TradeDesk owner password** once and tap **Enable biometrics on this device**. Confirm the device passkey prompt.
+- After enrolment: tap **Use fingerprint / face unlock** when the signed-in session expires. Signed-in sessions last up to eight hours; during the session, **Read VALR balance** does not require a password. A manual **Sign out** ends that browser session.
+- A passkey is tied cryptographically to `mrg-trade-desk.netlify.app`, cannot be replayed on another domain, and verifies the owner with device user verification **required**.
+- Persistent passkey *public* credential and time-limited one-time challenge state are stored server-side in Netlify Blobs, with strong consistency and conditional writes for replay prevention. Do not use the shared, public web page as a passkey database.
+- The valid session is an 8-hour, signed `__Host-` cookie with `HttpOnly`, `Secure` and `SameSite=Strict`; the browser stores no password or biometric. Rotating `TRADEDESK_OWNER_TOKEN` invalidates current sessions and permits password recovery. The existing password remains a fallback.
+- The passkey provides access to **only one read-only VALR balance endpoint**. It is **not** proof of authorisation for future live-trading orders and does not enable Trade, Internal Transfer or Withdraw permissions.
+- The passkey endpoints refuse Netlify Deploy Preview origins; only the production RP ID/origin is accepted. Preview deployments must never have live key access.
+- Test: `npm install --no-audit --no-fund && node --test trade-desk/tests/passkey-auth.test.mjs`; deployment also runs the existing VALR and futures paper tests. Verify registration, fingerprint sign-in, balance read, sign out and recovery on a real device before considering the feature fully validated.
+
+There are no additional subscriptions required. If the production passkey function is unavailable, the old **owner-password balance reader** stays available.
