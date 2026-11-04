@@ -73,6 +73,36 @@ test("VALR auth errors do not expose upstream response",async()=>{
   assert.equal(r.body.error,"VALR_AUTH_FAILED");
 });
 
+test("VALR credential accepted but balance access refused is diagnosed without secrets", async()=>{
+  const calls=[];
+  const response=await decode(await handleRequest(makeRequest(),ENV,async(url,opts)=>{
+    calls.push({url,method:opts.method,signature:opts.headers["X-VALR-SIGNATURE"]});
+    return url.endsWith("/v1/account/balances") ? {ok:false,status:403} : {ok:true,status:200};
+  },()=>1600000000000));
+  assert.equal(calls.length,2);
+  assert.equal(calls[0].url,"https://api.valr.com/v1/account/balances");
+  assert.equal(calls[1].url,"https://api.valr.com/v1/account/api-keys/current");
+  assert.equal(calls[1].method,"GET");
+  assert.equal(calls[1].signature,signValr(API_SECRET,"1600000000000","GET","/v1/account/api-keys/current"));
+  assert.equal(response.status,502);
+  assert.equal(response.body.error,"VALR_BALANCE_ACCESS_DENIED");
+  assert.equal(response.body.keyCheck,"ACCEPTED");
+  assert.ok(!JSON.stringify(response.body).includes(API_KEY));
+  assert.ok(!JSON.stringify(response.body).includes(API_SECRET));
+  assert.ok(!JSON.stringify(response.body).includes(OWNER));
+});
+
+test("VALR returns 401 for rejected key and diagnostic remains owner-protected",async()=>{
+  let calls=0;
+  const response=await decode(await handleRequest(makeRequest(),ENV,async()=>{
+    calls++;return {ok:false,status:401};
+  },()=>1600000000000));
+  assert.equal(calls,2);
+  assert.equal(response.body.error,"VALR_AUTH_FAILED");
+  assert.equal(response.body.valrHttpStatus,401);
+  assert.equal(response.body.keyCheck,"REJECTED");
+});
+
 test("Network errors show generic error only",async()=>{
   const r=await decode(await handleRequest(makeRequest(),ENV,async()=>{throw Error("Sensitive upstream diagnostics");}));
   assert.equal(r.status,502);
