@@ -6,7 +6,7 @@
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
 
 const PATH = "/v1/account/balances";
-const URL = "https://api.valr.com" + PATH;
+const VALR_ENDPOINT = "https://api.valr.com" + PATH;
 const HEADERS = Object.freeze({
   "Content-Type": "application/json; charset=utf-8",
   "Cache-Control": "private, no-store, max-age=0",
@@ -64,7 +64,7 @@ export async function handleRequest(request, env = process.env, fetchFn = fetch,
   const timestamp = String(now());
   const signature = signValr(apiSecret, timestamp, "GET", PATH);
   try {
-    const response = await fetchFn(URL, {
+    const response = await fetchFn(VALR_ENDPOINT, {
       method: "GET",
       headers: {
         "X-VALR-API-KEY": apiKey,
