@@ -42,6 +42,7 @@
           NOT_CONFIGURED: "The server is not yet configured. Add the three private Netlify environment variables.",
           ACCESS_DENIED: "Owner password incorrect. Use the password configured in Netlify.",
           INVALID_SERVER_CONFIGURATION: "The VALR server credentials need checking in Netlify.",
+          VALR_CREDENTIALS_SWAPPED: "The VALR API key and secret appear to be in each other's Netlify fields. Swap them privately in Netlify and redeploy; never paste credentials into this page.",
           VALR_AUTH_FAILED: "VALR authentication failed (401). Your TradeDesk password was accepted. Check that the VALR key and secret belong together, are not swapped, and that the key was authorised by email and 2FA.",
           VALR_ACCESS_RESTRICTED: "VALR denied access (403). Check that View permission is enabled and the API key does not restrict Netlify's outgoing IP.",
           VALR_BALANCE_ACCESS_DENIED: "VALR accepts the API credentials but rejected balance access. Check the key's View permission and whether it belongs to the intended TradeDesk sub-account.",
