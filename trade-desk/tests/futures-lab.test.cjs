@@ -48,7 +48,7 @@ function harness(overrides={}){
   assert.equal(h.get("contracts").textContent,"20");
   assert.equal(h.get("margin").textContent,"200.00 USDT");
   assert.equal(h.get("notional").textContent,"20000.00 USDT");
-  assert.equal(h.get("open").disabled,true); // fictional account actually has only 200 free
+  assert.equal(h.get("open").disabled,false); // exactly 200 virtual cash is free for 200 margin; example sizing is hypothetical
 }
 {
   const h=harness({direction:"SHORT",mark:"49"});
@@ -84,7 +84,7 @@ function harness(overrides={}){
   assert.match(home,/futures-lab\.js/);
   assert.doesNotMatch(home,/binance\.js|radar\.js|auto-cycle\.js|app\.js\?v=/i);
   assert.doesNotMatch(home,/EasyEquities|IBKR|BWXT|Opportunity Radar|US WATCHLIST|Mining watchlist/i);
-  assert.match(sw,/mrg-tradedesk-signals-v1/);
+  assert.match(sw,/mrg-tradedesk-signals-v2/);
   assert.doesNotMatch(sw,/radar\.js|auto-cycle\.js|binance\.js/);
 }
 console.log("Futures Signal Lab: all regression checks and signal-only home checks passed.");
