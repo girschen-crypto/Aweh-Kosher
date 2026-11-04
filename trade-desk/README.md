@@ -75,3 +75,7 @@ After saving all three, trigger a fresh production deploy so the Netlify Functio
 The signal simulator remains local and completely separate from VALR balances. It does **not** use a live VALR balance to size or place real orders. Never imply that the virtual 200 USDT is a real VALR balance. No real funds can be deposited *into TradeDesk*; any funding occurs directly on the user's own VALR sub-account. Real-money automated futures execution is **not available or authorised** at this stage.
 
 Use `node --test trade-desk/tests/valr-balances.test.mjs` for backend permission, auth and signature tests.
+
+### Applying rotated VALR credentials (4 November 2026)
+
+TradeDesk reads its VALR credentials from secret Netlify environment variables at deployment time. When the owner corrects the read-only VALR API secret in the existing Netlify project, publish a new production deployment before checking the connection. Never paste or commit any actual API credential into GitHub or the public TradeDesk interface. Live trading remains disabled.
