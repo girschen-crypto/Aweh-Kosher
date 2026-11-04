@@ -41,3 +41,37 @@ Run `node trade-desk/tests/futures-lab.test.cjs` in a clone of the repository. T
 **Deployment note:** The existing Netlify project `mrg-trade-desk` currently has a manual drop deployment, not continuous Git builds. Merging source updates is not a live production publish. To publish the signal-only version, deploy `trade-desk/app` to the same existing Netlify project or connect that project to branch `main` with publish directory `trade-desk/app`. No new paid service is required.
 
 The earlier multi-asset TradeDesk and detailed development history are preserved by Git commits, not by maintaining duplicate user-facing features.
+
+
+## VALR read-only balance connection (4 November 2026)
+
+The signal-only dashboard now includes a **read-only VALR sub-account balance panel**, not a deposit wallet or live trading engine.
+
+### Security model
+
+- Source code: `netlify/functions/tradedesk-valr-balances.mjs` (secure backend) and `trade-desk/app/tradedesk-valr-client.js` (browser display).
+- Backend permits **POST to this one balance-reader route only**; VALR call is hard-coded to **GET /v1/account/balances**. No live trade, transfer or withdraw requests.
+- Server credentials are never committed to GitHub, never returned to browser, and must never be pasted into the public TradeDesk dashboard.
+- A separate owner password of **at least 32 random characters** is required to see balances; its comparison is timing-safe. The password is cleared from the page after each request and is not stored in localStorage/cookies.
+- Requests from other web origins are rejected, and balance responses have `Cache-Control: private, no-store`.
+- VALR access is scoped to the **TradeDesk sub-account API key** created in VALR with **View access only**. If the user mistakenly made a primary-account key, replace it with a sub-account key rather than enabling wider impersonation.
+- If any required environment variable is missing, the endpoint fails closed with `NOT_CONFIGURED`; it never retrieves or publishes a balance.
+- This is personal-use security for a private balance function on a publicly accessible site; for later paid/multi-user use, introduce a full identity and authorisation service with rate limiting and session management.
+
+### One-time owner setup in existing Netlify project
+
+Open Netlify → **mrg-trade-desk** → **Project configuration → Environment variables**. Create these three values as **secret** variables, scoped to **Functions** and production (or all scopes if function scope isn't available):
+
+1. `TRADEDESK_VALR_API_KEY` — paste the key from the VALR **TradeDesk sub-account**. Do not reveal it to anyone or put it in GitHub.
+2. `TRADEDESK_VALR_API_SECRET` — paste the matching secret from VALR. The API secret may not be recoverable after closing the VALR creation screen; if not saved, revoke the key and create a fresh **View access only** key.
+3. `TRADEDESK_OWNER_TOKEN` — a **new separate**, random 32+ character password generated in a password manager. Never use the VALR password, VALR API secret, or any repeated password.
+
+After saving all three, trigger a fresh production deploy so the Netlify Function receives the variables. Open `https://mrg-trade-desk.netlify.app`, enter only the separate TradeDesk owner password into its read-only VALR panel and click **Read VALR balance**.
+
+**Never send any of these credentials or a screenshot exposing them in chat.** No IP whitelist is configured because regular Netlify Functions do not provide a fixed outgoing IP without additional networking services; a wrong IP whitelist can block API calls. A future hardened setup should address this before trade-enabled keys.
+
+### Functional limitations
+
+The signal simulator remains local and completely separate from VALR balances. It does **not** use a live VALR balance to size or place real orders. Never imply that the virtual 200 USDT is a real VALR balance. No real funds can be deposited *into TradeDesk*; any funding occurs directly on the user's own VALR sub-account. Real-money automated futures execution is **not available or authorised** at this stage.
+
+Use `node --test trade-desk/tests/valr-balances.test.mjs` for backend permission, auth and signature tests.
