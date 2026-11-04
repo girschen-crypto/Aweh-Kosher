@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'netlify/functions/tradedesk-valr-balances.mjs'
+      - 'netlify/functions/tradedesk-passkeys.mjs'
+      - 'netlify/functions/_shared/tradedesk-passkey-session.mjs'
+      - 'trade-desk/tests/passkey-auth.test.mjs'
+      - 'package.json'
       - 'trade-desk/app/index.html'
       - 'trade-desk/app/tradedesk-valr-client.js'
       - 'trade-desk/app/sw.js'
@@ -23,8 +27,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install verified server dependencies
+        run: npm install --no-audit --no-fund
       - name: Test VALR gateway and existing paper simulator
         run: |
+          node --check trade-desk/app/tradedesk-valr-client.js
+          node --check netlify/functions/tradedesk-passkeys.mjs
+          node --test trade-desk/tests/passkey-auth.test.mjs
           node --test trade-desk/tests/valr-balances.test.mjs
           node trade-desk/tests/futures-lab.test.cjs
       - name: Refuse order endpoint logic in VALR gateway
