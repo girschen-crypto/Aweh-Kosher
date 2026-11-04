@@ -37,6 +37,7 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <input id="valrOwnerPassword" type="password" autocomplete="off" spellcheck="false" placeholder="Enter once to enable biometrics, or to use password recovery">
 <div class="buttons">
 <button type="button" id="valrEnrollPasskey" class="secondary">Enable biometrics on this device</button>
+<button type="button" id="valrResetPasskeys" class="secondary" title="Owner password required">Remove saved passkeys</button>
 <button type="button" id="valrReadBalance">Read VALR balance</button>
 </div>
 <p id="valrConnectionStatus" class="status" role="status">Not connected. Private server credentials and an owner password must first be configured in Netlify.</p>
@@ -91,6 +92,6 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <h2>Completed virtual trades</h2><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Units</th><th>Net P/L</th><th>Reason</th></tr></thead><tbody id="history"></tbody></table></div>
 </section>
 <div class="notice good"><strong>Real-money execution remains disabled.</strong> Before integration, independently verify the exchange, market instrument, contract specification, fees, withdrawal rights, exchange-native stop protection and API permissions. TradeDesk never sends deposits or orders from this page.</div>
-</main><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=4"></script>
+</main><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=5"></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}</script>
 </body></html>
