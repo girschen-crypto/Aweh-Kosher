@@ -10,6 +10,13 @@ const passStatus = msg => { $("valrPasskeyStatus").textContent = msg; };
 const clear = () => $("valrBalanceList").replaceChildren();
 const passkeyURL = "/.netlify/functions/tradedesk-passkeys";
 let passkeyEnrolled = false;
+if(window.location.origin!=="https://mrg-trade-desk.netlify.app"){
+  for(const id of ["valrOwnerPassword","valrUsePasskey","valrEnrollPasskey","valrResetPasskeys","valrReadBalance","valrSignOut"])
+    $(id).disabled=true;
+  passStatus("Preview only. Set up or use your passkey on the live TradeDesk site.");
+  status("Private balances are available only at mrg-trade-desk.netlify.app.");
+  return;
+}
 
 function fromB64(value) {
   const b64 = value.replace(/-/g,"+").replace(/_/g,"/");

@@ -4,6 +4,12 @@
 const $=id=>document.getElementById(id);
 const endpoint="/.netlify/functions/tradedesk-signals";
 const state={loading:false,snapshot:null};
+if(window.location.origin!=="https://mrg-trade-desk.netlify.app"){
+  $("signalRefresh").disabled=true;$("signalScanNow").disabled=true;
+  value("signalScanStatus","Preview only. Automatic signals are available on the live TradeDesk site.");
+  $("signalMarketList").replaceChildren(place("p","caption","Open mrg-trade-desk.netlify.app to view current signals."));
+  return;
+}
 function value(id,v){$(id).textContent=String(v);}
 function place(tag,cl,text){
   const e=document.createElement(tag);if(cl)e.className=cl;e.textContent=String(text);return e;
