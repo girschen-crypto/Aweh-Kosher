@@ -5,6 +5,7 @@
  */
 import { getStore } from "@netlify/blobs";
 import { scanMarkets } from "./_shared/tradedesk-radar.mjs";
+import { journalConfigured } from "./_shared/tradedesk-journal.mjs";
 import { collectMarketProof } from "./_shared/tradedesk-valr-market.mjs";
 
 const STORE="tradedesk-signal-history-v1";
@@ -45,7 +46,7 @@ export default async function (_request,context) {
     console.info("TradeDesk public signal scan",result);
     // Only configured transactional storage starts the separate paper/execution worker.
     // Live writes remain independently locked by approval, account, policy and deployment gates.
-    if((context?.deploy?.context||process.env.CONTEXT)==="production"&&process.env.TRADEDESK_DATABASE_URL&&process.env.TRADEDESK_OWNER_TOKEN){
+    if((context?.deploy?.context||process.env.CONTEXT)==="production"&&journalConfigured(process.env)&&process.env.TRADEDESK_OWNER_TOKEN){
       await fetch("https://mrg-trade-desk.netlify.app/.netlify/functions/tradedesk-trading-cycle-background",{
         method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.TRADEDESK_OWNER_TOKEN},
         body:"{}",redirect:"error",signal:AbortSignal.timeout(3000)});

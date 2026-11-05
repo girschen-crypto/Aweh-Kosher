@@ -1,7 +1,7 @@
 import { allowedOrigin,verifyOwnerToken,validSession } from "./_shared/tradedesk-passkey-session.mjs";
 import { LIMITS,POLICY_HASH } from "./_shared/tradedesk-trading-policy.mjs";
 import { ValrExecutionClient,verifyPrivateAccount } from "./_shared/tradedesk-valr-execution.mjs";
-import { databasePool,TradingJournal } from "./_shared/tradedesk-journal.mjs";
+import { withJournal,journalConfigured } from "./_shared/tradedesk-journal.mjs";
 import { researchGate } from "./_shared/tradedesk-release.mjs";
 import { tradingRuntime } from "./_shared/tradedesk-runtime.mjs";
 const H={"Content-Type":"application/json","Cache-Control":"private, no-store","Vary":"Cookie, Authorization","X-Content-Type-Options":"nosniff"};
@@ -11,13 +11,14 @@ export async function handleTrading(request,{env=process.env,pool,client}={}){
   if(!allowedOrigin(request))return reply(403,{ok:false,error:"ORIGIN_REJECTED"});
   let data;try{data=await request.json();}catch{return reply(400,{ok:false,error:"INVALID_JSON"});}
   if(data.action==="status"){
-    let mode="PAPER",liveEnabled=false;
-    if(env.TRADEDESK_DATABASE_URL){try{const db=await (pool||databasePool(env)).connect();try{
-      const config=await new TradingJournal(db).control();mode=config.mode==="LIVE"?"LIVE":"PAPER";
+    let mode="PAPER",liveEnabled=false,journalHealthy=false,forward=null;
+    if(journalConfigured(env)){try{await withJournal(async journal=>{
+      const config=await journal.control();mode=config.mode==="LIVE"?"LIVE":"PAPER";journalHealthy=true;
+      if(journal.forward)forward=await journal.forward();
       if(mode==="LIVE"&&!config.stopped){const executor=new ValrExecutionClient({env,purpose:"trade",approval:config.approval});executor.assertWrite("entry");executor.credentials();liveEnabled=true;}
-    }finally{db.release();}}catch{liveEnabled=false;}}
+    },{env,pool});}catch{liveEnabled=false;journalHealthy=false;}}
     return reply(200,{ok:true,mode,liveEnabled,activationRequired:!liveEnabled,researchBlocker:researchGate(),policy:LIMITS,policyHash:POLICY_HASH,
-    databaseConfigured:!!env.TRADEDESK_DATABASE_URL,separateTradeKeyConfigured:!!env.TRADEDESK_VALR_TRADE_API_KEY&&!!env.TRADEDESK_VALR_TRADE_API_SECRET,
+    databaseConfigured:journalConfigured(env),journalHealthy,forward,separateTradeKeyConfigured:!!env.TRADEDESK_VALR_TRADE_API_KEY&&!!env.TRADEDESK_VALR_TRADE_API_SECRET,
     message:liveEnabled?"Live mode authorised. Refer to authenticated journal for positions, protection and risk status.":"Real orders are locked pending strategy evidence, private account verification and explicit activation approval."});
   }
   if(!verifyOwnerToken(request,env)&&!validSession(request,env))return reply(401,{ok:false,error:"SIGN_IN_REQUIRED"});
@@ -34,14 +35,13 @@ export async function handleTrading(request,{env=process.env,pool,client}={}){
         protectiveOrders:a.conditionals.map(p=>project(p,["orderId","currencyPair","quantity","triggerType","conditionalType","stopLossTriggerPrice","takeProfitTriggerPrice","triggerOrderSide"])),
         protectionConfirmed:false,protectionNote:"Listing conditionals alone does not verify protection; the execution engine must reconcile each position and conditional status."});
     }
-    const db=await (pool||databasePool(env)).connect();
-    try{
-      const journal=new TradingJournal(db);
+    return await withJournal(async journal=>{
       if(data.action==="stop"){await journal.stop("OWNER_EMERGENCY_STOP");return reply(200,{ok:true,stopped:true,message:"New entries stopped. Existing exchange protective orders were preserved."});}
       const config=await journal.control(),mode=config.mode==="LIVE"?"LIVE":"PAPER";
       return reply(200,{ok:true,mode,stopped:config.stopped,stopReason:config.stopReason||null,
-        metrics:await journal.metrics(mode),active:await journal.active(mode),trades:(await journal.trades(mode)).slice(0,50)});
-    }finally{db.release();}
+        metrics:await journal.metrics(mode),active:await journal.active(mode),trades:(await journal.trades(mode)).slice(0,50),
+        accountReadiness:config.accountReadiness||null,events:journal.events?await journal.events():[],forward:journal.forward?await journal.forward():null});
+    },{env,pool});
   }catch(e){return reply(503,{ok:false,error:e.message==="TRANSACTIONAL_DATABASE_NOT_CONFIGURED"?"TRANSACTIONAL_DATABASE_NOT_CONFIGURED":
     ["PRIVATE_CREDENTIALS_MISSING","EXCHANGE_AUTH_FAILED","EXCHANGE_RATE_LIMIT"].includes(e.code)?e.code:"TRADING_STATUS_UNAVAILABLE"});}
 }

@@ -42,17 +42,20 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 </div>
 <p class="caption">Maximum 2× leverage, one position, R40 margin and three consecutive losses before suspension. Stops are protective targets; gaps and slippage can exceed planned losses.</p>
 <p id="tradingCredentials" class="caption">Checking execution credentials...</p>
+<p id="tradingForward" class="caption">Checking forward paper trial…</p>
 <p id="tradingStorage" class="caption">Checking order journal...</p>
 <div class="buttons"><button type="button" class="secondary" id="tradingRefresh">Refresh trading journal</button><button type="button" class="danger" id="tradingStop">Stop New Trading</button></div>
 <p id="tradingPrivateStatus" class="caption">Unlock with your passkey below to view the private trading journal. Read actual available balances in the VALR panel.</p>
 <div class="grid kpis">
 <div class="kpi"><small>Journal equity</small><strong id="tradingEquity">Not connected</strong></div>
 <div class="kpi"><small>Net realised performance</small><strong id="tradingNet">Not verified</strong></div>
+<div class="kpi"><small>Today's net result</small><strong id="tradingTodayNet">Not verified</strong></div>
 <div class="kpi"><small>Today's realised losses</small><strong id="tradingTodayLoss">Not verified</strong></div>
 <div class="kpi"><small>Closed trades</small><strong id="tradingRecord">Not verified</strong></div>
 </div>
 <p id="tradingPosition" class="status">No reconciled exchange position available.</p>
 <p id="tradingProtection" class="caption">Exchange-side stop-loss and take-profit are not yet confirmed.</p>
+<p id="tradingAccountReadiness" class="caption">Private account readiness has not been checked.</p>
 <div id="tradingJournal"></div>
 <h2>Validation and minimum capital</h2>
 <p id="tradingEvidence" class="caption">Loading the dated validation report...</p>
@@ -147,6 +150,6 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <h2>Completed virtual trades</h2><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Units</th><th>Net P/L</th><th>Reason</th></tr></thead><tbody id="history"></tbody></table></div>
 </section>
 <div class="notice good"><strong>Real-money execution remains disabled.</strong> Before integration, independently verify the exchange, market instrument, contract specification, fees, withdrawal rights, exchange-native stop protection and API permissions. TradeDesk never sends deposits or orders from this page.</div>
-</main><script defer src="./tradedesk-trading.js?v=1"></script><script defer src="./tradedesk-signals.js?v=2"></script><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=7"></script>
+</main><script defer src="./tradedesk-trading.js?v=2"></script><script defer src="./tradedesk-signals.js?v=2"></script><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=7"></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}</script>
 </body></html>
