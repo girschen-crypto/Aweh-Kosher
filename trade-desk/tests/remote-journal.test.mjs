@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
 import { readFile } from 'node:fs/promises';
 import { journalHandler,digest } from '../../supabase/functions/tradedesk-journal/core.mjs';
-import { RemotePaperJournal } from '../../netlify/functions/_shared/tradedesk-remote-journal.mjs';
+import { RemotePaperJournal,verifyPaperTrigger } from '../../netlify/functions/_shared/tradedesk-remote-journal.mjs';
 import { buildPlan,POLICY_HASH } from '../../netlify/functions/_shared/tradedesk-trading-policy.mjs';
 import { inputs } from './trading-fixtures.mjs';
 const token='a'.repeat(64),env={TRADEDESK_JOURNAL_URL:'https://vyvinzpsfhvxdzxfuwiw.supabase.co/functions/v1/tradedesk-journal',TRADEDESK_JOURNAL_TOKEN:token};
@@ -59,4 +59,12 @@ test('Forward observations require a current fenced lease and cannot be backfill
     await assert.rejects(s.journal.observe({...o,scannedAt:new Date(Date.now()+60000).toISOString()}),/STALE_OBSERVATION/);
     await s.journal.release();await assert.rejects(s.journal.observe({...o,scannedAt:new Date().toISOString()}),/INVALID_ARGUMENT/);
   }finally{await s.pg.close();}
+});
+
+test('Paper service trigger is production-only and requires the restricted remote adapter',()=>{
+  const request=value=>new Request('https://mrg-trade-desk.netlify.app/.netlify/functions/tradedesk-trading-cycle-background',{headers:{'x-tradedesk-paper-token':value}});
+  assert.equal(verifyPaperTrigger(request(token),{...env,CONTEXT:'production'}),true);
+  assert.equal(verifyPaperTrigger(request('b'.repeat(64)),{...env,CONTEXT:'production'}),false);
+  assert.equal(verifyPaperTrigger(request(token),{...env,CONTEXT:'deploy-preview'}),false);
+  assert.equal(verifyPaperTrigger(request(token),{...env,CONTEXT:'production',TRADEDESK_JOURNAL_URL:'https://untrusted.example'}),false);
 });
