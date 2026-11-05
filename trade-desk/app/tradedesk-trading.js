@@ -16,26 +16,31 @@ async function call(action,manual=false){
 }
 async function publicStatus(){try{
   const s=await call("status");set("tradingMode",s.mode);set("tradingStatus",s.message);
-  set("tradingStorage",s.databaseConfigured?"Configured; authenticated journal check required":"Order database not configured · live activation blocked");
+  set("tradingStorage",s.journalHealthy?"Paper journal connected · live orders locked":s.databaseConfigured?"Journal connection unavailable · live orders locked":"Order database not configured · live activation blocked");
+  const f=s.forward;
+  set("tradingForward",f?.started_at?"Forward paper trial: "+f.observations+" recorded scans · started "+new Date(f.started_at).toLocaleString("en-ZA")+" · latest "+new Date(f.last_observed_at).toLocaleString("en-ZA")+(Date.now()-Date.parse(f.last_observed_at)>30*60000?" · OVERDUE":" · collecting every 15 minutes"):"Forward paper trial awaiting its first recorded scan.");
   set("tradingCredentials",s.separateTradeKeyConfigured?"Separate key configured; permissions need verification":"Read-only connection · no separate trade key configured");
 }catch{set("tradingStatus","Trading status unavailable. Live activation is locked.");}}
 function clearPrivate(){
-  for(const id of ["tradingEquity","tradingNet","tradingTodayLoss","tradingRecord"])set(id,"Not connected");
-  set("tradingPosition","No reconciled exchange position available.");set("tradingProtection","No exchange-side protection confirmed.");$("tradingJournal").replaceChildren();
+  for(const id of ["tradingEquity","tradingNet","tradingTodayLoss","tradingTodayNet","tradingRecord"])set(id,"Not connected");
+  set("tradingAccountReadiness","Private account readiness has not been checked.");set("tradingPosition","No reconciled exchange position available.");set("tradingProtection","No exchange-side protection confirmed.");$("tradingJournal").replaceChildren();
 }
 async function privateStatus(manual=false){const generation=authGeneration;try{
   const data=await call("journal",manual);if(generation!==authGeneration)return;
   set("tradingMode",data.mode);set("tradingStatus",data.stopped?"New entries stopped: "+data.stopReason:"Journal connected. "+data.mode+" mode.");
   const m=data.metrics;
   set("tradingEquity","R"+Number(m.equityZar).toFixed(2)+(data.mode==="PAPER"?" · simulated":" · journal"));
-  set("tradingNet","R"+Number(m.totalNetZar).toFixed(2));set("tradingTodayLoss","R"+Number(m.dailyLossZar).toFixed(2));
+  set("tradingNet","R"+Number(m.totalNetZar).toFixed(2));set("tradingTodayLoss","R"+Number(m.dailyLossZar).toFixed(2));set("tradingTodayNet","R"+Number(m.dailyNetZar).toFixed(2));
   set("tradingRecord",m.wins+" wins · "+m.losses+" losses · "+m.trades+" closed");
+  set("tradingPrivateStatus","Private journal refreshed. "+(data.mode==="PAPER"?"All amounts and positions below are simulated.":"Live journal."));
+  const a=data.accountReadiness;set("tradingAccountReadiness",a?"Read-only account check "+new Date(a.observedAt).toLocaleString("en-ZA")+" · "+(a.readinessError||"Read checks passed; separate Trade key still required"):"Private account readiness has not been checked.");
   const t=data.active;set("tradingPosition",t?t.data.plan.pair+" "+t.data.plan.direction+" · "+t.data.plan.quantity+" · entry "+t.data.plan.entry+" USDT · "+t.state+
     (t.data.unrealisedPnlUsdt!==undefined?" · unrealised "+t.data.unrealisedPnlUsdt+" USDT":""):"No tracked open position");
   set("tradingProtection",t?.data.protectionVerified?"Exchange protection confirmed at last reconciliation · stop "+t.data.plan.stop+" · target "+t.data.plan.target+" USDT":"No exchange-side protection confirmed");
   $("tradingJournal").replaceChildren();
   for(const t of data.trades.slice(0,12)){const row=document.createElement("p");row.className="caption";
     row.textContent=t.mode+" · "+t.data.plan.pair+" "+t.data.plan.direction+" · "+t.state+(t.data.netZar!==undefined?" · net R"+Number(t.data.netZar).toFixed(2):"");$("tradingJournal").append(row);}
+  for(const e of (data.events||[]).filter(e=>["SIGNAL_REJECTED","NO_TRADE","SUSPENDED"].includes(e.kind)).slice(0,8)){const row=document.createElement("p");row.className="caption";row.textContent=new Date(e.created_at).toLocaleString("en-ZA")+" · "+(e.data.pair||"")+" · "+e.kind+" · "+(e.data.reason||"");$("tradingJournal").append(row);}
 }catch(e){if(generation!==authGeneration)return;if(e.message==="SIGN_IN_REQUIRED")clearPrivate();set("tradingPrivateStatus",e.message==="SIGN_IN_REQUIRED"?"Unlock with your passkey to view the private trading journal.":"Journal unavailable: "+e.message+". New live entries remain locked.");}}
 async function report(){try{
   const r=await fetch("./trading-validation.json",{cache:"no-store"});if(!r.ok)throw Error();const d=await r.json();

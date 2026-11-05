@@ -157,4 +157,23 @@ export async function runTradingCycle({journal,snapshot,proof,env=process.env,cl
   }
   return {mode,reason:"NO_ELIGIBLE_SIGNAL"};
 }
-export async function persistentTradingCycle(input){return withTradingLock(journal=>runTradingCycle({...input,journal}),{env:input.env});}
+export async function persistentTradingCycle(input){return withTradingLock(async journal=>{
+  if(journal.diagnostic&&input.env.TRADEDESK_VALR_API_KEY&&input.env.TRADEDESK_VALR_API_SECRET){
+    const previous=(await journal.control()).accountReadiness;
+    if(!previous||Date.now()-Date.parse(previous.observedAt)>86400000){
+      let data;
+      try{const a=await new ValrExecutionClient({env:input.env,purpose:"read"}).account();
+        data={observedAt:a.observedAt,readinessError:verifyPrivateAccount(a),isSubAccount:a.keyInfo.isSubAccount,
+          futuresEnabled:a.enablement.futuresEnabled,feesVerified:a.fees.some(x=>x.currencyPair?.endsWith("USDTPERP")&&Number.isFinite(Number(x.takerPercentage)))};
+      }catch(e){data={observedAt:new Date().toISOString(),readinessError:["EXCHANGE_AUTH_FAILED","EXCHANGE_RATE_LIMIT","PRIVATE_CREDENTIALS_MISSING","ACCOUNT_RESPONSE_INCOMPLETE","EXCHANGE_TIMEOUT","EXCHANGE_REJECTED"].includes(e.code)?e.code:"PRIVATE_ACCOUNT_UNAVAILABLE"};}
+      // Only a readiness projection is persisted. Balances, keys and account identifiers stay private.
+      await journal.diagnostic(data);
+    }
+  }
+  const result=await runTradingCycle({...input,journal});
+  if(journal.observe&&input.snapshot&&!input.snapshot.error){
+    await journal.observe({scannedAt:input.snapshot.scannedAt,policyHash:POLICY_HASH,deployId:input.env.TRADEDESK_DEPLOY_ID,
+      data:{signals:input.snapshot.results,proof:input.proof,result,simulation:"Forward paper trial; public prices and modelled costs; no exchange orders"}});
+  }
+  return result;
+},{env:input.env});}

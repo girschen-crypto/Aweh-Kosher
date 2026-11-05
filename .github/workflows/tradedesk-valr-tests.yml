@@ -4,6 +4,8 @@ on:
     paths:
       - 'netlify/functions/**'
       - 'trade-desk/**'
+      - 'supabase/functions/tradedesk-journal/**'
+      - 'supabase/migrations/*_tradedesk_private_journal.sql'
       - 'netlify/functions/tradedesk-passkeys.mjs'
       - 'netlify/functions/_shared/tradedesk-passkey-session.mjs'
       - 'trade-desk/tests/passkey-auth.test.mjs'
