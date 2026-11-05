@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import postgres from 'postgres';
+import { journalJsonTypes } from '../../supabase/functions/tradedesk-journal/driver-options.mjs';
 import { PGlite } from '@electric-sql/pglite';
 import { readFile } from 'node:fs/promises';
 import { journalHandler,digest } from '../../supabase/functions/tradedesk-journal/core.mjs';
@@ -52,9 +54,9 @@ test('Real SQL lease fencing, state CAS, durable stop and unique signal protecti
 test('Forward observations require a current fenced lease and cannot be backfilled or counted twice',async()=>{
   const s=await setup();try{
     await s.journal.acquire();
-    const o={scannedAt:new Date().toISOString(),policyHash:POLICY_HASH,deployId:'test-deploy',data:{result:{mode:'PAPER',reason:'NO_ELIGIBLE_SIGNAL'}}};
+    const o={scannedAt:new Date(Date.now()-600000).toISOString(),policyHash:POLICY_HASH,deployId:'test-deploy',data:{result:{mode:'PAPER',reason:'NO_ELIGIBLE_SIGNAL'}}};
     await s.journal.observe(o);await s.journal.observe(o);
-    const f=await s.journal.forward();assert.equal(f.observations,1);assert.equal(f.calendar_days,1);assert.ok(f.started_at);
+    const f=await s.journal.forward();assert.equal(f.observations,1);assert.equal(f.calendar_days,1);assert.ok(f.started_at);assert.ok(Date.parse(f.started_at)>Date.parse(o.scannedAt)+500000,'trial starts at recording time, not the earlier signal time');
     await assert.rejects(s.journal.observe({...o,scannedAt:new Date(Date.now()-86400000).toISOString()}),/STALE_OBSERVATION/);
     await assert.rejects(s.journal.observe({...o,scannedAt:new Date(Date.now()+60000).toISOString()}),/STALE_OBSERVATION/);
     await s.journal.release();await assert.rejects(s.journal.observe({...o,scannedAt:new Date().toISOString()}),/INVALID_ARGUMENT/);
@@ -67,4 +69,15 @@ test('Paper service trigger is production-only and requires the restricted remot
   assert.equal(verifyPaperTrigger(request('b'.repeat(64)),{...env,CONTEXT:'production'}),false);
   assert.equal(verifyPaperTrigger(request(token),{...env,CONTEXT:'deploy-preview'}),false);
   assert.equal(verifyPaperTrigger(request(token),{...env,CONTEXT:'production',TRADEDESK_JOURNAL_URL:'https://untrusted.example'}),false);
+});
+
+test('Production postgres.js JSON serializers preserve structured journal payloads in PostgreSQL',async()=>{
+  const sql=postgres({types:journalJsonTypes,max:1}),pg=new PGlite();
+  try{
+    for(const oid of [114,3802])for(const payload of [{plan:{quantity:'0.02',stop:'98'},simulated:true},[{reason:'NO_SIGNAL',mode:'PAPER'}],{result:{mode:'PAPER',reason:'NO_ELIGIBLE_SIGNAL'},proof:{markets:[]}}]){
+      const wire=sql.options.serializers[oid](JSON.stringify(payload));
+      const row=(await pg.query('SELECT $1::jsonb AS payload,jsonb_typeof($1::jsonb) AS kind',[wire])).rows[0];
+      assert.deepEqual(row.payload,payload);assert.notEqual(row.kind,'string');
+    }
+  }finally{await sql.end();await pg.close();}
 });
