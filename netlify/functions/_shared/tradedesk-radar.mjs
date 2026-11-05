@@ -129,18 +129,14 @@ export async function scanMarkets({fetchFn=fetch,now=Date.now()}={}){
   let eligible;
   try{eligible=eligiblePairs(await getJSON(API+"futures/info",fetchFn));}
   catch{latest.error="VALR futures market list unavailable; no signals issued";return latest;}
-  for(const pair of MARKETS){
-    if(!eligible.has(pair)){latest.results.push({pair,direction:"WAIT",reason:"Not verified as currently listed VALR futures contract",executable:false});continue;}
+  latest.results=await Promise.all(MARKETS.map(async pair=>{
+    if(!eligible.has(pair))return {pair,direction:"WAIT",reason:"Not verified as currently listed VALR futures contract",executable:false};
     try{
       // Futures mark-price candles: NEVER silently substitute spot prices.
       const raw=await getJSON(API+pair+"/markprice/buckets?periodSeconds=900",fetchFn);
-      const candles=normaliseCandles(raw,now);
-      const result=evaluateMarket(pair,candles,now);
-      latest.results.push(result);
-      if(result.direction==="LONG"||result.direction==="SHORT")latest.newSignalCount++;
-    }catch{
-      latest.results.push({pair,direction:"WAIT",reason:BAD,executable:false});
-    }
-  }
+      return evaluateMarket(pair,normaliseCandles(raw,now),now);
+    }catch{return {pair,direction:"WAIT",reason:BAD,executable:false};}
+  }));
+  latest.newSignalCount=latest.results.filter(r=>r.direction==="LONG"||r.direction==="SHORT").length;
   return latest;
 }
