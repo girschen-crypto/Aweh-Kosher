@@ -123,7 +123,7 @@ async function readBalance() {
         "Content-Type":"application/json",
         ...(password?{"Authorization":"Bearer "+password}:{}),
       },
-      body:"{}",signal:AbortSignal.timeout(12000),
+      body:"{}",signal:AbortSignal.timeout(35000),
     });
     const data=await response.json();
     if(!response.ok || !data.ok) {
@@ -135,6 +135,7 @@ async function readBalance() {
         VALR_UNAVAILABLE:"VALR is not responding.",
       };
       status(errors[data.error]||"VALR balance unavailable ("+(data.error||"unknown")+").");
+      if(data.error==="ACCESS_DENIED")await refreshStatus();
       return;
     }
     displayBalances(data);
@@ -143,20 +144,20 @@ async function readBalance() {
   } finally {$("valrReadBalance").disabled=false;}
 }
 async function refreshStatus() {
-  if(!browserSupportsPasskeys()){
-    passStatus("Biometrics unavailable in this browser. Your owner password still works.");
-    $("valrUsePasskey").disabled=true;$("valrEnrollPasskey").disabled=true;
-    return;
-  }
+  const supports=browserSupportsPasskeys();
+  $("valrEnrollPasskey").disabled=!supports;
   try {
     const state=await postPasskey("status");
     passkeyEnrolled=state.enrolled;
-    $("valrUsePasskey").disabled=!state.enrolled;
+    $("valrUsePasskey").disabled=!supports||!state.enrolled;
+    $("valrSignOut").disabled=!state.signedIn;
     passStatus(state.signedIn?
-      "Signed in securely. You can read balances without entering your password." :
+      "Signed in securely for up to 8 hours. Read balances and scan markets without re-entering your password." :
+      !supports?"Passkeys unavailable in this browser. Your owner password still works.":
       state.enrolled?
         "Passkey ready. Tap Use fingerprint / face unlock to sign in." :
         "Not enrolled yet. Enter your owner password ONCE and tap Enable biometrics.");
+    if(!state.signedIn){clear();status("Private balances are locked. Public signals work without signing in.");}
   }catch {
     passStatus("Biometric sign-in not yet available. Owner password still works.");
   }
@@ -193,6 +194,7 @@ $("valrUsePasskey").addEventListener("click",async()=>{
     await postPasskey("login-finish",
       {challengeId:started.challengeId,credential:serialiseCredential(credential)});
     passStatus("Biometric sign-in successful.");
+    await refreshStatus();
     await readBalance();
   } catch(e) {passStatus(passkeyError(e));}
   finally {$("valrUsePasskey").disabled=!passkeyEnrolled;}
@@ -219,4 +221,6 @@ $("valrSignOut").addEventListener("click",async()=>{
   await refreshStatus();
 });
 refreshStatus();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshStatus();});
+setInterval(refreshStatus,60000);
 })();

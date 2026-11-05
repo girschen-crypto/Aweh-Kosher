@@ -77,8 +77,8 @@ export async function handlePasskeyRequest(request, env = process.env, injectedS
 
   if (data.action === "logout") return result(200, {ok:true}, clearSession());
 
-  const store = injectedStore || getStore({ name:STORE_NAME, consistency:"strong" });
   try {
+    const store = injectedStore || getStore({ name:STORE_NAME, consistency:"strong" });
     if (data.action === "status") {
       const { credentials } = await readList(store);
       return result(200, {ok:true,enrolled:credentials.length>0,signedIn:validSession(request,env)});

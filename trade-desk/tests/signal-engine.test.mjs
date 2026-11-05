@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { evaluateMarket, normaliseCandles, emaSeries, rsi, atr, RULES, scanMarkets } from "../../netlify/functions/_shared/tradedesk-radar.mjs";
 import { runSignalCycle } from "../../netlify/functions/tradedesk-signal-cycle.mjs";
 import { handleSignals } from "../../netlify/functions/tradedesk-signals.mjs";
+import { issueSession } from "../../netlify/functions/_shared/tradedesk-passkey-session.mjs";
 
 const MIN=15*60000;
 const origin="https://mrg-trade-desk.netlify.app";
@@ -106,4 +107,35 @@ test("Unauthenticated manual scan cannot trigger VALR calls",async()=>{
     ()=>{throw Error("No market calls")},()=>now));
   assert.equal(out.status,401);
   assert.equal(out.error,"SIGN_IN_REQUIRED");
+});
+test("Gaps anywhere in indicator history and conflicting duplicate candles fail closed",()=>{
+  const n=normaliseCandles(series(Array(60).fill(100)),now);
+  n.splice(20,1);
+  assert.match(evaluateMarket("BTCUSDTPERP",n,now).reason,/discontinuous/);
+  const raw=series(Array(60).fill(100));raw.push(candle(20,101));
+  assert.deepEqual(normaliseCandles(raw,now),[]);
+});
+test("Stale snapshots retain history but cannot expose an old actionable direction",async()=>{
+  for(const scannedAt of [new Date(now-21*60000).toISOString(),"bad-date",new Date(now+120000).toISOString()]){
+    const saved=store();
+    saved.map.set("snapshot",{scannedAt,history:[{direction:"SHORT",entry:100}],
+      results:[{pair:"BTCUSDTPERP",direction:"LONG",entry:100,stop:99,target:102}]});
+    const out=await json(await handleSignals(req(),{},saved,()=>{throw Error("No market call");},()=>now));
+    assert.equal(out.status,200);assert.equal(out.snapshot.stale,true);
+    assert.equal(out.snapshot.results[0].direction,"WAIT");
+    assert.equal(out.snapshot.results[0].entry,null);
+    assert.equal(out.snapshot.history.length,1);
+    assert.equal(saved.map.get("snapshot").results[0].direction,"LONG");
+  }
+});
+test("A valid passkey cookie can scan without a password; cooldown prevents repeated upstream calls",async()=>{
+  const env={TRADEDESK_OWNER_TOKEN:"Z".repeat(48)},saved=store();
+  const cookie=issueSession(env).split(";")[0];let calls=0;
+  const fetchFn=async url=>{calls++;return {ok:true,json:async()=>String(url).endsWith("/futures/info")?
+    [{currencyPair:"BTCUSDTPERP"}]:series(Array(60).fill(100))};};
+  const request=()=>req("scan",undefined,{Cookie:cookie});
+  const first=await json(await handleSignals(request(),env,saved,fetchFn,()=>now));
+  assert.equal(first.status,200);assert.equal(calls,2);
+  const second=await json(await handleSignals(request(),env,saved,fetchFn,()=>now+60000));
+  assert.equal(second.status,200);assert.equal(calls,2);
 });

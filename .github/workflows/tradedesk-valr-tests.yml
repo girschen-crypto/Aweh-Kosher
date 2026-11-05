@@ -6,7 +6,11 @@ on:
       - 'netlify/functions/tradedesk-passkeys.mjs'
       - 'netlify/functions/_shared/tradedesk-passkey-session.mjs'
       - 'trade-desk/tests/passkey-auth.test.mjs'
+      - 'trade-desk/tests/passkey-flow.test.mjs'
+      - 'trade-desk/tests/signal-dashboard.test.mjs'
       - 'package.json'
+      - 'package-lock.json'
+      - 'netlify.tradedesk.toml'
       - 'trade-desk/app/index.html'
       - 'trade-desk/app/tradedesk-valr-client.js'
       - 'trade-desk/app/sw.js'
@@ -33,18 +37,15 @@ jobs:
         with:
           node-version: '22'
       - name: Install verified server dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Test VALR gateway and existing paper simulator
         run: |
           node --check trade-desk/app/tradedesk-valr-client.js
           node --check trade-desk/app/tradedesk-signals.js
           node --check netlify/functions/tradedesk-signal-cycle.mjs
           node --check netlify/functions/tradedesk-signals.mjs
-          node --test trade-desk/tests/signal-engine.test.mjs
           node --check netlify/functions/tradedesk-passkeys.mjs
-          node --test trade-desk/tests/passkey-auth.test.mjs
-          node --test trade-desk/tests/valr-balances.test.mjs
-          node trade-desk/tests/futures-lab.test.cjs
+          npm test
       - name: Refuse live broker transaction endpoints in signal collectors
         run: |
           if grep -Eq '/v1/(orders|withdraw|account/subaccount/transfer)' netlify/functions/tradedesk-signals.mjs netlify/functions/tradedesk-signal-cycle.mjs netlify/functions/_shared/tradedesk-radar.mjs; then

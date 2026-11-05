@@ -4,7 +4,7 @@
  * Owner access is a separate, long, server-side secret and is never persisted by the UI.
  */
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
-import { validSession } from "./_shared/tradedesk-passkey-session.mjs";
+import { validSession, allowedOrigin } from "./_shared/tradedesk-passkey-session.mjs";
 
 const PATH = "/v1/account/balances";
 const VALR_ENDPOINT = "https://api.valr.com" + PATH;
@@ -15,7 +15,7 @@ const HEADERS = Object.freeze({
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
   "Content-Security-Policy": "default-src 'none'",
-  "Vary": "Authorization",
+  "Vary": "Authorization, Cookie",
 });
 
 export function signValr(secret, timestamp, method, path, body = "", subaccountId = "") {
@@ -44,8 +44,7 @@ export async function handleRequest(request, env = process.env, fetchFn = fetch,
   if (request.method !== "POST") return reply(405, { ok: false, error: "METHOD_NOT_ALLOWED" });
 
   // Do not allow other web origins to read this owner's data.
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin)
+  if (!allowedOrigin(request))
     return reply(403, { ok: false, error: "ORIGIN_REJECTED" });
 
   const apiKey = env.TRADEDESK_VALR_API_KEY;
