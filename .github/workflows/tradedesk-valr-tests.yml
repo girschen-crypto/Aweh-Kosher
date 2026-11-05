@@ -11,6 +11,11 @@ on:
       - 'trade-desk/app/tradedesk-valr-client.js'
       - 'trade-desk/app/sw.js'
       - 'trade-desk/tests/valr-balances.test.mjs'
+      - 'trade-desk/tests/signal-engine.test.mjs'
+      - 'netlify/functions/tradedesk-signals.mjs'
+      - 'netlify/functions/tradedesk-signal-cycle.mjs'
+      - 'netlify/functions/_shared/tradedesk-radar.mjs'
+      - 'trade-desk/app/tradedesk-signals.js'
       - 'trade-desk/tests/futures-lab.test.cjs'
       - '.github/workflows/tradedesk-valr-tests.yml'
   workflow_dispatch:
@@ -32,10 +37,20 @@ jobs:
       - name: Test VALR gateway and existing paper simulator
         run: |
           node --check trade-desk/app/tradedesk-valr-client.js
+          node --check trade-desk/app/tradedesk-signals.js
+          node --check netlify/functions/tradedesk-signal-cycle.mjs
+          node --check netlify/functions/tradedesk-signals.mjs
+          node --test trade-desk/tests/signal-engine.test.mjs
           node --check netlify/functions/tradedesk-passkeys.mjs
           node --test trade-desk/tests/passkey-auth.test.mjs
           node --test trade-desk/tests/valr-balances.test.mjs
           node trade-desk/tests/futures-lab.test.cjs
+      - name: Refuse live broker transaction endpoints in signal collectors
+        run: |
+          if grep -Eq '/v1/(orders|withdraw|account/subaccount/transfer)' netlify/functions/tradedesk-signals.mjs netlify/functions/tradedesk-signal-cycle.mjs netlify/functions/_shared/tradedesk-radar.mjs; then
+            echo 'Unexpected live broker transaction route in signal collector'
+            exit 1
+          fi
       - name: Refuse order endpoint logic in VALR gateway
         run: |
           if grep -Eq '/v1/(orders|withdraw|account/subaccount/transfer)' netlify/functions/tradedesk-valr-balances.mjs; then

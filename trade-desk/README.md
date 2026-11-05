@@ -97,3 +97,20 @@ The balance reader supports an optional **WebAuthn passkey**. Supported phones a
 There are no additional subscriptions required. If the production passkey function is unavailable, the old **owner-password balance reader** stays available.
 
 **Lost-phone or compromised-passkey recovery:** Use **Remove saved passkeys** on the production dashboard. It requires the current separate TradeDesk owner password and revokes all registered passkeys, after which you can register a new device. If a phone was actually lost or compromised, **also rotate `TRADEDESK_OWNER_TOKEN` directly in Netlify** to invalidate any previously issued signed sessions (cookies can otherwise remain usable until their eight-hour expiry). Redeploy after changing that secret. Neither action requires changes to your VALR API key. Never share owner token or VALR API credentials in chat.
+
+## Autonomous VALR futures signal collection — R200 test budget (5 November 2026)
+
+This extension keeps TradeDesk **signals only** and adds its own market-data signal generator, separate from the previous pasted WhatsApp signal parser.
+
+- Read-only data: VALR's public `/v1/public/futures/info` and `/v1/public/{pair}/markprice/buckets?periodSeconds=900` routes. No API key or secret used for market scanning.
+- Markets: BTCUSDTPERP, ETHUSDTPERP, SOLUSDTPERP, XRPUSDTPERP, **only** when futures/info confirms they are listed. The signal engine refuses to substitute spot candlesticks or make up unavailable data.
+- Analysis: confirmed closed 15-minute mark-price candles, EMA 9/21 crossover, RSI(14) filter, ATR(14) volatility and stale-data guards. Output = LONG, SHORT or WAIT, where WAIT is normal and desirable when evidence is insufficient.
+- Scheduling: Netlify's existing Scheduled Functions feature, one scan every 15 minutes UTC, using `netlify/functions/tradedesk-signal-cycle.mjs`, with a maximum four markets. Scheduled scans begin on the published production deploy; no new server or subscription. Netlify Blobs holds the last scan and deduplicated event journal.
+- Dashboard: `trade-desk/app/tradedesk-signals.js` displays signals from the stored public data without requiring login. An on-demand *Scan now* is restricted to a valid TradeDesk owner passkey session or owner password; a 3-minute cooldown limits repeated upstream API calls.
+- **Budget reference R200**, max planned risk R2 per trade, **maximum hypothetical leverage 2×**, and R40 maximum indicative margin per signal. Position sizing is an **illustrative ZAR ceiling only** and NOT a real exchange order: a ZAR/USDT FX quote, actual contract quantity/precision, minimum order size, spread, taker fees, funding and slippage remain unverified.
+- All results have `executable:false` by design. There is **no live VALR Trade permission, real execution, API order submission, auto-deposit, auto-funding or asset transfer**.
+- Existing read-only VALR sub-account balance and passkey access remain separate and untouched. The signal engine does not consume the owner's capital or trade the user's R200.
+- **Signal collection is not yet an evaluated trading strategy.** We must verify a representative run of actual market data, generate a paper-trade journal, backtest out-of-sample, and check fee-adjusted results and drawdowns before considering any live pilot. Absence of a qualifying signal should never force an entry.
+- Verify with `node --test trade-desk/tests/signal-engine.test.mjs` and the existing security CI. Real live signal feed validation is a separate post-deploy requirement; synthetic tests cannot prove a profitable strategy.
+
+Netlify scheduled functions are supported on all Netlify plans, and the public VALR futures market and mark-price routes are documented by VALR. Be mindful of usage limits and do not add paid infrastructure for R200 test capital.
