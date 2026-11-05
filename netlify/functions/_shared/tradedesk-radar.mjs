@@ -5,7 +5,7 @@
  */
 export const MARKETS=Object.freeze(["BTCUSDTPERP","ETHUSDTPERP","SOLUSDTPERP","XRPUSDTPERP"]);
 export const RULES=Object.freeze({
-  candleSeconds:900, minCandles:45, fastEMA:9, slowEMA:21,
+  candleSeconds:900, minCandles:60, fastEMA:9, slowEMA:21,
   rsiPeriod:14, atrPeriod:14, riskZar:2, budgetZar:200,
   maxMarginZar:40, maxLeverage:2, takerFeePerSide:0.0007,
 });
@@ -87,19 +87,21 @@ export function evaluateMarket(pair,candles,now=Date.now()){
   const age=now-(c.time+RULES.candleSeconds*1000);
   if(age<0||age>20*60*1000)
     return {...base,reason:"Stale or discontinuous market data"};
-  const closes=candles.map(x=>x.close),fast=emaSeries(closes,9),slow=emaSeries(closes,21);
+  const closes=candles.map(x=>x.close),fast=emaSeries(closes,9),slow=emaSeries(closes,21),trend=emaSeries(closes,50);
   const i=closes.length-1,rr=rsi(closes),a=atr(candles),vol=a/c.close;
   if(![fast[i],fast[i-1],slow[i],slow[i-1],rr,a,vol].every(Number.isFinite))
     return {...base,reason:"Indicators incomplete"};
-  const indicators={ema9:round(fast[i]),ema21:round(slow[i]),rsi14:round(rr,2),atr14:round(a),atrPct:round(100*vol,2)};
+  const indicators={ema9:round(fast[i]),ema21:round(slow[i]),ema50:round(trend[i]),rsi14:round(rr,2),atr14:round(a),atrPct:round(100*vol,2)};
   const context={...base,time:new Date(c.time+900000).toISOString(),indicators,entry:round(c.close)};
   if(vol<0.001||vol>0.05)return {...context,reason:"Volatility outside safety filter"};
   const longCross=fast[i-1]<=slow[i-1]&&fast[i]>slow[i]&&rr>=52&&rr<=70&&c.close>slow[i];
   const shortCross=fast[i-1]>=slow[i-1]&&fast[i]<slow[i]&&rr<=48&&rr>=30&&c.close<slow[i];
   if(!longCross&&!shortCross)return {...context,reason:"No confirmed EMA(9/21) crossover plus RSI filter"};
   const direction=longCross?"LONG":"SHORT",distance=a*1.5;
+  if(longCross&&!(c.close>trend[i]&&slow[i]>slow[i-1])||shortCross&&!(c.close<trend[i]&&slow[i]<slow[i-1]))
+    return {...context,reason:"Crossover rejected by EMA50 trend and EMA21 slope"};
   const stop=longCross?c.close-distance:c.close+distance;
-  const target=longCross?c.close+a*2.25:c.close-a*2.25;
+  const target=longCross?c.close+distance*3:c.close-distance*3;
   if(!(stop>0&&target>0))return {...context,reason:"Invalid proposed risk levels"};
   const costRate=(RULES.takerFeePerSide*2)+0.001; // model 0.1% slippage allowance
   const stopMove=distance/c.close;

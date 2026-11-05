@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f172a"><title>Mr G TradeDesk | Signals Only</title>
+<meta name="theme-color" content="#0f172a"><title>Mr G TradeDesk | Trading Control</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <style>
 :root{font-family:system-ui,-apple-system,Arial,sans-serif;background:#f4f7fb;color:#152238}*{box-sizing:border-box}
@@ -28,9 +28,37 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 .signal-event span{color:#64748b;text-align:right}
 @media(max-width:600px){.signal-row{gap:8px}.signal-event{flex-direction:column;gap:3px}.signal-event span{text-align:left}}
 </style></head>
-<body><header><div style="font-size:.72rem;letter-spacing:.14em;color:#93c5fd;font-weight:800">MR G TRADEDESK · SIGNALS ONLY</div><h1>Futures Trading Signals</h1><p>Read signals · Calculate position size · Simulate trades · Track results</p></header>
+<body><header><div style="font-size:.72rem;letter-spacing:.14em;color:#93c5fd;font-weight:800">MR G TRADEDESK · TRADING CONTROL</div><h1>Futures Trading Signals</h1><p>Read signals · Calculate position size · Simulate trades · Track results</p></header>
 <main>
 <p class="notice"><strong>Signals and practice only — no real orders.</strong> Automatic VALR signals use public market data and an illustrative R200 budget. The separate manual simulator starts with fictional 200 USDT. Neither uses your money.</p>
+<section class="card" aria-label="Autonomous trading status">
+<div class="valr-balance-head"><h2>TradeDesk trading control</h2><span id="tradingMode" class="valr-label">PAPER</span></div>
+<p id="tradingStatus" class="status" role="status">Live activation locked. Checking validation and connection status...</p>
+<div class="grid kpis">
+<div class="kpi"><small>Authorised starting capital</small><strong>R200</strong></div>
+<div class="kpi"><small>Planned risk / trade</small><strong>R2 including costs</strong></div>
+<div class="kpi"><small>Daily loss suspension</small><strong>R6</strong></div>
+<div class="kpi"><small>Maximum drawdown</small><strong>R20</strong></div>
+</div>
+<p class="caption">Maximum 2× leverage, one position, R40 margin and three consecutive losses before suspension. Stops are protective targets; gaps and slippage can exceed planned losses.</p>
+<p id="tradingCredentials" class="caption">Checking execution credentials...</p>
+<p id="tradingStorage" class="caption">Checking order journal...</p>
+<div class="buttons"><button type="button" class="secondary" id="tradingRefresh">Refresh trading journal</button><button type="button" class="danger" id="tradingStop">Stop New Trading</button></div>
+<p id="tradingPrivateStatus" class="caption">Unlock with your passkey below to view the private trading journal. Read actual available balances in the VALR panel.</p>
+<div class="grid kpis">
+<div class="kpi"><small>Journal equity</small><strong id="tradingEquity">Not connected</strong></div>
+<div class="kpi"><small>Net realised performance</small><strong id="tradingNet">Not verified</strong></div>
+<div class="kpi"><small>Today's realised losses</small><strong id="tradingTodayLoss">Not verified</strong></div>
+<div class="kpi"><small>Closed trades</small><strong id="tradingRecord">Not verified</strong></div>
+</div>
+<p id="tradingPosition" class="status">No reconciled exchange position available.</p>
+<p id="tradingProtection" class="caption">Exchange-side stop-loss and take-profit are not yet confirmed.</p>
+<div id="tradingJournal"></div>
+<h2>Validation and minimum capital</h2>
+<p id="tradingEvidence" class="caption">Loading the dated validation report...</p>
+<div id="tradingCapitalTable"></div><div id="tradingBacktest"></div>
+<p class="caption">Backtests use historical market data with modelled trading costs. Historical results and software tests do not establish future profitability. Full methodology and trade records are in the <a href="./validation-report.html">validation report</a>.</p>
+</section>
 <section class="card" aria-label="VALR connection">
 <div class="valr-balance-head"><h2>VALR · TradeDesk sub-account</h2><span class="valr-label">VIEW ONLY</span></div>
 <p class="caption">Optional secure balance check. These are your <strong>actual VALR account balances</strong>, separate from the virtual signal simulator below. This connection cannot place trades or move money.</p>
@@ -53,7 +81,7 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 </section>
 <section class="card" aria-label="TradeDesk own signals">
 <div class="valr-balance-head"><h2>Our own VALR trading signals</h2><span class="valr-label">AUTOMATED · PAPER ONLY</span></div>
-<p class="caption">Checks BTC, ETH, SOL and XRP perpetual futures with 15-minute closed mark-price candles. Indicators: EMA 9/21 crossover, RSI 14 and ATR 14. Nothing here predicts or guarantees profit. No live orders, deposits or withdrawals.</p>
+<p class="caption">Checks BTC, ETH, SOL and XRP perpetual futures with 15-minute closed mark-price candles. Indicators: EMA 9/21 crossover, EMA50 trend, RSI 14 and ATR 14. Nothing here predicts or guarantees profit. No live orders, deposits or withdrawals.</p>
 <div class="grid kpis">
 <div class="kpi"><small>Starting budget</small><strong>R200</strong></div>
 <div class="kpi"><small>Max planned risk / trade</small><strong>R2</strong></div>
@@ -119,6 +147,6 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <h2>Completed virtual trades</h2><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Units</th><th>Net P/L</th><th>Reason</th></tr></thead><tbody id="history"></tbody></table></div>
 </section>
 <div class="notice good"><strong>Real-money execution remains disabled.</strong> Before integration, independently verify the exchange, market instrument, contract specification, fees, withdrawal rights, exchange-native stop protection and API permissions. TradeDesk never sends deposits or orders from this page.</div>
-</main><script defer src="./tradedesk-signals.js?v=2"></script><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=6"></script>
+</main><script defer src="./tradedesk-trading.js?v=1"></script><script defer src="./tradedesk-signals.js?v=2"></script><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=7"></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}</script>
 </body></html>

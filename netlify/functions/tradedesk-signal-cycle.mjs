@@ -5,12 +5,14 @@
  */
 import { getStore } from "@netlify/blobs";
 import { scanMarkets } from "./_shared/tradedesk-radar.mjs";
+import { collectMarketProof } from "./_shared/tradedesk-valr-market.mjs";
 
 const STORE="tradedesk-signal-history-v1";
 export function storeForSignals(){return getStore({name:STORE,consistency:"strong"});}
 
-export async function runSignalCycle({store=storeForSignals(),fetchFn=fetch,now=Date.now()}={}){
+export async function runSignalCycle({store=storeForSignals(),fetchFn=fetch,now=Date.now(),collectProof=false}={}){
   const snapshot=await scanMarkets({fetchFn,now});
+  if(collectProof){try{snapshot.marketProof=await collectMarketProof({fetchFn,now:Date.now()});}catch{snapshot.marketProof={error:"CAPITAL_AND_LIQUIDITY_CHECK_UNAVAILABLE"};}}
   const current=await store.get("snapshot", {type:"json",consistency:"strong"}).catch(()=>null);
   const history=await store.get("history", {type:"json",consistency:"strong"}).catch(()=>[]);
   const list=Array.isArray(history)?history:[];
@@ -30,15 +32,24 @@ export async function runSignalCycle({store=storeForSignals(),fetchFn=fetch,now=
   // No record should ever contain owner balances, keys, or order instructions.
   await store.setJSON("snapshot",snapshot);
   await store.setJSON("history",list.slice(0,100));
+  // Immutable public observations support forward research without treating Blobs as an order database.
+  await store.setJSON("forward/"+snapshot.scannedAt,snapshot,{onlyIfNew:true});
   // Logs omit any secret, balance or VALR account reference.
   return {scannedAt:snapshot.scannedAt,markets:snapshot.results.length,
     newEvents,error:snapshot.error||null};
 }
 
-export default async function () {
+export default async function (_request,context) {
   try {
     const result=await runSignalCycle();
     console.info("TradeDesk public signal scan",result);
+    // Only configured transactional storage starts the separate paper/execution worker.
+    // Live writes remain independently locked by approval, account, policy and deployment gates.
+    if((context?.deploy?.context||process.env.CONTEXT)==="production"&&process.env.TRADEDESK_DATABASE_URL&&process.env.TRADEDESK_OWNER_TOKEN){
+      await fetch("https://mrg-trade-desk.netlify.app/.netlify/functions/tradedesk-trading-cycle-background",{
+        method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.TRADEDESK_OWNER_TOKEN},
+        body:"{}",redirect:"error",signal:AbortSignal.timeout(3000)});
+    }
   } catch {
     console.warn("TradeDesk signal scan unavailable; no orders were sent");
   }
