@@ -109,7 +109,7 @@ test("Unauthenticated manual scan cannot trigger VALR calls",async()=>{
   assert.equal(out.error,"SIGN_IN_REQUIRED");
 });
 test("Gaps anywhere in indicator history and conflicting duplicate candles fail closed",()=>{
-  const n=normaliseCandles(series(Array(60).fill(100)),now);
+  const n=normaliseCandles(series(Array(61).fill(100)),now);
   n.splice(20,1);
   assert.match(evaluateMarket("BTCUSDTPERP",n,now).reason,/discontinuous/);
   const raw=series(Array(60).fill(100));raw.push(candle(20,101));

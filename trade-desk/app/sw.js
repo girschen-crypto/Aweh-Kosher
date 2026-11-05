@@ -1,6 +1,6 @@
 /* Cache only the signal-only TradeDesk and its essential assets. */
-const CACHE='mrg-tradedesk-signals-v8';
-const ASSETS=['./','./index.html','./futures-lab.js?v=2','./tradedesk-signals.js?v=2','./tradedesk-valr-client.js?v=6','./manifest.webmanifest','./icon-192.svg'];
+const CACHE='mrg-tradedesk-signals-v9';
+const ASSETS=['./','./index.html','./futures-lab.js?v=2','./tradedesk-signals.js?v=2','./tradedesk-valr-client.js?v=7','./tradedesk-trading.js?v=1','./manifest.webmanifest','./icon-192.svg'];
 self.addEventListener('install',event=>event.waitUntil(
   caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())
 ));

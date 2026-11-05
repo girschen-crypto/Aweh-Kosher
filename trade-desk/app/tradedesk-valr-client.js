@@ -165,6 +165,7 @@ async function refreshStatus() {
         "Passkey ready. Tap Use fingerprint / face unlock to sign in." :
         "Not enrolled yet. Enter your owner password ONCE and tap Enable biometrics.");
     if(!state.signedIn){clear();status("Private balances are locked. Public signals work without signing in.");}
+    document.dispatchEvent(new CustomEvent("tradedesk-auth-change",{detail:{signedIn:state.signedIn}}));
   }catch {
     passStatus("Biometric sign-in not yet available. Owner password still works.");
   }

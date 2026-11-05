@@ -1,5 +1,39 @@
 # Mr G TradeDesk — Signals Only
 
+## Current release: autonomous execution preparation, live locked (5 November 2026)
+
+This section supersedes earlier signals-only product restrictions below. The owner requested autonomous native VALR futures execution with an R200 initial budget, R2 planned loss per trade including costs, 2× maximum leverage, one open position, R6 daily realised loss suspension, R20 account drawdown suspension and three consecutive losses before suspension. The existing additional R40 margin cap is retained. No real order, deposit, conversion, transfer, withdrawal or live enablement was performed.
+
+Implemented server modules:
+
+- `tradedesk-trading-policy.mjs`: exact decimal quantity/tick rounding, cost-aware risk sizing, current FX, exchange minimums, spread/depth checks, deterministic IDs and fixed loss limits. Initial additional engineering defaults: gross 3R target, minimum modelled net reward/risk 1.2, 15bp maximum spread, 5bp slippage per side, two-hour holding limit.
+- `tradedesk-valr-execution.mjs`: HMAC-SHA512 signing with separate trade credentials, strict endpoint allowlist, native USDT futures only, FOK limit entries with attached `conditionalOrderData`, history confirmation, partial fills, regular-order cancellation and reduce-only emergency closure. Mutating requests are never blindly retried, including lost response bodies.
+- `tradedesk-trading-engine.mjs`: durable reservation before entry, fill/position reconciliation, independent active OCO verification, protection-failure reduction, partial-exit accounting, private fees/funding checks, ledger/wallet reconciliation, emergency stop, deployment/restart uncertainty and controlled-test suspension. Unattended mode additionally requires a recorded closed controlled test with verified protection.
+- `tradedesk-journal.mjs` and `db/001_trading.sql`: PostgreSQL session advisory lock, unique active-position and signal constraints, compare-and-set transitions, append-only audit events and derived performance. The migration is deliberately outside Netlify's automatic DB directory. Installing the `pg` driver does not provision a database. Netlify Blobs remains public observation storage, not a transaction journal.
+- `tradedesk-release.mjs`: current report/policy identity, positive holdout sample and forward-evidence checks. Current evidence fails. Even correct credentials, an environment flag and an approval record cannot bypass this failed release check. Initial evidence defaults are at least seven forward-test days, 20 closed forward trades, 20 holdout trades, positive holdout net return and profit factor at least 1.1. These thresholds do not establish guaranteed future returns.
+- `tradedesk-trading.mjs`: public non-sensitive mode/limits, authenticated read-only account diagnostics, private journal and Stop New Trading. It provides no HTTP live-activation operation. Private data remains production-origin and owner-session restricted.
+- The existing 15-minute collector now validates EMA50 trend/EMA21 slope in addition to EMA9/21, RSI14 and ATR14, and archives immutable public observations. It does not itself place orders. Only a configured transactional journal triggers the separate background paper/execution worker; that worker independently checks production origin, owner authentication and all live gates.
+
+### Verified research and exact operating status
+
+- 72 automated Node tests plus the existing simulator checks pass. PostgreSQL-compatible integration tests exercise uniqueness, state transitions, loss calculations and the persistent stop. Lifecycle tests use realistic simulated exchange responses, not real trades.
+- Four native futures, FX order books, pair minimums, precision, 2× leverage tiers and order types were retrieved from VALR's public API. The new private account, fee, order, fill and conditional paths have **not** been exercised against the owner's actual account.
+- Research downloaded 1,344 actual 15-minute candles per futures pair and 1,344 USDTZAR candles for 22 October–5 November 2026, with actual public funding history. The first nine days form the earlier period; the final five days are the holdout. Parameters were fixed before the model run. The simulator uses prior closed candles, avoids overlapping same-bar entries and prioritises stops if both stop/target touch a candle.
+- Risk-limited holdout: **three trades, three losses, net −R1.0224**, then consecutive-loss suspension. Diagnostic without suspensions: **39 trades, net −R12.3403**. Estimated tier-1 taker fees, historical spread/slippage assumptions, current minimums and mark-price execution modelling limit these results. Intrabar mark-to-market drawdown is not established by the closed-equity drawdown figures. No profitability claim is supported.
+- Public minimum assessment at the recorded FX/price snapshot: ETH ~R19.93, SOL ~R15.95, XRP ~R21.74 in minimum 2× margin, before other checks; BTC ~R66.23 exceeds the retained R40 cap. These are indicative changing market amounts, not guaranteed affordable trades.
+- Real-money readiness: **NO**. Exchange-side protection on a real position: **NOT CONFIRMED**. Completed forward-paper evidence: **0 days**. Mode: **PAPER, locked**.
+- `app/validation-report.html` and `app/trading-validation.json` publish the full dated methodology and simulated trade journal. `scripts/collect-history.mjs` and `scripts/backtest.mjs` reproduce the research. Rate limits are respected; historical batches are cached locally and retried with backoff.
+
+### Required external setup after strategy evidence improves
+
+No new database, paid service or trading credential was created. Live activation requires an approved existing PostgreSQL database because the current file storage cannot provide transactional order state. Apply `trade-desk/db/001_trading.sql` through that database provider's supported migration workflow, then store its TLS URL as secret `TRADEDESK_DATABASE_URL` in the existing Netlify project's **Environment variables**, **Functions** scope, **Production** context only. Do not use a preview database or public client key for the real journal.
+
+Only when the evidence and account checks pass: on VALR's existing TradeDesk subaccount, create a separate API key with **View access and Trade only**. Preserve the old read-only key. Set secret production Functions variables `TRADEDESK_VALR_TRADE_API_KEY` and `TRADEDESK_VALR_TRADE_API_SECRET`. No Transfer, Withdraw or Link Bank Account permissions are accepted by the verifier. Funding, converting ZAR to USDT and enabling futures/terms are separate owner actions, not performed by this release.
+
+`TRADEDESK_LIVE_AUTHORIZED` and the database approval record remain unset. A future explicit approval must specify capital R200, this policy hash, verified subaccount, current deployment commit, expiry, evidence identity and `CONTROLLED_TEST` phase. The controller stops after one fully reconciled controlled lifecycle. Unattended activation requires a second review with that successful controlled-test record; it is never inferred from a successful API response.
+
+Implementation references: VALR API documentation at https://docs.valr.com/ and VALR's official developer reference repository https://github.com/valrdotcom/valr-agent-skills, revision `a96dd36892e8784d18d7ee789bfe218806c565f3`, particularly `references/trading.md`, `conditionals.md`, `futures.md`, `fees.md`, `account.md` and `market-data.md`. Native futures are distinct from the main-account-only USDC Simple Perps product. Actual private behaviour remains a required activation check.
+
 **Product decision (3 November 2026):** TradeDesk focuses exclusively on futures-style trading signals. The old multi-market investment dashboard, stock watchlists, equity broker selectors, public-market radar, and unattended spot paper-cycle are no longer part of the visible application.
 
 ## Automatic signals and a separate manual simulator

@@ -2,7 +2,8 @@ name: TradeDesk read-only VALR safety checks
 on:
   pull_request:
     paths:
-      - 'netlify/functions/tradedesk-valr-balances.mjs'
+      - 'netlify/functions/**'
+      - 'trade-desk/**'
       - 'netlify/functions/tradedesk-passkeys.mjs'
       - 'netlify/functions/_shared/tradedesk-passkey-session.mjs'
       - 'trade-desk/tests/passkey-auth.test.mjs'
