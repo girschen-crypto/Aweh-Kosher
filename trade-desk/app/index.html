@@ -20,6 +20,13 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 .valr-label{font-size:.72rem;background:#e8f9f1;color:#05603a;border-radius:999px;padding:6px 9px;font-weight:800}
 .valr-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #e2e8f0;padding:10px 4px;font-size:.85rem}
 .valr-row span{text-align:right;color:#475569}
+.signal-row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:13px 0;border-bottom:1px solid #e2e8f0}
+.signal-detail,.signal-right{display:flex;flex-direction:column;gap:5px;min-width:0}
+.signal-detail small,.signal-right small{font-size:.73rem;color:#64748b;overflow-wrap:anywhere}
+.signal-right{text-align:right;flex:1}.signal-long{color:#047857}.signal-short{color:#b42318}.signal-wait{color:#64748b}
+.signal-event{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e2e8f0;padding:9px 0;font-size:.78rem;margin:0}
+.signal-event span{color:#64748b;text-align:right}
+@media(max-width:600px){.signal-row{gap:8px}.signal-event{flex-direction:column;gap:3px}.signal-event span{text-align:left}}
 </style></head>
 <body><header><div style="font-size:.72rem;letter-spacing:.14em;color:#93c5fd;font-weight:800">MR G TRADEDESK · SIGNALS ONLY</div><h1>Futures Trading Signals</h1><p>Read signals · Calculate position size · Simulate trades · Track results</p></header>
 <main>
@@ -43,6 +50,26 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <p id="valrConnectionStatus" class="status" role="status">Not connected. Private server credentials and an owner password must first be configured in Netlify.</p>
 <div id="valrBalanceList" aria-live="polite"></div>
 <p class="caption">Never paste your VALR API key, API secret or 2FA code into this page. The owner password is not stored in the browser or trade log.</p>
+</section>
+<section class="card" aria-label="TradeDesk own signals">
+<div class="valr-balance-head"><h2>Our own VALR trading signals</h2><span class="valr-label">AUTOMATED · PAPER ONLY</span></div>
+<p class="caption">Checks BTC, ETH, SOL and XRP perpetual futures with 15-minute closed mark-price candles. Indicators: EMA 9/21 crossover, RSI 14 and ATR 14. Nothing here predicts or guarantees profit. No live orders, deposits or withdrawals.</p>
+<div class="grid kpis">
+<div class="kpi"><small>Starting budget</small><strong>R200</strong></div>
+<div class="kpi"><small>Max planned risk / trade</small><strong>R2</strong></div>
+<div class="kpi"><small>Max leverage</small><strong>2×</strong></div>
+<div class="kpi"><small>Scheduled scan</small><strong>15 min</strong></div>
+</div>
+<p class="caption">Position sizing is illustrative in rand. VALR contracts are USDT-denominated and exact quantities, ZAR/USDT conversion, fees and minimum trade sizes must be verified before any live trading. Signals only appear for valid, recent, verified futures market data.</p>
+<div class="buttons">
+<button id="signalRefresh" class="secondary" type="button">Refresh signals</button>
+<button id="signalScanNow" type="button">Scan now (owner)</button>
+</div>
+<p id="signalScanStatus" role="status" class="status">Checking the latest scheduled signal scan...</p>
+<p class="caption">Last scan: <span id="signalLastScan">—</span></p>
+<div id="signalMarketList"><p class="caption">Loading public VALR markets...</p></div>
+<h2 style="margin-top:20px">Recent signals</h2>
+<div id="signalEventList"><p class="caption">No completed signal scans yet.</p></div>
 </section>
 <section class="card"><h2>1. Read the trading signal</h2><label for="signal">Paste a LONG or SHORT signal</label>
 <textarea id="signal" aria-describedby="sample-warning">📌 Futures: ETT / USDT
@@ -92,6 +119,6 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <h2>Completed virtual trades</h2><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Units</th><th>Net P/L</th><th>Reason</th></tr></thead><tbody id="history"></tbody></table></div>
 </section>
 <div class="notice good"><strong>Real-money execution remains disabled.</strong> Before integration, independently verify the exchange, market instrument, contract specification, fees, withdrawal rights, exchange-native stop protection and API permissions. TradeDesk never sends deposits or orders from this page.</div>
-</main><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=5"></script>
+</main><script defer src="./tradedesk-signals.js?v=1"></script><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=5"></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}</script>
 </body></html>
