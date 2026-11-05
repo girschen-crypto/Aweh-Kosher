@@ -16,7 +16,7 @@ Implemented server modules:
 
 ### Verified research and exact operating status
 
-- 76 automated Node tests plus the existing simulator checks pass. PostgreSQL-compatible integration tests exercise uniqueness, state transitions, loss calculations and the persistent stop. Lifecycle tests use realistic simulated exchange responses, not real trades.
+- 77 automated Node tests plus the existing simulator checks pass. PostgreSQL-compatible integration tests exercise uniqueness, state transitions, loss calculations and the persistent stop. Lifecycle tests use realistic simulated exchange responses, not real trades.
 - Four native futures, FX order books, pair minimums, precision, 2× leverage tiers and order types were retrieved from VALR's public API. The new private account, fee, order, fill and conditional paths have **not** been exercised against the owner's actual account.
 - Research downloaded 1,344 actual 15-minute candles per futures pair and 1,344 USDTZAR candles for 22 October–5 November 2026, with actual public funding history. The first nine days form the earlier period; the final five days are the holdout. Parameters were fixed before the model run. The simulator uses prior closed candles, avoids overlapping same-bar entries and prioritises stops if both stop/target touch a candle.
 - Risk-limited holdout: **three trades, three losses, net −R1.0224**, then consecutive-loss suspension. Diagnostic without suspensions: **39 trades, net −R12.3403**. Estimated tier-1 taker fees, historical spread/slippage assumptions, current minimums and mark-price execution modelling limit these results. Intrabar mark-to-market drawdown is not established by the closed-equity drawdown figures. No profitability claim is supported.

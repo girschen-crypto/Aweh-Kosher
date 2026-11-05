@@ -83,7 +83,7 @@ export function journalHandler(db){return async request=>{
           [new Date(at).toISOString(),args.policyHash,str(args.deployId),JSON.stringify(args.data)]);return true;});break;
       }
       case "forward": {
-        result=(await query("SELECT min(scanned_at) AS started_at,max(scanned_at) AS last_observed_at,count(*)::integer AS observations,count(DISTINCT (scanned_at AT TIME ZONE 'Africa/Johannesburg')::date)::integer AS calendar_days FROM tradedesk.forward_observations WHERE policy_hash=$1",[str(args.policyHash,64)]))[0];break;
+        result=(await query("SELECT min(recorded_at) AS started_at,max(scanned_at) AS last_observed_at,count(*)::integer AS observations,count(DISTINCT (recorded_at AT TIME ZONE 'Africa/Johannesburg')::date)::integer AS calendar_days FROM tradedesk.forward_observations WHERE policy_hash=$1",[str(args.policyHash,64)]))[0];break;
       }
       default:return response(400,{ok:false,error:"INVALID_OPERATION"});
     }
