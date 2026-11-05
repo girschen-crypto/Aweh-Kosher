@@ -7,10 +7,12 @@ function response(code,body){return new Response(JSON.stringify(body),{status:co
 export async function handleSignals(request,env=process.env,store=storeForSignals(),fetchFn=fetch,now=Date.now){
   if(request.method!=="POST")return response(405,{ok:false,error:"METHOD_NOT_ALLOWED"});
   if(!allowedOrigin(request))return response(403,{ok:false,error:"ORIGIN_REJECTED"});
-  if(!verifyOwnerToken(request,env)&&!validSession(request,env))return response(401,{ok:false,error:"SIGN_IN_REQUIRED"});
   let data;
   try{data=await request.json();}catch{return response(400,{ok:false,error:"BAD_REQUEST"});}
   if(!["latest","scan"].includes(data?.action))return response(400,{ok:false,error:"INVALID_ACTION"});
+  // Public signals are derived only from public exchange data. Manual scans are owner-only.
+  if(data.action==="scan"&&!verifyOwnerToken(request,env)&&!validSession(request,env))
+    return response(401,{ok:false,error:"SIGN_IN_REQUIRED"});
   try{
     let snapshot=await store.get("snapshot",{type:"json",consistency:"strong"});
     if(data.action==="scan"){
