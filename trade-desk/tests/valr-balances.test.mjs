@@ -38,6 +38,13 @@ test("Third-party browser origins denied",async()=>{
   const r=await decode(await handleRequest(makeRequest("POST",OWNER,"https://another.site.example"),ENV,()=>{throw Error("Should not call VALR");}));
   assert.equal(r.status,403);
 });
+test("Preview hosts cannot access private VALR data even with the owner password",async()=>{
+  const preview="https://preview--mrg-trade-desk.netlify.app";
+  const request=new Request(preview+"/.netlify/functions/tradedesk-valr-balances",{
+    method:"POST",headers:{Origin:preview,Authorization:"Bearer "+OWNER}});
+  const r=await decode(await handleRequest(request,ENV,()=>{throw Error("No private request");}));
+  assert.equal(r.status,403);
+});
 
 test("Read-only signature, request path, filtered balances and no secret disclosure",async()=>{
   let called=false;

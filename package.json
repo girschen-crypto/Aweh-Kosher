@@ -6,6 +6,9 @@
   "engines": {
     "node": ">=22"
   },
+  "scripts": {
+    "test": "node --test trade-desk/tests/*.test.mjs && node trade-desk/tests/futures-lab.test.cjs"
+  },
   "dependencies": {
     "@netlify/blobs": "11.1.6",
     "@simplewebauthn/server": "14.0.3"

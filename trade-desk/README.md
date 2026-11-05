@@ -2,7 +2,11 @@
 
 **Product decision (3 November 2026):** TradeDesk focuses exclusively on futures-style trading signals. The old multi-market investment dashboard, stock watchlists, equity broker selectors, public-market radar, and unattended spot paper-cycle are no longer part of the visible application.
 
-## One supported workflow
+## Automatic signals and a separate manual simulator
+
+The current application collects its own read-only VALR futures signals every 15 minutes. Viewing and refreshing collected signals is public. Manual scans and private balances require an owner password or valid passkey session. See the autonomous signal collection section below. This newer workflow supersedes the earlier pasted-signals-only restriction.
+
+The separate USDT practice simulator works as follows:
 
 1. Paste a futures signal such as `ETT/USDT`, market order, LONG, 100×, allocation 10%.
 2. The local parser extracts pair, leverage, direction, position allocation, and order type. It does not discover market opportunities or create its own signals.
@@ -24,15 +28,15 @@ Actual liquidation, slippage, funding, insurance funds, position sizes and rules
 
 ## Code and operating status
 
-- Main app homepage: `trade-desk/app/index.html`, using `futures-lab.js` only.
+- Main app homepage: `trade-desk/app/index.html`, using `futures-lab.js`, `tradedesk-signals.js` and `tradedesk-valr-client.js`.
 - Legacy `futures-lab.html` redirects to the same new homepage.
 - Offline cache: `trade-desk/app/sw.js`, caches only signal-related files.
-- Source of signal: **user-pasted text**, not an exchange feed or bot's prediction.
+- Automatic signals use public VALR futures data; manual examples use **user-pasted text**.
 - Data: browser-local storage under `mrgTradeDeskFuturesLabV1`; it does **not** sync to an account or broker.
-- No real funds, deposits, broker credentials, broker account connection, real order placement, cash withdrawals, realtime market feeds, background monitoring or exchange-native stops.
+- No real order placement, deposits, cash withdrawals or exchange-native stops. Private credentials stay on the server for the optional read-only balance connection.
 - No unrelated equity or spot-crypto investment screens remain in the homepage.
 - Legacy scanning/spot engine source files remain in Git history and/or unused source paths for reversibility, but the two GitHub Actions scheduled workflows `tradedesk-radar.yml` and `tradedesk-auto-cycle.yml` were removed from the branch.
-- TradeDesk operations must only work with user-provided futures trading signals. Do **not** automatically restore or run the earlier market scans and share investment features.
+- The earlier share and spot-investment features remain retired. The newer VALR futures collector is described below.
 
 ## Test and publish
 
@@ -90,7 +94,7 @@ The balance reader supports an optional **WebAuthn passkey**. Supported phones a
 - A passkey is tied cryptographically to `mrg-trade-desk.netlify.app`, cannot be replayed on another domain, and verifies the owner with device user verification **required**.
 - Persistent passkey *public* credential and time-limited one-time challenge state are stored server-side in Netlify Blobs, with strong consistency and conditional writes for replay prevention. Do not use the shared, public web page as a passkey database.
 - The valid session is an 8-hour, signed `__Host-` cookie with `HttpOnly`, `Secure` and `SameSite=Strict`; the browser stores no password or biometric. Rotating `TRADEDESK_OWNER_TOKEN` invalidates current sessions and permits password recovery. The existing password remains a fallback.
-- The passkey provides access to **only one read-only VALR balance endpoint**. It is **not** proof of authorisation for future live-trading orders and does not enable Trade, Internal Transfer or Withdraw permissions.
+- The passkey provides access to read-only VALR balances and on-demand public futures scans. It is **not** proof of authorisation for live-trading orders and does not enable Trade, Internal Transfer or Withdraw permissions.
 - The passkey endpoints refuse Netlify Deploy Preview origins; only the production RP ID/origin is accepted. Preview deployments must never have live key access.
 - Test: `npm install --no-audit --no-fund && node --test trade-desk/tests/passkey-auth.test.mjs`; deployment also runs the existing VALR and futures paper tests. Verify registration, fingerprint sign-in, balance read, sign out and recovery on a real device before considering the feature fully validated.
 
@@ -114,3 +118,13 @@ This extension keeps TradeDesk **signals only** and adds its own market-data sig
 - Verify with `node --test trade-desk/tests/signal-engine.test.mjs` and the existing security CI. Real live signal feed validation is a separate post-deploy requirement; synthetic tests cannot prove a profitable strategy.
 
 Netlify scheduled functions are supported on all Netlify plans, and the public VALR futures market and mark-price routes are documented by VALR. Be mindful of usage limits and do not add paid infrastructure for R200 test capital.
+
+## Production verification repairs (5 November 2026)
+
+- Stored scans expire after 20 minutes. The API suppresses stale LONG/SHORT directions; the browser also expires displayed signals locally and clears them on network failure or offline events. Historical events remain clearly historical.
+- Every candle used by the indicators must have valid OHLC values, a 15-minute boundary and consecutive timestamps. Conflicting duplicate candles fail closed.
+- Preview origins cannot access the private balance reader even if a password is supplied. Private API responses stay outside the service-worker cache.
+- The page distinguishes the illustrative R200 signal budget from the fictional 200 USDT manual simulator. Dates display in SAST. No passkey or password is needed for collected signals.
+- A virtual authenticator integration test exercises the actual WebAuthn verification library from registration through signed authentication, an eight-hour cookie, read-only balance access, challenge replay rejection and logout. Physical device biometric approval and the owner's actual VALR balance still require the owner's registered device.
+- `npm ci && npm test` runs the automated checks. Dependencies are pinned in `package-lock.json`.
+- `netlify.tradedesk.toml` isolates TradeDesk's build configuration from other applications in this repository. For CLI publication to the existing project, use `npx netlify-cli deploy --config netlify.tradedesk.toml --build --prod --site 8f30bbc0-5a3d-4f24-ba52-0cd31498d03c` after authenticating to Netlify. If continuous Git deployment is connected, subsequent production-branch builds replace manual publications; use the same committed source and configuration.

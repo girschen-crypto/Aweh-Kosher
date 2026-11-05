@@ -29,8 +29,10 @@ export function normaliseCandles(raw,now=Date.now()){
     const high=num(b?.high??b?.highPrice??b?.h);
     const low=num(b?.low??b?.lowPrice??b?.l);
     const close=num(b?.close??b?.closePrice??b?.c);
-    if(!Number.isFinite(time)||time<=0||time>now||time+RULES.candleSeconds*1000>now-10000)continue;
+    if(!Number.isFinite(time)||time<=0||time%(RULES.candleSeconds*1000)!==0||time>now||time+RULES.candleSeconds*1000>now-10000)continue;
     if(!(open>0&&close>0&&high>=Math.max(open,close)&&low<=Math.min(open,close)&&low>0))continue;
+    const previous=seen.get(time);
+    if(previous && ["open","high","low","close"].some(k=>previous[k]!==({open,high,low,close})[k]))return [];
     seen.set(time,{time,open,high,low,close});
   }
   return [...seen.values()].sort((a,b)=>a.time-b.time).slice(-120);
@@ -74,9 +76,16 @@ export function evaluateMarket(pair,candles,now=Date.now()){
   if(!MARKETS.includes(pair))return {...base,reason:"Contract not in authorised watchlist"};
   if(!Array.isArray(candles)||candles.length<RULES.minCandles)
     return {...base,reason:"Insufficient verified candle history"};
-  const c=candles.at(-1),prev=candles.at(-2);
+  // Every candle used by EMA/RSI/ATR must be valid and consecutive, not only the last two.
+  const step=RULES.candleSeconds*1000;
+  if(candles.some((b,i)=>!b||!Number.isFinite(b.time)||b.time%step!==0||
+    ![b.open,b.high,b.low,b.close].every(Number.isFinite)||
+    !(b.open>0&&b.close>0&&b.low>0&&b.high>=Math.max(b.open,b.close)&&b.low<=Math.min(b.open,b.close))||
+    (i>0&&b.time-candles[i-1].time!==step)))
+    return {...base,reason:"Malformed or discontinuous market data"};
+  const c=candles.at(-1);
   const age=now-(c.time+RULES.candleSeconds*1000);
-  if(age<0||age>35*60*1000||c.time-prev.time!==RULES.candleSeconds*1000)
+  if(age<0||age>20*60*1000)
     return {...base,reason:"Stale or discontinuous market data"};
   const closes=candles.map(x=>x.close),fast=emaSeries(closes,9),slow=emaSeries(closes,21);
   const i=closes.length-1,rr=rsi(closes),a=atr(candles),vol=a/c.close;

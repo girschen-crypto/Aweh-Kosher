@@ -30,11 +30,11 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 </style></head>
 <body><header><div style="font-size:.72rem;letter-spacing:.14em;color:#93c5fd;font-weight:800">MR G TRADEDESK · SIGNALS ONLY</div><h1>Futures Trading Signals</h1><p>Read signals · Calculate position size · Simulate trades · Track results</p></header>
 <main>
-<p class="notice"><strong>PAPER ONLY — no real orders.</strong> The starting 200 USDT is fictional, not your promotional trading balance. There is no automatic market feed; all prices here are manually entered. At 100× leverage, a move of roughly 1% against the position can consume the initial margin and actual liquidation can happen sooner.</p>
+<p class="notice"><strong>Signals and practice only — no real orders.</strong> Automatic VALR signals use public market data and an illustrative R200 budget. The separate manual simulator starts with fictional 200 USDT. Neither uses your money.</p>
 <section class="card" aria-label="VALR connection">
 <div class="valr-balance-head"><h2>VALR · TradeDesk sub-account</h2><span class="valr-label">VIEW ONLY</span></div>
 <p class="caption">Optional secure balance check. These are your <strong>actual VALR account balances</strong>, separate from the virtual signal simulator below. This connection cannot place trades or move money.</p>
-<p class="caption"><strong>Biometric sign-in:</strong> Your phone's fingerprint or face unlock can replace repeated password entry. Sign in using a secure passkey; no biometric data leaves your device.</p>
+<p class="caption"><strong>No password needed to view or refresh automatic signals.</strong> Sign in to read private VALR balances or scan markets manually. After one-time passkey setup, use your fingerprint, face unlock or device PIN. Sessions last up to 8 hours.</p>
 <p id="valrPasskeyStatus" class="status" role="status">Checking whether your device has a TradeDesk passkey...</p>
 <div class="buttons">
 <button type="button" id="valrUsePasskey" disabled>Use fingerprint / face unlock</button>
@@ -47,7 +47,7 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <button type="button" id="valrResetPasskeys" class="secondary" title="Owner password required">Remove saved passkeys</button>
 <button type="button" id="valrReadBalance">Read VALR balance</button>
 </div>
-<p id="valrConnectionStatus" class="status" role="status">Not connected. Private server credentials and an owner password must first be configured in Netlify.</p>
+<p id="valrConnectionStatus" class="status" role="status">Private balances are locked. Public signals work without signing in.</p>
 <div id="valrBalanceList" aria-live="polite"></div>
 <p class="caption">Never paste your VALR API key, API secret or 2FA code into this page. The owner password is not stored in the browser or trade log.</p>
 </section>
@@ -71,7 +71,7 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <h2 style="margin-top:20px">Recent signals</h2>
 <div id="signalEventList"><p class="caption">No completed signal scans yet.</p></div>
 </section>
-<section class="card"><h2>1. Read the trading signal</h2><label for="signal">Paste a LONG or SHORT signal</label>
+<section class="card"><h2>Manual practice simulator · USDT</h2><p class="caption">Separate from the automatic R200 signal budget. All prices and contract assumptions below are entered manually. The 100× sample is a high-risk illustration.</p><h2>1. Read the trading signal</h2><label for="signal">Paste a LONG or SHORT signal</label>
 <textarea id="signal" aria-describedby="sample-warning">📌 Futures: ETT / USDT
 🚀 Leverage: 100X
 🔥 Order Type: Market Order
@@ -119,6 +119,6 @@ button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#e9eef7;colo
 <h2>Completed virtual trades</h2><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Units</th><th>Net P/L</th><th>Reason</th></tr></thead><tbody id="history"></tbody></table></div>
 </section>
 <div class="notice good"><strong>Real-money execution remains disabled.</strong> Before integration, independently verify the exchange, market instrument, contract specification, fees, withdrawal rights, exchange-native stop protection and API permissions. TradeDesk never sends deposits or orders from this page.</div>
-</main><script defer src="./tradedesk-signals.js?v=1"></script><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=5"></script>
+</main><script defer src="./tradedesk-signals.js?v=2"></script><script defer src="./futures-lab.js?v=2"></script><script defer src="./tradedesk-valr-client.js?v=6"></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}</script>
 </body></html>
