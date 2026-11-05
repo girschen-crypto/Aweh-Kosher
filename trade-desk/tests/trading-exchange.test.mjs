@@ -5,15 +5,15 @@ import { POLICY_HASH,buildPlan } from "../../netlify/functions/_shared/tradedesk
 import { ValrExecutionClient,verifyProtection,verifyPrivateAccount } from "../../netlify/functions/_shared/tradedesk-valr-execution.mjs";
 import { handleTrading } from "../../netlify/functions/tradedesk-trading.mjs";
 import { inputs,NOW } from "./trading-fixtures.mjs";
-const env={CONTEXT:"production",COMMIT_REF:"commit",TRADEDESK_LIVE_AUTHORIZED:"CONTROLLED_TEST",TRADEDESK_VALR_TRADE_API_KEY:"a".repeat(64),TRADEDESK_VALR_TRADE_API_SECRET:"b".repeat(64)};
-const approval={policyHash:POLICY_HASH,phase:"CONTROLLED_TEST",approvedAt:new Date(NOW).toISOString(),expiresAt:NOW+3600000,deployCommit:"commit",strategyEvidenceApproved:true,accountVerified:true,capitalZar:200};
+const env={CONTEXT:"production",TRADEDESK_DEPLOY_ID:"deploy",TRADEDESK_LIVE_AUTHORIZED:"CONTROLLED_TEST",TRADEDESK_VALR_TRADE_API_KEY:"a".repeat(64),TRADEDESK_VALR_TRADE_API_SECRET:"b".repeat(64)};
+const approval={policyHash:POLICY_HASH,phase:"CONTROLLED_TEST",approvedAt:new Date(NOW).toISOString(),expiresAt:NOW+3600000,deployId:"deploy",strategyEvidenceApproved:true,accountVerified:true,capitalZar:200};
 const plan=buildPlan(inputs());
 const evidence={policyHash:POLICY_HASH,readyForControlledTest:true,forwardTestDays:8,forwardClosedTrades:25,results:{holdout:{trades:25,netZar:"5",profitFactor:"1.2",maxDrawdownZar:"4"}}};
 test("No combination of a read-only key, preview or missing approval can submit an order",async()=>{
   let calls=0;const fetchFn=async()=>{calls++;throw Error("Must not reach exchange");};
   for(const config of [{env,purpose:"read",approval},{env:{...env,CONTEXT:"deploy-preview"},purpose:"trade",approval},
     {env:{...env,TRADEDESK_LIVE_AUTHORIZED:""},purpose:"trade",approval},{env,purpose:"trade",approval:null},
-    {env,purpose:"trade",approval:{...approval,expiresAt:NOW-1}},{env,purpose:"trade",approval:{...approval,deployCommit:"old"}}]){
+    {env,purpose:"trade",approval:{...approval,expiresAt:NOW-1}},{env,purpose:"trade",approval:{...approval,deployId:"old"}}]){
     const c=new ValrExecutionClient({...config,fetchFn,now:()=>NOW});await assert.rejects(c.entry(plan));
   }
   assert.equal(calls,0);

@@ -3,6 +3,7 @@ import { LIMITS,POLICY_HASH } from "./_shared/tradedesk-trading-policy.mjs";
 import { ValrExecutionClient,verifyPrivateAccount } from "./_shared/tradedesk-valr-execution.mjs";
 import { databasePool,TradingJournal } from "./_shared/tradedesk-journal.mjs";
 import { researchGate } from "./_shared/tradedesk-release.mjs";
+import { tradingRuntime } from "./_shared/tradedesk-runtime.mjs";
 const H={"Content-Type":"application/json","Cache-Control":"private, no-store","Vary":"Cookie, Authorization","X-Content-Type-Options":"nosniff"};
 const reply=(status,data)=>new Response(JSON.stringify(data),{status,headers:H});
 export async function handleTrading(request,{env=process.env,pool,client}={}){
@@ -44,4 +45,4 @@ export async function handleTrading(request,{env=process.env,pool,client}={}){
   }catch(e){return reply(503,{ok:false,error:e.message==="TRANSACTIONAL_DATABASE_NOT_CONFIGURED"?"TRANSACTIONAL_DATABASE_NOT_CONFIGURED":
     ["PRIVATE_CREDENTIALS_MISSING","EXCHANGE_AUTH_FAILED","EXCHANGE_RATE_LIMIT"].includes(e.code)?e.code:"TRADING_STATUS_UNAVAILABLE"});}
 }
-export default request=>handleTrading(request);
+export default (request,context)=>handleTrading(request,{env:tradingRuntime(context)});

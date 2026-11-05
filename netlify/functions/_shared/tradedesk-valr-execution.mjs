@@ -19,7 +19,7 @@ export class ValrExecutionClient{
     const a=this.approval,e=this.env;
     if(this.purpose!=="trade"||e.CONTEXT!=="production"||!a||!["CONTROLLED_TEST","UNATTENDED"].includes(a.phase)||e.TRADEDESK_LIVE_AUTHORIZED!==a.phase||
       a.policyHash!==POLICY_HASH||!a.approvedAt||!Number.isSafeInteger(a.expiresAt)||a.expiresAt<=this.now())throw new ValrError("LIVE_EXECUTION_LOCKED");
-    if(kind==="entry" && (a.deployCommit!==e.COMMIT_REF||!a.strategyEvidenceApproved||!a.accountVerified||a.capitalZar!==200||
+    if(kind==="entry" && (!a.deployId||!e.TRADEDESK_DEPLOY_ID||a.deployId!==e.TRADEDESK_DEPLOY_ID||!a.strategyEvidenceApproved||!a.accountVerified||a.capitalZar!==200||
       a.phase==="UNATTENDED"&&!a.controlledTestTradeId))throw new ValrError("ACTIVATION_REVALIDATION_REQUIRED");
     if(kind==="entry"){const reason=researchGate(this.evidence);if(reason)throw new ValrError(reason);}
   }

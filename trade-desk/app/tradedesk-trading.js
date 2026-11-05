@@ -5,7 +5,8 @@ const set=(id,v)=>{$(id).textContent=String(v);};
 let authGeneration=0;
 if(window.location.origin!=="https://mrg-trade-desk.netlify.app"){
   set("tradingStatus","Preview only. Trading controls are available on the live site.");
-  $("tradingRefresh").disabled=true;$("tradingStop").disabled=true;return;
+  set("tradingStorage","Preview · no order journal connection");set("tradingCredentials","Preview · private account access disabled");
+  $("tradingRefresh").disabled=true;$("tradingStop").disabled=true;report();return;
 }
 async function call(action,manual=false){
   const field=$("valrOwnerPassword"),password=manual?field.value.trim():"";if(manual)field.value="";

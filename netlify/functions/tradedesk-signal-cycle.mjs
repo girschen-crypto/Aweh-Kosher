@@ -39,13 +39,13 @@ export async function runSignalCycle({store=storeForSignals(),fetchFn=fetch,now=
     newEvents,error:snapshot.error||null};
 }
 
-export default async function () {
+export default async function (_request,context) {
   try {
     const result=await runSignalCycle();
     console.info("TradeDesk public signal scan",result);
     // Only configured transactional storage starts the separate paper/execution worker.
     // Live writes remain independently locked by approval, account, policy and deployment gates.
-    if(process.env.CONTEXT==="production"&&process.env.TRADEDESK_DATABASE_URL&&process.env.TRADEDESK_OWNER_TOKEN){
+    if((context?.deploy?.context||process.env.CONTEXT)==="production"&&process.env.TRADEDESK_DATABASE_URL&&process.env.TRADEDESK_OWNER_TOKEN){
       await fetch("https://mrg-trade-desk.netlify.app/.netlify/functions/tradedesk-trading-cycle-background",{
         method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+process.env.TRADEDESK_OWNER_TOKEN},
         body:"{}",redirect:"error",signal:AbortSignal.timeout(3000)});
