@@ -84,17 +84,28 @@ export async function reconcileLive(t,{journal,client,account,proof,now=Date.now
     currentQuantity:position.quantity,unrealisedPnlUsdt:position.unrealisedPnl,lastReconciledAt:new Date(now).toISOString()});
   return t;
 }
+export const PAPER_EXECUTION_VERSION="BOOK_SNAPSHOTS_V2";
+function paperHoldingDeadline(t){
+  const openedAt=new Date(t.created_at).getTime(),signalAt=Date.parse(t.data.plan.signalTime);
+  if(!Number.isFinite(openedAt))throw Error("INVALID_PAPER_OPEN_TIME");
+  // The validated signal comes from a closed 15-minute candle. Anchor the
+  // deadline to that decision, so seconds of DB/network delay do not add a bar.
+  const anchor=Number.isFinite(signalAt)&&signalAt<=openedAt?signalAt:Math.floor(openedAt/900000)*900000;
+  return anchor+LIMITS.maxHoldingHours*3600000;
+}
 export async function paperTick(t,{journal,proof,now}={}){
   const p=t.data.plan,m=proof.markets.find(x=>x.pair===p.pair);if(!m?.book)return t;
   const price=D(p.direction==="LONG"?m.book.bid:m.book.ask),long=p.direction==="LONG";
-  const stop=long?price.lte(p.stop):price.gte(p.stop),target=long?price.gte(p.target):price.lte(p.target),expired=now-Date.parse(t.created_at)>=LIMITS.maxHoldingHours*3600000;
+  const deadline=paperHoldingDeadline(t);
+  const stop=long?price.lte(p.stop):price.gte(p.stop),target=long?price.gte(p.target):price.lte(p.target),expired=now>=deadline;
   if(!stop&&!target&&!expired)return t;
   const exit=price.mul(long?1-LIMITS.slippagePerSide:1+LIMITS.slippagePerSide),qty=D(p.quantity);
   const fees=qty.mul(D(p.entry).plus(exit)).mul(p.feeRate),hours=D(now-Date.parse(t.created_at)).div(3600000).ceil();
   const funding=qty.mul(p.entry).mul(LIMITS.maxFundingPerHour).mul(hours);
   const net=(long?exit.minus(p.entry):D(p.entry).minus(exit)).mul(qty).minus(fees).minus(funding),fx=net.gte(0)?proof.fx.bid:proof.fx.ask;
   return journal.update(t,"CLOSED",{exit:exit.toFixed(),exitReason:stop?"STOP":target?"TARGET":"TIME_LIMIT",
-    netZar:net.mul(fx).toFixed(),feesZar:fees.mul(fx).toFixed(),fundingZar:funding.mul(fx).toFixed(),
+    netUsdt:net.toFixed(),netZar:net.mul(fx).toFixed(),fxAtExit:fx,feesZar:fees.mul(fx).toFixed(),fundingZar:funding.mul(fx).toFixed(),
+    holdingDeadlineAt:new Date(deadline).toISOString(),simulationVersion:PAPER_EXECUTION_VERSION,
     simulated:true,protectionVerified:false,simulation:"Public order-book snapshots; simulated exits, not exchange-side orders"});
 }
 export async function runTradingCycle({journal,snapshot,proof,env=process.env,client,now=Date.now()}={}){
@@ -146,7 +157,7 @@ export async function runTradingCycle({journal,snapshot,proof,env=process.env,cl
     }
     const t=await journal.reserve(plan,mode,account?zeroUsdt(account).total:null);if(!t)continue;
     await journal.event(t.id,"RISK_APPROVED",{mode,plan,policyHash:POLICY_HASH});
-    if(mode==="PAPER"){await journal.update(t,"OPEN",{simulated:true,protectionVerified:false});return {mode,openedPaper:true};}
+    if(mode==="PAPER"){await journal.update(t,"OPEN",{simulated:true,protectionVerified:false,simulationVersion:PAPER_EXECUTION_VERSION,holdingDeadlineAt:new Date(paperHoldingDeadline(t)).toISOString()});return {mode,openedPaper:true};}
     // Check the persisted emergency stop again immediately before the write.
     if((await journal.control()).stopped){await journal.update(t,"CANCELLED",{reason:"EMERGENCY_STOP"});return {mode,reason:"EMERGENCY_STOP"};}
     const submitting=await journal.update(t,"SUBMITTING");
@@ -173,7 +184,7 @@ export async function persistentTradingCycle(input){return withTradingLock(async
   const result=await runTradingCycle({...input,journal});
   if(journal.observe&&input.snapshot&&!input.snapshot.error){
     await journal.observe({scannedAt:input.snapshot.scannedAt,policyHash:POLICY_HASH,deployId:input.env.TRADEDESK_DEPLOY_ID,
-      data:{signals:input.snapshot.results,proof:input.proof,result,simulation:"Forward paper trial; public prices and modelled costs; no exchange orders"}});
+      data:{signals:input.snapshot.results,proof:input.proof,result,simulationVersion:PAPER_EXECUTION_VERSION,simulation:"Forward paper trial; public prices and modelled costs; no exchange orders"}});
   }
   return result;
 },{env:input.env});}
