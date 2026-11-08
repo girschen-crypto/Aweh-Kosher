@@ -8,7 +8,7 @@ const fixed=v=>Number.isFinite(v)?v.toFixed(4):"—";
 const put=(id,value)=>$(id).textContent=String(value);
 const STORAGE="mrgTradeDeskFuturesLabV1";
 const fresh=()=>({cash:200,reserve:0,realised:0,position:null,history:[]});
-let account=fresh(),plan=null;
+let account=fresh(),plan=null,parsedBlocked=false;
 try{
   const o=JSON.parse(localStorage.getItem(STORAGE)||"null");
   if(o&&Number.isFinite(o.cash)&&o.cash>=0&&Number.isFinite(o.reserve)&&o.reserve>=0&&Number.isFinite(o.realised)&&Array.isArray(o.history)&&o.history.length<=100&&(!o.position||(o.position.margin>0&&o.position.entry>0&&o.position.exposure>0)))account=o;
@@ -17,19 +17,41 @@ function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(account));}ca
 function message(t){put("message",t);}
 function parseSignal(){
   const s=$("signal").value;
-  const pair=s.match(/(?:Futures|Contract)\s*:\s*([A-Z0-9]{2,12})\s*\/\s*(USDT|USDC)/i);
+  const fail=reason=>{
+    parsedBlocked=true;plan=null;$("open").disabled=true;
+    put("parsed",reason+" No position was opened.");
+    message("Rejected external signal. Correct or verify the source before any virtual simulation.");
+  };
+  // Closing notices are not new entries, and cannot prove an exchange fill.
+  if(/Take Profit Signals|position[ -]?closing notice|Close\s+(?:Long|Short|Position)/i.test(s))
+    return fail("Closing notice, not a new entry signal.");
+  const pairDeclarations=[...s.matchAll(/\b(?:Futures?|Contract)\s*:\s*([A-Z0-9]{2,12})\s*\/\s*(USDT|USDC)\b/gi)]
+    .map(m=>(m[1]+"/"+m[2]).toUpperCase());
+  const headerDeclarations=[...s.matchAll(/trading pair for this round is\s+([A-Z0-9]{2,12})\s*\/\s*(USDT|USDC)\b/gi)]
+    .map(m=>(m[1]+"/"+m[2]).toUpperCase());
+  const symbols=[...new Set([...pairDeclarations,...headerDeclarations])];
+  if(symbols.length>1)return fail("Conflicting trading pairs appear in this message: "+symbols.join(" vs ")+".");
   const lev=s.match(/Leverage\s*:\s*(\d+(?:\.\d+)?)\s*[x×]?/i);
   const size=s.match(/Position\s*Size\s*:\s*(\d+(?:\.\d+)?)\s*%/i);
-  const direction=s.match(/Direction\s*:\s*([^\n\r]+)/i);
+  const direction=s.match(/\bDirection\s*:\s*([^\n\r]+)/i);
   const market=/Order\s*Type\s*:\s*Market\s*Order/i.test(s);
-  if(!pair||!lev||!size||!direction||!market){
-    put("parsed","Unrecognised or incomplete signal. Required: Futures pair, Leverage, Market Order, Position Size and LONG/SHORT direction.");return;
-  }
-  const dir=direction[1].toUpperCase().includes("LONG")?"LONG":direction[1].toUpperCase().includes("SHORT")?"SHORT":null;
-  if(!dir){put("parsed","The direction must say LONG or SHORT. Nothing was traded.");return;}
-  $("pair").value=pair[1].toUpperCase()+"/"+pair[2].toUpperCase();
-  $("leverage").value=Number(lev[1]);$("percent").value=Number(size[1]);$("direction").value=dir;
-  put("parsed",$("pair").value+" | "+dir+" | "+lev[1]+"× | "+size[1]+"% | Market Order. A stop, target and fill price were NOT provided.");
+  if(symbols.length!==1||!lev||!size||!direction||!market)
+    return fail("Unrecognised or incomplete entry signal. Pair, leverage, allocation, Market Order and direction are required.");
+  const line=direction[1].toUpperCase();
+  const dirs=[...new Set([...line.matchAll(/\b(LONG|SHORT)\b/g)].map(m=>m[1]))];
+  if(dirs.length!==1)return fail("Missing or conflicting LONG/SHORT direction.");
+  const dir=dirs[0];
+  const headerDirection=s.match(/with a\s+(?:Buy|Sell)\s*\/\s*(Long|Short)\s+position/i);
+  if(headerDirection&&headerDirection[1].toUpperCase()!==dir)
+    return fail("The announcement direction conflicts with the instruction direction.");
+  const verb=direction[1].match(/\b(Buy|Sell)\s*\/\s*(Long|Short)\b/i);
+  if(verb&&((verb[1].toUpperCase()==="BUY"&&dir!=="LONG")||
+    (verb[1].toUpperCase()==="SELL"&&dir!=="SHORT")))
+    return fail("The order verb conflicts with LONG/SHORT direction.");
+  parsedBlocked=false;
+  $("pair").value=symbols[0];$("leverage").value=Number(lev[1]);
+  $("percent").value=Number(size[1]);$("direction").value=dir;
+  put("parsed",symbols[0]+" | "+dir+" | "+lev[1]+"× | "+size[1]+"% | Market Order. Historical, unverified source; no entry, stop, target or exchange fill confirmed.");
   calculate();
 }
 function valid(){
@@ -69,11 +91,12 @@ function calculate(){
   if(v.stop===null)warnings.push("No stop-loss specified in this signal.");
   if(v.target===null)warnings.push("No take-profit specified.");
   if(v.margin>account.cash+1e-7)warnings.push("The example order exceeds the available virtual cash.");
+  if(parsedBlocked)warnings.push("Signal text was rejected; interpret a valid entry before opening a virtual position.");
   if(account.position)warnings.push("A virtual position is already open.");
   if(Math.abs(v.balance-account.cash)>.001)warnings.push("Sizing balance differs from available free virtual cash.");
   put("risk",warnings.length?warnings.join(" "):"Parameters are arithmetically valid; market risk remains.");
   $("risk").className=warnings.length?"notice":"notice good";
-  $("open").disabled=!!account.position||v.margin>account.cash+1e-7;
+  $("open").disabled=parsedBlocked||!!account.position||v.margin>account.cash+1e-7;
   message("Calculated using user-supplied example assumptions. No actual order has been placed.");
 }
 function gross(p,price){
@@ -121,6 +144,7 @@ function render(){
     });
   }
 }
+$("signal").addEventListener("input",()=>{parsedBlocked=true;plan=null;$("open").disabled=true;put("parsed","Signal text changed. Interpret the new text before any virtual trade.");});
 $("parse").addEventListener("click",parseSignal);
 $("twenty").addEventListener("click",()=>{
   const t=$("signal");t.value=t.value.replace(/Position\s*Size\s*:\s*\d+(?:\.\d+)?\s*%/i,"Position Size: 20%");parseSignal();
