@@ -75,6 +75,45 @@ function harness(overrides={}){
   const h=harness({fee:"1e999"});
   assert.equal(h.get("open").disabled,true); // reject Infinity
 }
+// These deliberately synthetic, untrusted third-party announcements test parser fail-closed behaviour.
+{
+  const h=harness();
+  h.get("signal").value="The trading pair for this round is AAA/USDT, with a Buy/Long position.\nFuture: BBB/USDT\nLeverage: 100X\nOrder Type: Market Order\nPosition Size: 10%\nDirection: Buy / Long";
+  h.click("parse");
+  assert.match(h.get("parsed").textContent,/Conflicting trading pairs/);
+  assert.equal(h.get("open").disabled,true);
+  h.click("calculate");
+  assert.equal(h.get("open").disabled,true);
+}
+{
+  const h=harness();
+  h.get("signal").value="The trading pair for this round is AAA/USDT, with a Buy/Long position.\nFuture: AAA/USDT\nLeverage: 100X\nOrder Type: Market Order\nPosition Size: 10%\nDirection: Sell / Short";
+  h.click("parse");
+  assert.match(h.get("parsed").textContent,/direction conflicts/);
+  assert.equal(h.get("open").disabled,true);
+}
+{
+  const h=harness();
+  h.get("signal").value="Future: AAA/USDT\nLeverage: 100X\nOrder Type: Market Order\nPosition Size: 10%\nDirection: Buy / Short";
+  h.click("parse");
+  assert.match(h.get("parsed").textContent,/order verb conflicts/);
+  assert.equal(h.get("open").disabled,true);
+}
+{
+  const h=harness();
+  h.get("signal").value="POSITION-CLOSING NOTICE\nFutures: AAA/USDT\nTake Profit Signals\nDirection: Sell / Close Long\nPosition Size: 10%";
+  h.click("parse");
+  assert.match(h.get("parsed").textContent,/Closing notice/);
+  assert.equal(h.get("open").disabled,true);
+}
+{
+  const h=harness();
+  assert.equal(h.get("open").disabled,false);
+  h.get("signal").value="changed after parse";
+  h.get("signal").handlers.input();
+  assert.equal(h.get("open").disabled,true);
+}
+
 // Home page and service worker must expose no unrelated investment choices.
 {
   const home=fs.readFileSync(path.join(__dirname,"../app/index.html"),"utf8");
