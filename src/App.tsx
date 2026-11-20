@@ -1,3 +1,4 @@
+import RevenueDesk from './RevenueDesk';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 type Tour = {
@@ -45,6 +46,10 @@ function highlightList(value?: string | null) {
 }
 
 export default function App() {
+  if (location.pathname === "/revenue" || location.pathname === "/trade") return <RevenueDesk trade={location.pathname === "/trade"} />;
+  return <PublicApp />;
+}
+function PublicApp() {
   const [tours, setTours] = useState<Tour[]>([]);
   const [loadingTours, setLoadingTours] = useState(true);
   const [tourError, setTourError] = useState('');
@@ -102,7 +107,7 @@ export default function App() {
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Your enquiry could not be sent.');
-      setResult({ ok: true, message: data.message || 'Your Travel Aweh enquiry has been received.', reference: data.reference });
+      setResult({ ok: true, message: data.message || 'Your Easy Kosher SA enquiry has been received.', reference: data.reference });
       setEnquiry(initialEnquiry);
     } catch (error) {
       setResult({ ok: false, message: error instanceof Error ? error.message : 'Your enquiry could not be sent.' });
@@ -115,9 +120,9 @@ export default function App() {
     <main>
       <header className="topbar">
         <div className="shell nav">
-          <a className="brand" href="#top" aria-label="Travel Aweh home">
+          <a className="brand" href="#top" aria-label="Easy Kosher SA home">
             <span className="brandMark">A</span>
-            <span><strong>Travel Aweh</strong><small>Southern Africa, your way</small></span>
+            <span><strong>Easy Kosher SA</strong><small>Southern Africa, your way</small></span>
           </a>
           <nav className="navlinks" aria-label="Main navigation">
             <a href="#journeys">Journeys</a>
@@ -133,12 +138,12 @@ export default function App() {
           <div className="heroCopy">
             <p className="eyebrow">TAILORED SOUTHERN AFRICAN TRAVEL</p>
             <h1>See Africa properly.<br /><span>We’ll handle the details.</span></h1>
-            <p className="lead">Travel Aweh brings the route, stays, transfers, tours and safaris together around the way you actually want to travel. Kosher services are available where arranged.</p>
+            <p className="lead">Easy Kosher SA brings the route, stays, transfers, tours and safaris together around the way you actually want to travel. Kosher services are available where arranged.</p>
             <div className="heroActions">
               <a className="button primary" href="#plan">Plan my trip</a>
               <a className="button secondary" href="#journeys">Explore journeys</a>
             </div>
-            <div className="trustRow" aria-label="Travel Aweh service promises">
+            <div className="trustRow" aria-label="Easy Kosher SA service promises">
               <span>Tailored itineraries</span>
               <span>Local coordination</span>
               <span>Kosher available</span>
@@ -155,7 +160,7 @@ export default function App() {
       </section>
 
       <section className="intro shell">
-        <div><p className="eyebrow dark">WHY TRAVEL AWEH</p><h2>Africa is better when the logistics disappear.</h2></div>
+        <div><p className="eyebrow dark">WHY EASY KOSHER SA</p><h2>Africa is better when the logistics disappear.</h2></div>
         <p>We focus on practical, well-coordinated travel. That means a journey that makes sense on the ground, not an itinerary that only looks good on paper.</p>
       </section>
 
@@ -263,7 +268,7 @@ export default function App() {
 
           <div className="booksNote">
             <strong>Planning a kosher group, Shabbat stay or event?</strong>
-            <span>The books help you prepare. Travel Aweh can coordinate the travel, while specialist kosher requirements are arranged with the appropriate partners.</span>
+            <span>The books help you prepare. Easy Kosher SA can coordinate the travel, while specialist kosher requirements are arranged with the appropriate partners.</span>
             <a href="#plan">Plan a kosher journey →</a>
           </div>
         </div>
@@ -274,7 +279,7 @@ export default function App() {
           <div className="planIntro">
             <p className="eyebrow dark">PLAN A TRIP</p>
             <h2>Give us the starting point.</h2>
-            <p>You do not need to have the whole itinerary figured out. Send the basics and Travel Aweh can work from there.</p>
+            <p>You do not need to have the whole itinerary figured out. Send the basics and Easy Kosher SA can work from there.</p>
             <div className="planNote">
               <strong>What helps us quote properly</strong>
               <span>Dates or travel window</span>
@@ -301,14 +306,14 @@ export default function App() {
               <span>{result.message}</span>
               {result.reference && <span>Reference: <b>{result.reference}</b></span>}
             </div>}
-            <p className="formPrivacy">Your enquiry is sent securely to Travel Aweh. Commercial supplier information is not exposed on this site.</p>
+            <p className="formPrivacy">Your enquiry is sent securely to Easy Kosher SA. Commercial supplier information is not exposed on this site.</p>
           </form>
         </div>
       </section>
 
       <footer className="footer">
         <div className="shell footerGrid">
-          <a className="brand footerBrand" href="#top"><span className="brandMark">A</span><span><strong>Travel Aweh</strong><small>Southern Africa, your way</small></span></a>
+          <a className="brand footerBrand" href="#top"><span className="brandMark">A</span><span><strong>Easy Kosher SA</strong><small>Southern Africa, your way</small></span></a>
           <p>Tailored travel · Tours & safaris · Kosher available where arranged · Books</p>
           <div className="footerLinks"><a href="#books">Books</a><a href="#plan">Plan a trip →</a></div>
         </div>
