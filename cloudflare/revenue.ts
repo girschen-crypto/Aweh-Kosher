@@ -1,3 +1,4 @@
+import { sessionIdentity } from "./auth.ts";
 import { mailApi, type MailEnv } from "./mail.ts";
 import { tradeDocuments } from "./trade-documents.ts";
 import {
@@ -42,7 +43,8 @@ const text = (v: unknown, max = 2000) =>
 const date = (s: unknown) =>
   typeof s === "string" &&
   /^\d{4}-\d{2}-\d{2}$/.test(s) &&
-  !Number.isNaN(Date.parse(s));
+  !Number.isNaN(Date.parse(s)) &&
+  new Date(s).toISOString().slice(0, 10) === s;
 const id = () => crypto.randomUUID();
 export async function revenueApi(
   req: Request,
@@ -50,19 +52,23 @@ export async function revenueApi(
   path: string,
 ): Promise<Response> {
   const token = req.headers.get("authorization")?.replace(/^Bearer /, "") || "";
+  const session = await sessionIdentity(req, env);
   const admin =
-    !!env.ADMIN_TOKEN &&
-    token.length > 0 &&
-    (await hash(token)) === (await hash(env.ADMIN_TOKEN));
+    session?.role === "admin" ||
+    (!!env.ADMIN_TOKEN &&
+      token.length > 0 &&
+      (await hash(token)) === (await hash(env.ADMIN_TOKEN)));
   const portal = path.startsWith("/api/trade/");
   const agent =
-    portal && token
-      ? await env.DB.prepare(
-          "SELECT id,name,email FROM commercial_agents WHERE token_hash=? AND active=1",
-        )
-          .bind(await hash(token))
-          .first()
-      : null;
+    session?.role === "trade" && portal
+      ? { id: session.agent_id, name: session.name, email: session.email }
+      : portal && token
+        ? await env.DB.prepare(
+            "SELECT id,name,email FROM commercial_agents WHERE token_hash=? AND active=1",
+          )
+            .bind(await hash(token))
+            .first()
+        : null;
   if (!admin && !agent)
     return response({ error: "Authorised access required" }, 401);
   const actor = admin ? "administrator" : `agent:${agent.id}`;
@@ -70,6 +76,12 @@ export async function revenueApi(
   const action = parts[2];
   const ref = decodeURIComponent(parts[3] || "");
   try {
+    const requestOrigin = req.headers.get("origin");
+    if (requestOrigin && requestOrigin !== new URL(req.url).origin)
+      return response(
+        { error: "Use the application to change booking records" },
+        403,
+      );
     let b: any = {};
     if (req.method === "POST") {
       const raw = await req.text();
@@ -114,6 +126,10 @@ export async function revenueApi(
               status: r.status,
               currency: q.currency,
               retailTotalCents: calculate(q).bookingValueCents,
+              pricingStatus:
+                q.lines.length || q.serviceFeeCents
+                  ? "quoted"
+                  : "awaiting_quote",
             };
           }),
         });
@@ -129,10 +145,12 @@ export async function revenueApi(
           throw Error(
             "Traveller, destination and group size (2–1,000) required",
           );
+        if (b.startDate && !date(b.startDate))
+          throw Error("Valid travel date required");
         const reference = `EKSA-${crypto.randomUUID().toUpperCase()}`;
         await env.DB.batch([
           env.DB.prepare(
-            "INSERT INTO bookings(reference,client_name,client_email,destination,num_guests,notes) VALUES(?,?,?,?,?,?)",
+            "INSERT INTO bookings(reference,client_name,client_email,destination,num_guests,notes,start_date) VALUES(?,?,?,?,?,?,?)",
           ).bind(
             reference,
             text(b.travellerName),
@@ -140,6 +158,7 @@ export async function revenueApi(
             text(b.destination),
             b.guests,
             text(b.notes),
+            text(b.startDate) || null,
           ),
           env.DB.prepare(
             "INSERT INTO booking_commercial(reference,agent_id,paying_customer,booking_agent,traveller_name,communication_json,quote_json) VALUES(?,?,?,?,?,?,?)",
@@ -175,6 +194,18 @@ export async function revenueApi(
             ).all()
           ).results,
         });
+      if (req.method === "POST" && b.command === "revoke") {
+        if (!text(b.id)) throw Error("Operator reference required");
+        await env.DB.batch([
+          env.DB.prepare(
+            "UPDATE commercial_agents SET active=0 WHERE id=?",
+          ).bind(b.id),
+          env.DB.prepare("DELETE FROM access_sessions WHERE agent_id=?").bind(
+            b.id,
+          ),
+        ]);
+        return response({ ok: true });
+      }
       if (req.method === "POST") {
         if (
           !text(b.name) ||
@@ -309,13 +340,22 @@ export async function revenueApi(
           .bind(ref)
           .all()
       ).results;
+      const adjustments = (
+        await env.DB.prepare(
+          "SELECT * FROM earnings_adjustments WHERE reference=?",
+        )
+          .bind(ref)
+          .all()
+      ).results;
       return response({
         booking,
         commercial,
         receipts,
+        adjustments,
         profit: calculate(
           commercial ? JSON.parse(commercial.quote_json) : emptyQuote,
           receipts,
+          adjustments,
         ),
         events: (
           await env.DB.prepare(
@@ -347,6 +387,11 @@ export async function revenueApi(
           { error: "Booking changed; reload before saving" },
           409,
         );
+      const travelDate = text(b.startDate) || booking.start_date;
+      if (["confirmed", "completed"].includes(b.status) && !date(travelDate))
+        throw Error(
+          "Confirm the travel start date before confirming a booking",
+        );
       const q: Quote = b.quote;
       for (const l of q.lines as Line[]) {
         const agreement = await env.DB.prepare(
@@ -362,8 +407,8 @@ export async function revenueApi(
           l.commissionBps = t.commissionBps;
           l.fixedCommissionCents = t.fixedCommissionCents;
           if (
-            booking.start_date &&
-            (booking.start_date < t.validFrom || booking.start_date > t.validTo)
+            travelDate &&
+            (travelDate < t.validFrom || travelDate > t.validTo)
           )
             throw Error("Agreement does not cover travel date");
         }
@@ -385,7 +430,25 @@ export async function revenueApi(
         )
       )
         throw Error("A line with financial transactions cannot be removed");
-      const profit = calculate(q, existingReceipts);
+      const currentAdjustments = (
+        await env.DB.prepare(
+          "SELECT * FROM earnings_adjustments WHERE reference=?",
+        )
+          .bind(ref)
+          .all()
+      ).results;
+      if (
+        currentAdjustments.some(
+          (a: any) =>
+            a.currency !== q.currency ||
+            (a.line_id !== "service_fee" &&
+              !q.lines.some((l) => l.id === a.line_id)),
+        )
+      )
+        throw Error(
+          "Income with adjustments cannot be removed or moved to another currency",
+        );
+      const profit = calculate(q, existingReceipts, currentAdjustments);
       if (
         !["enquiry", "quoted", "confirmed", "completed", "cancelled"].includes(
           b.status,
@@ -463,12 +526,102 @@ export async function revenueApi(
         statement,
         audit,
         env.DB.prepare(
-          "UPDATE bookings SET status=?,updated_at=CURRENT_TIMESTAMP WHERE reference=? AND changes()=1",
-        ).bind(b.status, ref),
+          "UPDATE bookings SET status=?,start_date=?,updated_at=CURRENT_TIMESTAMP WHERE reference=? AND changes()=1",
+        ).bind(b.status, travelDate || null, ref),
       ]);
       if (!results[0].meta.changes)
         return response({ error: "Booking changed; reload" }, 409);
       return response({ ok: true, profit, revision: b.revision + 1 });
+    }
+    if (action === "adjustments" && req.method === "POST") {
+      if (
+        !text(b.id) ||
+        !text(b.reference) ||
+        !text(b.lineId) ||
+        !text(b.evidenceReference) ||
+        !text(b.reason) ||
+        !["reversal", "restoration"].includes(b.kind) ||
+        !Number.isSafeInteger(b.amountCents) ||
+        b.amountCents <= 0
+      )
+        throw Error(
+          "A unique transaction reference, income line, amount, reason and evidence are required",
+        );
+      const record = await env.DB.prepare(
+        "SELECT quote_json FROM booking_commercial WHERE reference=?",
+      )
+        .bind(b.reference)
+        .first();
+      if (!record) throw Error("Saved commercial booking required");
+      const quote = JSON.parse(record.quote_json);
+      if (b.currency !== quote.currency)
+        throw Error("Adjustment currency must match booking");
+      if (
+        b.lineId !== "service_fee" &&
+        !quote.lines.some((l: Line) => l.id === b.lineId)
+      )
+        throw Error("Income line not found");
+      const existing = (
+        await env.DB.prepare(
+          "SELECT * FROM earnings_adjustments WHERE reference=?",
+        )
+          .bind(b.reference)
+          .all()
+      ).results;
+      calculate(
+        quote,
+        [],
+        [
+          ...existing,
+          {
+            line_id: b.lineId,
+            kind: b.kind,
+            amount_cents: b.amountCents,
+            currency: b.currency,
+          },
+        ],
+      );
+      const baseProfit = calculate(quote);
+      const entitlement =
+        b.lineId === "service_fee"
+          ? baseProfit.serviceFeeCents
+          : baseProfit.lines.find((l) => l.id === b.lineId)!.entitlementCents;
+      const guarded = env.DB.prepare(
+        "INSERT INTO earnings_adjustments(id,reference,line_id,kind,amount_cents,currency,evidence_reference,reason,actor) SELECT ?,?,?,?,?,?,?,?,? WHERE (COALESCE((SELECT SUM(CASE WHEN kind='reversal' THEN amount_cents ELSE -amount_cents END) FROM earnings_adjustments WHERE reference=? AND line_id=? AND currency=?),0)+?) BETWEEN 0 AND ?",
+      ).bind(
+        b.id,
+        b.reference,
+        b.lineId,
+        b.kind,
+        b.amountCents,
+        b.currency,
+        b.evidenceReference,
+        b.reason,
+        actor,
+        b.reference,
+        b.lineId,
+        b.currency,
+        b.kind === "reversal" ? b.amountCents : -b.amountCents,
+        entitlement,
+      );
+      const adjustmentResults = await env.DB.batch([
+        guarded,
+        env.DB.prepare(
+          "INSERT INTO commercial_events(id,reference,kind,actor,payload_json) SELECT ?,?,?,?,? WHERE changes()=1",
+        ).bind(
+          id(),
+          b.reference,
+          "earnings_adjusted",
+          actor,
+          JSON.stringify(b),
+        ),
+      ]);
+      if (!adjustmentResults[0].meta.changes)
+        return response(
+          { error: "Earnings changed; reload before recording the adjustment" },
+          409,
+        );
+      return response({ ok: true }, 201);
     }
     if (action === "evidence" && req.method === "POST") {
       if (!text(b.reference) || !text(b.kind) || !text(b.evidenceReference))
@@ -490,6 +643,13 @@ export async function revenueApi(
         b.amountCents <= 0
       )
         throw Error("Receipt ID, amount, date and evidence required");
+      if (
+        b.receivedOn >
+        new Date().toLocaleDateString("en-CA", {
+          timeZone: "Africa/Johannesburg",
+        })
+      )
+        throw Error("Record only cleared transactions dated today or earlier");
       const c = await env.DB.prepare(
         "SELECT quote_json FROM booking_commercial WHERE reference=?",
       )
@@ -515,6 +675,7 @@ export async function revenueApi(
         )
       )
         throw Error("Receipt must match an agreed income line");
+      if (b.kind.startsWith("service_fee")) b.lineId = null;
       if (b.kind.startsWith("service_fee") && !q.serviceFeeApproval)
         throw Error("Approved service fee required");
       if (
@@ -566,22 +727,45 @@ export async function revenueApi(
           },
           409,
         );
-      await env.DB.batch([
+      const isReversal = b.kind.endsWith("_reversal");
+      const guard = isReversal
+        ? " WHERE COALESCE((SELECT SUM(CASE WHEN kind=? THEN amount_cents WHEN kind=? THEN -amount_cents ELSE 0 END) FROM commercial_receipts WHERE reference=? AND COALESCE(line_id,'')=? AND currency=?),0)>=?"
+        : "";
+      const receiptStatement = env.DB.prepare(
+        "INSERT INTO commercial_receipts(id,reference,line_id,kind,amount_cents,currency,evidence_reference,received_on,actor) SELECT ?,?,?,?,?,?,?,?,?" +
+          guard,
+      ).bind(
+        b.id,
+        b.reference,
+        b.lineId || null,
+        b.kind,
+        b.amountCents,
+        b.currency,
+        b.evidenceReference,
+        b.receivedOn,
+        actor,
+        ...(isReversal
+          ? [
+              b.kind.replace("_reversal", ""),
+              b.kind,
+              b.reference,
+              b.lineId || "",
+              b.currency,
+              b.amountCents,
+            ]
+          : []),
+      );
+      const receiptResults = await env.DB.batch([
+        receiptStatement,
         env.DB.prepare(
-          "INSERT INTO commercial_receipts(id,reference,line_id,kind,amount_cents,currency,evidence_reference,received_on,actor) VALUES(?,?,?,?,?,?,?,?,?)",
-        ).bind(
-          b.id,
-          b.reference,
-          b.lineId || null,
-          b.kind,
-          b.amountCents,
-          b.currency,
-          b.evidenceReference,
-          b.receivedOn,
-          actor,
-        ),
-        event(b.reference, "receipt_recorded", b),
+          "INSERT INTO commercial_events(id,reference,kind,actor,payload_json) SELECT ?,?,?,?,? WHERE changes()=1",
+        ).bind(id(), b.reference, "receipt_recorded", actor, JSON.stringify(b)),
       ]);
+      if (!receiptResults[0].meta.changes)
+        return response(
+          { error: "Receipts changed; reload before recording a reversal" },
+          409,
+        );
       return response({ ok: true }, 201);
     }
     if (action === "invoices") {
@@ -632,19 +816,28 @@ export async function revenueApi(
       const receipts = (
         await env.DB.prepare("SELECT * FROM commercial_receipts").all()
       ).results;
+      const allAdjustments = (
+        await env.DB.prepare("SELECT * FROM earnings_adjustments").all()
+      ).results;
       const bookings = rows.map((r: any) => ({
         reference: r.reference,
         status: r.status || "enquiry",
         customer: r.paying_customer || r.client_name,
         agent: r.booking_agent || "Direct",
         createdAt: r.created_at,
+        confirmedCommercial: !!r.customer_approval && !!r.supplier_confirmation,
         profit: calculate(
           r.quote_json ? JSON.parse(r.quote_json) : emptyQuote,
           receipts.filter((x: any) => x.reference === r.reference),
+          allAdjustments.filter((x: any) => x.reference === r.reference),
         ),
       }));
       const reminders = bookings
-        .filter((b: any) => b.status !== "cancelled")
+        .filter(
+          (b: any) =>
+            ["confirmed", "completed", "cancelled"].includes(b.status) &&
+            b.confirmedCommercial,
+        )
         .flatMap((b: any) =>
           b.profit.lines
             .filter(

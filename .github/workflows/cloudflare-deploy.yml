@@ -41,6 +41,18 @@ jobs:
       - name: Bundle Worker safety check
         run: npx esbuild@0.25.8 cloudflare/worker.ts --bundle --format=esm --platform=browser --outfile=/tmp/travel-aweh-worker.js
 
+      - name: Verify protected workspace access is configured
+        run: npx wrangler@4.121.0 secret list --format json | node scripts/check-worker-secrets.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Record database recovery bookmark
+        run: npx wrangler@4.121.0 d1 time-travel info travel-aweh-production --json
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Apply D1 migrations
         run: npx wrangler@4.121.0 d1 migrations apply travel-aweh-production --remote
         env:
@@ -52,3 +64,6 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify public API and protected workspace
+        run: node scripts/check-deployment.mjs https://travel-aweh-api.girschen.workers.dev

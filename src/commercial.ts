@@ -47,7 +47,25 @@ export function cents(value: unknown): number {
     throw new Error("Amounts must be non-negative integer cents");
   return value;
 }
-export function calculate(q: Quote, receipts: Receipt[] = []) {
+export type EarningsAdjustment = {
+  line_id: string;
+  kind: "reversal" | "restoration";
+  amount_cents: number;
+  currency: string;
+};
+export function calculate(
+  q: Quote,
+  receipts: Receipt[] = [],
+  adjustments: EarningsAdjustment[] = [],
+) {
+  const reversed = (lineId: string) =>
+    adjustments
+      .filter((a) => a.line_id === lineId && a.currency === q.currency)
+      .reduce(
+        (n, a) =>
+          n + (a.kind === "reversal" ? a.amount_cents : -a.amount_cents),
+        0,
+      );
   if (
     !["ZAR", "USD", "EUR", "GBP"].includes(q.currency) ||
     !Array.isArray(q.lines) ||
@@ -124,6 +142,9 @@ export function calculate(q: Quote, receipts: Receipt[] = []) {
     if (l.category === "accommodation") accommodationRevenue += entitlement;
     else transportRevenue += entitlement;
     if (l.incomeModel === "commission") commission += entitlement;
+    const adjustedEntitlement = entitlement - reversed(l.id);
+    if (adjustedEntitlement < 0 || reversed(l.id) < 0)
+      throw Error("Earnings adjustment exceeds agreed income");
     const collected = receipts
       .filter((r) => r.line_id === l.id && r.currency === q.currency)
       .reduce(
@@ -136,18 +157,22 @@ export function calculate(q: Quote, receipts: Receipt[] = []) {
               : 0),
         0,
       );
-    if (collected > Math.max(entitlement, 0) && l.incomeModel === "commission")
+    if (
+      collected > Math.max(adjustedEntitlement, 0) &&
+      l.incomeModel === "commission"
+    )
       warnings.push(
         `${l.id}: receipts exceed current commission entitlement; reconcile`,
       );
     return {
       ...l,
       entitlementCents: entitlement,
+      adjustedEntitlementCents: adjustedEntitlement,
       supplierPayableCents: cost,
       collectedCents: collected,
       outstandingCents:
         l.incomeModel === "commission"
-          ? Math.max(0, entitlement - collected)
+          ? Math.max(0, adjustedEntitlement - collected)
           : 0,
     };
   });
@@ -156,7 +181,16 @@ export function calculate(q: Quote, receipts: Receipt[] = []) {
     warnings.push("Service fee approval missing; income excluded");
   const grossRevenue = accommodationRevenue + transportRevenue + serviceFee;
   const directCosts = q.processingCents + q.discountCents + q.otherDirectCents;
-  const netRevenue = grossRevenue - q.revenueReversalCents;
+  const adjustmentReversals = adjustments
+    .filter((a) => a.currency === q.currency)
+    .reduce(
+      (n, a) => n + (a.kind === "reversal" ? a.amount_cents : -a.amount_cents),
+      0,
+    );
+  if (reversed("service_fee") > serviceFee || reversed("service_fee") < 0)
+    throw Error("Service fee adjustment exceeds agreed income");
+  const netRevenue =
+    grossRevenue - q.revenueReversalCents - adjustmentReversals;
   const contribution = netRevenue - directCosts;
   if (grossRevenue <= 0) warnings.push("No agreed commercial income");
   if (contribution <= q.minimumContributionCents)
@@ -190,7 +224,12 @@ export function calculate(q: Quote, receipts: Receipt[] = []) {
     directCostsCents: directCosts,
     contributionCents: contribution,
     marginPercent: netRevenue > 0 ? (contribution / netRevenue) * 100 : null,
-    commissionDueCents: commission,
+    commissionDueCents:
+      commission -
+      lines
+        .filter((l) => l.incomeModel === "commission")
+        .reduce((n, l) => n + reversed(l.id), 0),
+    earningsAdjustmentCents: adjustmentReversals,
     commissionCollectedCents: lines.reduce((s, l) => s + l.collectedCents, 0),
     commissionOutstandingCents: lines.reduce(
       (s, l) => s + l.outstandingCents,

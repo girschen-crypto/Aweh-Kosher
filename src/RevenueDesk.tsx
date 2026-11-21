@@ -1,5 +1,6 @@
+import ReceiptEntry from "./ReceiptEntry";
 import ReservationWorkflow from "./ReservationWorkflow";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { emptyQuote, type Quote } from "./commercial";
 type Option = string | { value: string; label: string };
 const optionValue = (v: Option | undefined) =>
@@ -100,7 +101,7 @@ const amount = (v: any) => {
 export default function RevenueDesk({ trade }: { trade: boolean }) {
   const [token, setToken] = useState("");
   const [active, setActive] = useState(false);
-  const [page, setPage] = useState("Dashboard");
+  const [page, setPage] = useState(trade ? "Bookings" : "Dashboard");
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState("");
   const [agents, setAgents] = useState<any[]>([]);
@@ -115,13 +116,16 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
     const r = await fetch(`/api/${trade ? "trade" : "admin"}/${path}`, {
       method: body ? "POST" : "GET",
       headers: {
-        Authorization: `Bearer ${key}`,
+        ...(key ? { Authorization: `Bearer ${key}` } : {}),
         ...(body ? { "Content-Type": "application/json" } : {}),
       },
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
     const d = await r.json();
-    if (!r.ok) throw Error(d.error || "Request failed");
+    if (!r.ok) {
+      if (r.status === 401) setActive(false);
+      throw Error(d.error || "Request failed");
+    }
     return d;
   }
   async function load(key = token) {
@@ -147,6 +151,19 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
       setError(String(e));
     }
   }
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/session")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((identity) => {
+        if (!cancelled && identity?.role === (trade ? "trade" : "admin"))
+          load("");
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [trade]);
   async function select(reference: string) {
     try {
       const d = await api(`bookings/${encodeURIComponent(reference)}`);
@@ -167,7 +184,8 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
   const eligible = (data?.bookings || []).filter(
     (b: any) =>
       b.profit?.currency === filter &&
-      ["confirmed", "completed"].includes(b.status),
+      (["confirmed", "completed"].includes(b.status) ||
+        (b.status === "cancelled" && b.confirmedCommercial)),
   );
   const total = (key: string) =>
     eligible.reduce((s: number, b: any) => s + b.profit[key], 0);
@@ -199,7 +217,7 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
         <h1>{trade ? "Travel trade portal" : "Revenue & reservations"}</h1>
         <p>
           Supplier-direct payment is the launch model. Amounts are shown in the
-          selected currency. Access keys stay in this page’s memory.
+          selected currency. Sign-in sessions last up to eight hours.
         </p>
       </header>
       {!active ? (
@@ -207,11 +225,41 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
           fields={[f("token", "Access key", "password")]}
           label="Open workspace"
           onSave={async (v) => {
-            setToken(v.token);
-            await load(v.token);
+            const result = await fetch("/api/auth/session", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                accessKey: v.token,
+                portal: trade ? "trade" : "admin",
+              }),
+            });
+            const response = await result.json();
+            if (!result.ok) throw Error(response.error || "Sign in failed");
+            setToken("");
+            await load("");
           }}
         />
       ) : null}
+      {!active && import.meta.env.DEV && (
+        <button
+          onClick={async () => {
+            try {
+              const d = await fetch("/api/development-runtime").then((r) =>
+                r.json(),
+              );
+              if (d.demo) {
+                const code = trade ? d.tradeAccessCode : d.accessCode;
+                setToken(code);
+                await load(code);
+              }
+            } catch (e) {
+              setError(String(e));
+            }
+          }}
+        >
+          Open demonstration workspace
+        </button>
+      )}
       {!active ? null : (
         <>
           <nav className="deskNav">
@@ -223,6 +271,7 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                   "Agreements",
                   "Bookings",
                   "Receipts",
+                  "Earnings adjustments",
                   "Evidence",
                   "Invoices",
                   "Agents",
@@ -242,7 +291,12 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
             ))}
             <button onClick={() => load()}>Refresh</button>
             <button
-              onClick={() => {
+              onClick={async () => {
+                await fetch("/api/auth/session", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ command: "logout" }),
+                });
                 setToken("");
                 setActive(false);
                 setData(null);
@@ -263,7 +317,7 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                       <th>Destination</th>
                       <th>Guests</th>
                       <th>Status</th>
-                      <th>Retail total</th>
+                      <th>Contracted total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -277,7 +331,11 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                         <td>{b.destination}</td>
                         <td>{b.num_guests}</td>
                         <td>{b.status}</td>
-                        <td>{money(b.retailTotalCents, b.currency)}</td>
+                        <td>
+                          {b.pricingStatus === "awaiting_quote"
+                            ? "Awaiting quotation"
+                            : money(b.retailTotalCents, b.currency)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -288,6 +346,7 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                     f("travellerName", "Lead traveller"),
                     f("payingCustomer", "Paying customer"),
                     f("destination", "Destination"),
+                    f("startDate", "Travel start date", "date"),
                     f("guests", "Group size", "number", "20"),
                     f("guestEmail", "Guest email", "email"),
                     f("permissions", "Communication permissions", "textarea"),
@@ -763,6 +822,12 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                             value: selected.commercial?.agent_id || "",
                           },
                           f(
+                            "startDate",
+                            "Travel start date",
+                            "date",
+                            selected.booking.start_date || "",
+                          ),
+                          f(
                             "travellerName",
                             "Lead traveller",
                             "text",
@@ -910,7 +975,11 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                       {[
                         ["Booking value", "bookingValueCents"],
                         ["Easy Kosher SA revenue", "grossRevenueCents"],
-                        ["Supplier payable", "supplierCostCents"],
+                        ["Supplier economic cost", "supplierCostCents"],
+                        [
+                          "Net earned revenue after adjustments",
+                          "netRevenueCents",
+                        ],
                         ["Estimated contribution", "contributionCents"],
                         ["Commission due", "commissionDueCents"],
                         ["Commission collected", "commissionCollectedCents"],
@@ -938,50 +1007,15 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                 </>
               )}
               {page === "Receipts" && (
-                <>
-                  <h2>Record income received or a direct expense</h2>
-                  <p>
-                    Record a cleared bank/payment transaction with its unique
-                    reference. This form does not collect money or send payouts.
-                    Reversals are separate entries.
-                  </p>
-                  <Form
-                    fields={[
-                      f("id", "Unique bank transaction reference"),
-                      f("reference", "Easy Kosher SA booking reference"),
-                      {
-                        ...f(
-                          "lineId",
-                          "Quote line reference (commission or markup)",
-                        ),
-                        required: false,
-                      },
-                      opt("kind", "Transaction type", [
-                        "commission",
-                        "service_fee",
-                        "markup",
-                        "commission_reversal",
-                        "service_fee_reversal",
-                        "markup_reversal",
-                        "direct_cost",
-                      ]),
-                      f("amount", "Amount", "number"),
-                      opt("currency", "Currency", ["ZAR", "USD", "EUR", "GBP"]),
-                      f("receivedOn", "Transaction date", "date"),
-                      f(
-                        "evidenceReference",
-                        "Bank / provider evidence reference",
-                      ),
-                    ]}
-                    onSave={async (v) => {
-                      await api("receipts", {
-                        ...v,
-                        amountCents: amount(v.amount),
-                      });
-                      await load();
-                    }}
-                  />
-                </>
+                <ReceiptEntry api={api} bookings={bookings} onSaved={load} />
+              )}
+              {page === "Earnings adjustments" && (
+                <ReceiptEntry
+                  api={api}
+                  bookings={bookings}
+                  onSaved={load}
+                  adjustment
+                />
               )}
               {page === "Evidence" && (
                 <>
@@ -1065,9 +1099,27 @@ export default function RevenueDesk({ trade }: { trade: boolean }) {
                   <h2>Register trade partner</h2>
                   <p>
                     Issue a unique access key securely. Partners use /trade and
-                    can see only their own booking references, retail totals and
-                    status. Supplier net rates remain private.
+                    can see only their own booking references, contracted totals
+                    and status. Supplier net rates remain private.
                   </p>
+                  {agents.map((a) => (
+                    <p key={a.id}>
+                      {a.name} · {a.active ? "Active" : "Access revoked"}{" "}
+                      {a.active ? (
+                        <button
+                          onClick={async () => {
+                            await api("agents", {
+                              command: "revoke",
+                              id: a.id,
+                            });
+                            await load();
+                          }}
+                        >
+                          Revoke access
+                        </button>
+                      ) : null}
+                    </p>
+                  ))}
                   <Form
                     fields={[
                       f("name", "Operator / agent name"),

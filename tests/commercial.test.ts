@@ -116,6 +116,8 @@ function database() {
     "0002_commercial.sql",
     "0003_trade_documents.sql",
     "0004_mail_outbox.sql",
+    "0005_earnings_adjustments.sql",
+    "0006_access_sessions.sql",
   ])
     sqlite.exec(
       readFileSync(new URL("../migrations/" + f, import.meta.url), "utf8"),
@@ -230,6 +232,7 @@ test("API gates, agreement verification, receipt idempotency, audit immutability
   q.lines[0].commissionBps = 10000;
   const record: any = {
     revision: 0,
+    startDate: "2027-07-06",
     payingCustomer: "Guest",
     travellerName: "Guest",
     bookingAgent: "",
@@ -583,4 +586,235 @@ test("Supplier email enforces guest copying, explicit approval, confirmed send a
     globalThis.fetch = originalFetch;
     sqlite.close();
   }
+});
+test("Completed booking earnings adjustments reconcile receivables without changing cleared money", async () => {
+  const { DB, sqlite } = database();
+  const env = { DB, ADMIN_TOKEN: adminToken };
+  sqlite.exec(
+    "INSERT INTO suppliers(id,name,type) VALUES('s1','Hotel','accommodation');INSERT INTO bookings(reference,client_name,status) VALUES('EKSA-A','Guest','completed');",
+  );
+  await DB.prepare(
+    "INSERT INTO booking_commercial(reference,paying_customer,traveller_name,communication_json,quote_json,status) VALUES(?,?,?,?,?,?)",
+  )
+    .bind(
+      "EKSA-A",
+      "Guest",
+      "Guest",
+      "{}",
+      JSON.stringify(quote()),
+      "completed",
+    )
+    .run();
+  await DB.prepare(
+    "INSERT INTO commercial_receipts(id,reference,line_id,kind,amount_cents,currency,evidence_reference,received_on,actor) VALUES(?,?,?,?,?,?,?,?,?)",
+  )
+    .bind(
+      "bank-a",
+      "EKSA-A",
+      "l1",
+      "commission",
+      5000,
+      "ZAR",
+      "bank-proof",
+      "2026-11-20",
+      "administrator",
+    )
+    .run();
+  const call = async (path: string, body?: any) => {
+    const r = await revenueApi(request(path, body), env, "/api/admin/" + path);
+    return { status: r.status, body: await r.json() };
+  };
+  const adjustment = {
+    id: "adjust-a",
+    reference: "EKSA-A",
+    lineId: "l1",
+    kind: "reversal",
+    amountCents: 3000,
+    currency: "ZAR",
+    evidenceReference: "accepted-cancellation",
+    reason: "Supplier accepted reduced commission",
+  };
+  assert.equal((await call("adjustments", adjustment)).status, 201);
+  let result = (await call("bookings/EKSA-A")).body;
+  assert.equal(result.profit.commissionDueCents, 5000);
+  assert.equal(result.profit.commissionOutstandingCents, 0);
+  assert.equal(result.profit.actualIncomeCents, 5000);
+  assert.equal(result.profit.netRevenueCents, 5000);
+  assert.equal(
+    (
+      await call("adjustments", {
+        ...adjustment,
+        id: "restore-a",
+        kind: "restoration",
+        amountCents: 1000,
+      })
+    ).status,
+    201,
+  );
+  result = (await call("bookings/EKSA-A")).body;
+  assert.equal(result.profit.commissionOutstandingCents, 1000);
+  assert.equal(result.profit.netRevenueCents, 6000);
+  assert.equal(
+    (
+      await call("adjustments", {
+        ...adjustment,
+        id: "bad-a",
+        amountCents: 7000,
+      })
+    ).status,
+    400,
+  );
+  assert.throws(
+    () => sqlite.exec("DELETE FROM earnings_adjustments"),
+    /retained/,
+  );
+  const dash = (await call("dashboard")).body;
+  assert.equal(dash.bookings[0].profit.commissionOutstandingCents, 1000);
+  sqlite.close();
+});
+test("Public enquiries preserve group size, record explicit copying consent and reject invalid input", async () => {
+  const { DB, sqlite } = database();
+  const { default: worker } = await import("../cloudflare/worker.ts");
+  const env = {
+    DB,
+    APP_ORIGIN: "https://example.test",
+    ASSETS: {
+      async fetch() {
+        return new Response("Not found", { status: 404 });
+      },
+    },
+  };
+  const send = async (body: any, origin = "https://example.test") =>
+    worker.fetch(
+      new Request("https://example.test/api/enquiries", {
+        method: "POST",
+        headers: { "content-type": "application/json", origin },
+        body: JSON.stringify(body),
+      }),
+      env,
+    );
+  const enquiry = {
+    client_name: "Guest",
+    client_email: "guest@example.test",
+    destination: "Cape Town",
+    num_guests: 150,
+    start_date: "2027-07-06",
+    copy_guest_consent: true,
+  };
+  const r = await send(enquiry);
+  assert.equal(r.status, 201);
+  const result = await r.json();
+  const booking = sqlite
+    .prepare("SELECT * FROM bookings WHERE reference=?")
+    .get(result.reference);
+  assert.equal(booking.num_guests, 150);
+  const commercial = sqlite
+    .prepare("SELECT * FROM booking_commercial WHERE reference=?")
+    .get(result.reference);
+  const comm = JSON.parse(commercial.communication_json as string);
+  assert.equal(comm.copyGuest, true);
+  assert.match(comm.permissions, /Guest authorised/);
+  assert.equal((await send({ ...enquiry, num_guests: 1001 })).status, 400);
+  assert.equal(
+    (await send({ ...enquiry, start_date: "2027-02-30" })).status,
+    400,
+  );
+  assert.equal((await send(null)).status, 400);
+  assert.equal((await send(enquiry, "https://foreign.test")).status, 403);
+  const second = await (
+    await send({ ...enquiry, copy_guest_consent: false })
+  ).json();
+  const noConsent = sqlite
+    .prepare(
+      "SELECT communication_json FROM booking_commercial WHERE reference=?",
+    )
+    .get(second.reference);
+  assert.equal(
+    JSON.parse(noConsent.communication_json as string).copyGuest,
+    false,
+  );
+  sqlite.close();
+});
+test("HttpOnly sessions expire, log out and revoke operator access", async () => {
+  const { DB, sqlite } = database();
+  const { default: worker } = await import("../cloudflare/worker.ts");
+  const env = {
+    DB,
+    ADMIN_TOKEN: adminToken,
+    APP_ORIGIN: "https://example.test",
+    ASSETS: {
+      async fetch() {
+        return new Response("Not found", { status: 404 });
+      },
+    },
+  };
+  const auth = async (body?: any, cookie?: string) =>
+    worker.fetch(
+      new Request("https://example.test/api/auth/session", {
+        method: body ? "POST" : "GET",
+        headers: {
+          ...(body
+            ? {
+                "content-type": "application/json",
+                origin: "https://example.test",
+              }
+            : {}),
+          ...(cookie ? { cookie } : {}),
+        },
+        ...(body ? { body: JSON.stringify(body) } : {}),
+      }),
+      env,
+    );
+  const r = await auth({ accessKey: adminToken, portal: "admin" });
+  assert.equal(r.status, 200);
+  const setCookie = r.headers.get("set-cookie")!;
+  assert.match(setCookie, /HttpOnly/);
+  assert.match(setCookie, /Secure/);
+  assert.match(setCookie, /SameSite=Strict/);
+  const cookie = setCookie.split(";")[0];
+  let protectedResult = await worker.fetch(
+    new Request("https://example.test/api/admin/dashboard", {
+      headers: { cookie },
+    }),
+    env,
+  );
+  assert.equal(protectedResult.status, 200);
+  assert.equal((await auth(undefined, cookie)).status, 200);
+  await auth({ command: "logout" }, cookie);
+  assert.equal((await auth(undefined, cookie)).status, 401);
+  const token = "operator-expiry-test-32-characters-abc";
+  await revenueApi(
+    request("agents", { name: "Operator", email: "op@example.test", token }),
+    env,
+    "/api/admin/agents",
+  );
+  const op = await auth({ accessKey: token, portal: "trade" });
+  assert.equal(op.status, 200);
+  const opCookie = op.headers.get("set-cookie")!.split(";")[0];
+  const operator = sqlite.prepare("SELECT id FROM commercial_agents").get();
+  await revenueApi(
+    request("agents", { command: "revoke", id: operator.id }),
+    env,
+    "/api/admin/agents",
+  );
+  assert.equal((await auth(undefined, opCookie)).status, 401);
+  const old = await auth({ accessKey: adminToken, portal: "admin" });
+  const oldCookie = old.headers.get("set-cookie")!.split(";")[0];
+  sqlite.exec(
+    "UPDATE access_sessions SET expires_at='2000-01-01T00:00:00.000Z'",
+  );
+  assert.equal((await auth(undefined, oldCookie)).status, 401);
+  const foreign = await worker.fetch(
+    new Request("https://example.test/api/auth/session", {
+      method: "POST",
+      headers: {
+        origin: "https://foreign.test",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ accessKey: adminToken, portal: "admin" }),
+    }),
+    env,
+  );
+  assert.equal(foreign.status, 403);
+  sqlite.close();
 });

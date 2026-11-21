@@ -1,3 +1,5 @@
+import { authApi } from "./auth.ts";
+import { emptyQuote } from "../src/commercial.ts";
 import { revenueApi, type DB } from "./revenue.ts";
 interface Env {
   DB: DB;
@@ -117,7 +119,12 @@ async function createEnquiry(req: Request, env: Env) {
 
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    const raw = await req.text();
+    if (raw.length > 16384)
+      return json(req, env, { error: "Request too large" }, 413);
+    body = JSON.parse(raw);
+    if (!body || Array.isArray(body) || typeof body !== "object")
+      return json(req, env, { error: "Invalid enquiry" }, 400);
   } catch {
     return json(req, env, { error: "Invalid JSON" }, 400);
   }
@@ -129,10 +136,22 @@ async function createEnquiry(req: Request, env: Env) {
   const startDate = cleanText(body.start_date, 20);
   const notes = cleanText(body.notes, 3000);
   const tourId = cleanText(body.tour_id, 80) || null;
-  const requestedGuests = Number(body.num_guests ?? 1);
-  const numGuests = Number.isFinite(requestedGuests)
-    ? Math.max(1, Math.min(100, Math.floor(requestedGuests)))
-    : 1;
+  const numGuests = Number(body.num_guests ?? 2);
+  if (!Number.isInteger(numGuests) || numGuests < 1 || numGuests > 1000)
+    return json(
+      req,
+      env,
+      { error: "Enter a group size between 1 and 1,000" },
+      400,
+    );
+  if (
+    startDate &&
+    (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) ||
+      Number.isNaN(Date.parse(startDate)) ||
+      new Date(startDate).toISOString().slice(0, 10) !== startDate)
+  )
+    return json(req, env, { error: "Enter a valid travel date" }, 400);
+  const consent = body.copy_guest_consent === true;
 
   if (!clientName || !clientEmail || !validEmail(clientEmail)) {
     return json(
@@ -195,6 +214,23 @@ async function createEnquiry(req: Request, env: Env) {
       notes || null,
     ),
     env.DB.prepare(
+      "INSERT INTO booking_commercial(reference,paying_customer,traveller_name,communication_json,quote_json) VALUES(?,?,?,?,?)",
+    ).bind(
+      reference,
+      clientName,
+      clientName,
+      JSON.stringify({
+        mode: "direct",
+        guestEmail: clientEmail,
+        copyGuest: consent,
+        permissions: consent
+          ? "Guest authorised copying in the public enquiry on " +
+            new Date().toISOString()
+          : "",
+      }),
+      JSON.stringify(emptyQuote),
+    ),
+    env.DB.prepare(
       "INSERT INTO commercial_events(id,reference,kind,actor,payload_json) VALUES(?,?,?,?,?)",
     ).bind(
       crypto.randomUUID(),
@@ -206,6 +242,7 @@ async function createEnquiry(req: Request, env: Env) {
         destination,
         tourId,
         createdAt: new Date().toISOString(),
+        copyGuestConsent: consent,
       }),
     ),
   ]);
@@ -233,6 +270,7 @@ async function handleApi(req: Request, env: Env, path: string) {
         headers: corsHeaders(req, env),
       });
     }
+    if (path === "/api/auth/session") return authApi(req, env);
     if (path.startsWith("/api/admin/") || path.startsWith("/api/trade/"))
       return revenueApi(req, env, path);
     if (path === "/api/health" && req.method === "GET") {

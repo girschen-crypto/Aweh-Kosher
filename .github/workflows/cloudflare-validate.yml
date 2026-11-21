@@ -1,6 +1,7 @@
 name: Validate Easy Kosher SA Cloudflare Rebuild
 
 on:
+  workflow_dispatch:
   push:
     branches: [cloudflare-rebuild]
   pull_request:
